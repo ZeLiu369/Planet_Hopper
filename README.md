@@ -6,7 +6,7 @@ Project Group Members:
 * Jeff Anga           (201823861, jtanga@mun.ca)
 * Brendon Thorne      (201801925, bwthorne@mun.ca)
 * Nathan French       (201943859, ncfrench@mun.ca)
-* Group Member Name 4 (Student ID #, email)
+* Group Member        (Student ID #, email)
 
 Project Videos:
 
