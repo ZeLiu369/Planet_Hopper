@@ -1,4 +1,4 @@
-# COMP4300_Project_Name_Here
+# COMP4300 Planet Hopper
 
 
 Project Group Members:
