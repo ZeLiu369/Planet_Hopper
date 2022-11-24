@@ -16,6 +16,7 @@
 #include "GameEngine.h"
 #include "Assets.h"
 #include "Scene_Play.h"
+#include "Scene_Editor.h"
 #include "Scene_Menu.h"
 
 #include <iostream>

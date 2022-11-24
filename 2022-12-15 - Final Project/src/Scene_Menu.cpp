@@ -15,6 +15,7 @@
 
 #include "Scene_Menu.h"
 #include "Scene_Play.h"
+#include "Scene_Editor.h"
 #include "Assets.h"
 #include "GameEngine.h"
 #include "Components.h"
@@ -31,6 +32,7 @@ void Scene_Menu::init()
     registerAction(sf::Keyboard::W,     "UP");
     registerAction(sf::Keyboard::S,     "DOWN");
     registerAction(sf::Keyboard::D,     "PLAY");
+    registerAction(sf::Keyboard::A, "EDIT");
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "Mega Mario";
@@ -69,6 +71,10 @@ void Scene_Menu::sDoAction(const Action& action)
         {
             m_game->changeScene("PLAY", std::make_shared<Scene_Play>(m_game, m_levelPaths[m_selectedMenuIndex]));
         }
+        else if (action.name() == "EDIT")
+        {
+            m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game, m_levelPaths[m_selectedMenuIndex]));
+        }
         else if (action.name() == "QUIT")
         {
             onEnd();
@@ -101,7 +107,7 @@ void Scene_Menu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w     down: s    play: d      back: esc");
+    m_menuText.setString("up: w     down: s    play: d   edit:a   back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
     m_game->window().draw(m_menuText);
 }
