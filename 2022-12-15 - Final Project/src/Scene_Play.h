@@ -15,6 +15,7 @@
 
 #pragma once
                                                      
+#include "Common.h"
 #include "Scene.h"
 #include <map>
 #include <memory>
@@ -55,6 +56,7 @@ protected:
     
     void sDoAction(const Action& action);
 
+    void sCamera();
     void sMovement();
     void sLifespan();
     void sAnimation();

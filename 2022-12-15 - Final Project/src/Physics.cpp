@@ -48,6 +48,42 @@ Vec2 Physics::GetPreviousOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Enti
     return overlap;
 }
 
+bool Physics::IsInside(const Vec2& pos, std::shared_ptr<Entity> e)
+{
+    // STUDENT TODO:
+    // Implement this function
+
+    return false;
+}
+
+Intersect Physics::LineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, const Vec2& d)
+{
+    Vec2 r = (b - a);
+    Vec2 s = (d - c);
+    float rxs = r * s;
+    Vec2 cma = (c - a);
+    float t = (cma * s) / rxs;
+    float u = (cma * r) / rxs;
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+    {
+        return { true, Vec2(a.x + t * r.x, a.y + t * r.y) };
+    }
+
+    return { false, Vec2(0,0) };
+}
+
+bool Physics::EntityIntersect(const Vec2& a, const Vec2& b, std::shared_ptr<Entity> e)
+{
+    auto& bBox = e->getComponent<CBoundingBox>();
+    auto& pos = e->getComponent<CTransform>().pos;
+    Vec2 e1 = { pos.x - bBox.halfSize.x, pos.y - bBox.halfSize.y };
+    Vec2 e2 = { pos.x + bBox.halfSize.x, pos.y - bBox.halfSize.y };
+    Vec2 e3 = { pos.x + bBox.halfSize.x, pos.y + bBox.halfSize.y };
+    Vec2 e4 = { pos.x - bBox.halfSize.x, pos.y + bBox.halfSize.y };
+
+    return LineIntersect(a, b, e1, e2).result || LineIntersect(a, b, e2, e3).result || LineIntersect(a, b, e3, e4).result || LineIntersect(a, b, e4, e1).result;
+}
+
 
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3

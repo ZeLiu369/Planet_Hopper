@@ -91,6 +91,11 @@ Vec2 Vec2::abs() const
 {
     return Vec2(x < 0 ? -x : x, y < 0 ? -y : y);
 }
+
+float Vec2::operator * (const Vec2& rhs) const
+{
+    return x * rhs.y - rhs.x * y;
+}
                                                      
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3

@@ -15,10 +15,8 @@
 
 #pragma once
                                                      
+#include "Common.h"
 #include "Animation.h"
-
-#include <map>
-#include <string>
                                                      
 class Assets
 {

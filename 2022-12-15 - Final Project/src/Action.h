@@ -15,9 +15,8 @@
 
 #pragma once
 
+#include "Common.h"
 #include "Entity.h"
-
-#include <string>
 
 class Action
 {

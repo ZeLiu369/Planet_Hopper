@@ -15,10 +15,8 @@
 
 #pragma once
                                                      
+#include "Common.h"
 #include "Components.h"
-
-#include <tuple>
-#include <string>
 
 class EntityManager;
 

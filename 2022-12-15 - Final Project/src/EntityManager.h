@@ -15,10 +15,8 @@
 
 #pragma once
                                                      
+#include "Common.h"
 #include "Entity.h"
-                                                     
-#include <vector>
-#include <map>
 
 typedef std::vector<std::shared_ptr<Entity>> EntityVec;
 

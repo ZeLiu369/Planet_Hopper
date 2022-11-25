@@ -189,7 +189,9 @@ void Scene_Play::update()
         sCollision();
         sAnimation();
     }
-    sRender();
+    // sRender() doesn't need to be called here
+    //sRender();
+    sCamera();
 
     m_currentFrame++;
 }
@@ -549,19 +551,22 @@ void Scene_Play::onEnd()
     m_game->changeScene("MENU",std::shared_ptr<Scene_Menu>(), true);
 }
 
+void Scene_Play::sCamera()
+{
+    // set the viewport of the window to be centered on the player if it's far enough right
+    auto& pPos = m_player->getComponent<CTransform>().pos;
+    float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
+    sf::View view = m_game->window().getView();
+    view.setCenter(windowCenterX, m_game->window().getSize().y - view.getCenter().y);
+    m_game->window().setView(view);
+}
+
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
     if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
     else { m_game->window().clear(sf::Color(50, 50, 150)); }
-
-    // set the viewport of the window to be centered on the player if it's far enough right
-    auto & pPos = m_player->getComponent<CTransform>().pos;
-    float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
-    sf::View view = m_game->window().getView();
-    view.setCenter(windowCenterX, m_game->window().getSize().y - view.getCenter().y);
-    m_game->window().setView(view);
-        
+   
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
