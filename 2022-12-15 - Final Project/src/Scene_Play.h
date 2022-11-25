@@ -55,7 +55,6 @@ protected:
     
     void sDoAction(const Action& action);
 
-    void sCamera();
     void sMovement();
     void sLifespan();
     void sAnimation();
