@@ -26,6 +26,7 @@
     <ClCompile Include="..\src\EntityManager.cpp" />
     <ClCompile Include="..\src\GameEngine.cpp" />
     <ClCompile Include="..\src\Scene.cpp" />
+    <ClCompile Include="..\src\Scene_Editor.cpp" />
     <ClCompile Include="..\src\Scene_Menu.cpp" />
     <ClCompile Include="..\src\Scene_Play.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\src\EntityManager.h" />
     <ClInclude Include="..\src\GameEngine.h" />
     <ClInclude Include="..\src\Scene.h" />
+    <ClInclude Include="..\src\Scene_Editor.h" />
     <ClInclude Include="..\src\Scene_Menu.h" />
     <ClInclude Include="..\src\Scene_Play.h" />
     <ClInclude Include="..\src\Physics.h" />
@@ -208,5 +210,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ImportGroup Label="0.125.25242982.375"></ImportGroup>
+  <ImportGroup Label="0.125.25242982.375">
+  </ImportGroup>
 </Project>

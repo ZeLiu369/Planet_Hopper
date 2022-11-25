@@ -19,6 +19,7 @@
     <ClCompile Include="..\src\Physics.cpp">
       <Filter>TODO</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Scene_Editor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Assets.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\src\Scene_Menu.h" />
     <ClInclude Include="..\src\Scene_Play.h" />
     <ClInclude Include="..\src\Action.h" />
+    <ClInclude Include="..\src\Scene_Editor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="TODO">
