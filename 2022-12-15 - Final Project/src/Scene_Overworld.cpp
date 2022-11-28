@@ -44,14 +44,17 @@ void Scene_Overworld::loadMap()
 
     std::shared_ptr<Entity> planet1 = m_entityManager.addEntity("planet");
     planet1->addComponent<CAnimation>(m_game->assets().getAnimation("Plan1"), true);
+    planet1->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan1").getSize());
     planet1->addComponent<CTransform>(Vec2(400, 360));
 
     std::shared_ptr<Entity> planet2 = m_entityManager.addEntity("planet");
     planet2->addComponent<CAnimation>(m_game->assets().getAnimation("Plan2"), true);
+    planet2->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan2").getSize());
     planet2->addComponent<CTransform>(Vec2(500, 360));
 
     std::shared_ptr<Entity> planet3 = m_entityManager.addEntity("planet");
     planet3->addComponent<CAnimation>(m_game->assets().getAnimation("Plan3"), true);
+    planet3->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan3").getSize());
     planet3->addComponent<CTransform>(Vec2(600, 360));
 
     spawnPlayer();
@@ -121,23 +124,25 @@ void Scene_Overworld::sCamera()
 {
     //sf::View view = m_game->window().getView();
 
-    //int x = 0;
-    //int y = 0;
+    //Vec2 m_pos = m_player->getComponent<CTransform>().pos;
     //int w_posX = m_game->window().getSize().x;
     //int w_posY = m_game->window().getSize().y;
-    //Vec2 m_pos = m_player->getComponent<CTransform>().pos;
+    //int x = 0;
+    //int y = 0;
+    ////int x = w_posX * (m_pos.x / w_posX);
+    ////int y = w_posY * (m_pos.y / w_posY);
 
     //if (m_pos.x < 0) 
     //{
-    //    int x = w_posX * (m_pos.x / w_posX);
-    //    int y = w_posY * (m_pos.y / w_posY);
+    //    int x = w_posX * ((int)(m_pos.x / w_posX) - 1);
+    //    int y = w_posY * ((int)(m_pos.y / w_posY) - 1);
     //}
     //else
     //{
-    //    int x = w_posX * ((m_pos.x / w_posX) - 1);
-    //    int y = w_posY * ((m_pos.y / w_posY) - 1);
+    //    int x = w_posX * (int)(m_pos.x / w_posX);
+    //    int y = w_posY * (int)(m_pos.y / w_posY);
     //}
-    //
+    ////std::cout << (int)m_pos.x / w_posX << ", " << (int)m_pos.y / w_posY << "\n";
     //view.reset(sf::FloatRect(x, y, w_posX, w_posY));
     //m_game->window().setView(view);
 }
@@ -238,4 +243,11 @@ void Scene_Overworld::sRender()
             }
         }
     }
+
+    // draw the controls in the bottom-left
+    m_text.setCharacterSize(20);
+    m_text.setFillColor(sf::Color::Red);
+    m_text.setString("up: w     down: s    left: a   right: d   select: space   back: esc");
+    m_text.setPosition(sf::Vector2f(10, 690));
+    m_game->window().draw(m_text);
 }

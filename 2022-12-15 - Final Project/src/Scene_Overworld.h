@@ -12,6 +12,7 @@ class Scene_Overworld : public Scene
 {
     std::shared_ptr<Entity>     m_player;
     std::vector<std::string>    m_levelPaths;
+    sf::Text                    m_text;
     size_t                      m_selectedMenuIndex = 0;
     bool                        m_drawTextures = true;
     bool                        m_drawCollision = false;
