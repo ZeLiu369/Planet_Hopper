@@ -50,10 +50,13 @@ Vec2 Physics::GetPreviousOverlap(std::shared_ptr<Entity> a, std::shared_ptr<Enti
 
 bool Physics::IsInside(const Vec2& pos, std::shared_ptr<Entity> e)
 {
-    // STUDENT TODO:
-    // Implement this function
+    auto ePos = e->getComponent<CTransform>().pos;
+    auto size = e->getComponent<CAnimation>().animation.getSize();
 
-    return false;
+    float dx = fabs(pos.x - ePos.x);
+    float dy = fabs(pos.y - ePos.y);
+
+    return ((dx <= size.x / 2) && (dy <= size.y / 2));
 }
 
 Intersect Physics::LineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, const Vec2& d)

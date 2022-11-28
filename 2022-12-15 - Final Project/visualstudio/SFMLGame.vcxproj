@@ -26,7 +26,9 @@
     <ClCompile Include="..\src\EntityManager.cpp" />
     <ClCompile Include="..\src\GameEngine.cpp" />
     <ClCompile Include="..\src\Scene.cpp" />
+    <ClCompile Include="..\src\Scene_Editor.cpp" />
     <ClCompile Include="..\src\Scene_Menu.cpp" />
+    <ClCompile Include="..\src\Scene_Overworld.cpp" />
     <ClCompile Include="..\src\Scene_Play.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Physics.cpp" />
@@ -36,12 +38,15 @@
     <ClInclude Include="..\src\Action.h" />
     <ClInclude Include="..\src\Animation.h" />
     <ClInclude Include="..\src\Assets.h" />
+    <ClInclude Include="..\src\Common.h" />
     <ClInclude Include="..\src\Components.h" />
     <ClInclude Include="..\src\Entity.h" />
     <ClInclude Include="..\src\EntityManager.h" />
     <ClInclude Include="..\src\GameEngine.h" />
     <ClInclude Include="..\src\Scene.h" />
+    <ClInclude Include="..\src\Scene_Editor.h" />
     <ClInclude Include="..\src\Scene_Menu.h" />
+    <ClInclude Include="..\src\Scene_Overworld.h" />
     <ClInclude Include="..\src\Scene_Play.h" />
     <ClInclude Include="..\src\Physics.h" />
     <ClInclude Include="..\src\Vec2.h" />
@@ -208,5 +213,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ImportGroup Label="0.125.25242982.375"></ImportGroup>
+  <ImportGroup Label="0.125.25242982.375">
+  </ImportGroup>
 </Project>

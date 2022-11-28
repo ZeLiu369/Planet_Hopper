@@ -1,8 +1,8 @@
 ﻿  Scene_Play.cpp
-C:\Users\Owner\Documents\C4300\COMP4300_A3_ncfrench\src\Entity.h(64,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Owner\Documents\C4300\COMP4300_A3_ncfrench\src\Scene_Play.cpp(151): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(62,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(152): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
-  SFMLGame.vcxproj -> C:\Users\Owner\Documents\C4300\COMP4300_A3_ncfrench\bin\SFMLGame_d.exe
+  SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\bin\SFMLGame_d.exe
