@@ -14,6 +14,7 @@
 ///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
 
 #include "Scene_Menu.h"
+#include "Scene_OptionMenu.h"
 #include "Scene_Play.h"
 #include "Scene_Editor.h"
 #include "Scene_Overworld.h"
@@ -73,6 +74,10 @@ void Scene_Menu::sDoAction(const Action& action)
             if (m_selectedMenuIndex == 0)
             {
                 m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+            }
+            if (m_selectedMenuIndex == 1)
+            {
+                m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
             }
         }
         else if (action.name() == "EDIT")
