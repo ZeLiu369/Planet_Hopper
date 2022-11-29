@@ -16,6 +16,7 @@
 #include "Scene_Menu.h"
 #include "Scene_Play.h"
 #include "Scene_Editor.h"
+#include "Scene_Overworld.h"
 #include "Assets.h"
 #include "GameEngine.h"
 #include "Components.h"
@@ -36,9 +37,9 @@ void Scene_Menu::init()
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "Mega Mario";
-    m_menuStrings.push_back("Level  1");
-    m_menuStrings.push_back("Level  2");
-    m_menuStrings.push_back("Level  3");
+    m_menuStrings.push_back("Play");
+    m_menuStrings.push_back("Options");
+    m_menuStrings.push_back("Level Editor");
 
     m_levelPaths.push_back("level1.txt");
     m_levelPaths.push_back("level2.txt");
@@ -69,7 +70,10 @@ void Scene_Menu::sDoAction(const Action& action)
         }
         else if (action.name() == "PLAY")
         {
-            m_game->changeScene("PLAY", std::make_shared<Scene_Play>(m_game, m_levelPaths[m_selectedMenuIndex]));
+            if (m_selectedMenuIndex == 0)
+            {
+                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+            }
         }
         else if (action.name() == "EDIT")
         {
@@ -86,7 +90,7 @@ void Scene_Menu::sRender()
 {
     // clear the window to a blue
     m_game->window().setView(m_game->window().getDefaultView());
-    m_game->window().clear(sf::Color(100, 100, 255));
+    m_game->window().clear(sf::Color(150, 200, 255));
                                                      
     // draw the game title in the top-left of the screen
     m_menuText.setCharacterSize(48);
