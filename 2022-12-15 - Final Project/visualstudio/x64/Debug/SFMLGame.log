@@ -1,5 +1,15 @@
-﻿  Scene_Play.cpp
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(62,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+﻿  Action.cpp
+  Entity.cpp
+  EntityManager.cpp
+  GameEngine.cpp
+  Scene.cpp
+  Scene_Editor.cpp
+  Scene_Menu.cpp
+  Scene_Overworld.cpp
+  Scene_Play.cpp
+  main.cpp
+  Physics.cpp
+C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(63,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
 C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(152): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [

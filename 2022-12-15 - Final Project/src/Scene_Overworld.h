@@ -17,7 +17,7 @@ class Scene_Overworld : public Scene
     bool                        m_drawTextures = true;
     bool                        m_drawCollision = false;
     bool                        m_changeScene = false;
-    sf::Sprite background;
+    sf::Sprite                  background;
 
     void init();
     void loadMap();
