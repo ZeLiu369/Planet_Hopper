@@ -15,6 +15,7 @@
 
 #include "Scene_Play.h"
 #include "Scene_Menu.h"
+#include "Scene_Overworld.h"
 #include "Physics.h"
 #include "Assets.h"
 #include "GameEngine.h"
@@ -548,7 +549,8 @@ void Scene_Play::sAnimation()
 void Scene_Play::onEnd()
 {
     m_hasEnded = true;
-    m_game->changeScene("MENU",std::shared_ptr<Scene_Menu>(), true);
+    //m_game->changeScene("OVERWORLD",std::shared_ptr<Scene_Overworld>(), true);
+    m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
 }
 
 void Scene_Play::sCamera()

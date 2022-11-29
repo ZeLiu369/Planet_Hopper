@@ -18,6 +18,15 @@ Texture   TexBlock   images/mario/block.png
 Texture   TexPole    images/mario/flagpole.png
 Texture   TexPoleTop images/mario/flagtop.png
 Texture   TexFlag    images/mario/flag.png
+
+Texture   TexSpace   images/new/blue.png
+Texture   TexEarth   images/new/earth.png
+Texture   TexMars    images/new/mars.png
+Texture   TexJupiter images/new/jupiter.png
+Texture   TexPlanet1 images/new/planet01.png
+Texture   TexPlanet2 images/new/planet02.png
+Texture   TexPlanet3 images/new/planet07.png
+
 Animation Stand      TexStand    1    0   
 Animation Run        TexRun      4   10    
 Animation Air        TexAir      1    0  
@@ -37,7 +46,16 @@ Animation Ground     TexGround   1    0
 Animation Block      TexBlock    1    0   
 Animation Flag       TexFlag     1    0   
 Animation Pole       TexPole     1    0   
-Animation PoleTop    TexPoleTop  1    0   
+Animation PoleTop    TexPoleTop  1    0
+
+Animation Space      TexSpace    1    0
+Animation Earth      TexEarth    6   10
+Animation Jupiter    TexJupiter  6   10
+Animation Mars       TexMars     6   10
+Animation Plan1      TexPlanet1  1    0
+Animation Plan2      TexPlanet2  1    0
+Animation Plan3      TexPlanet3  1    0
+
 Font      Tech       fonts/tech.ttf
 Font      Mario      fonts/mario.ttf
 Font      Megaman    fonts/megaman.ttf

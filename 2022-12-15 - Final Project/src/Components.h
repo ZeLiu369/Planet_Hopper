@@ -164,6 +164,13 @@ public:
     CCoinCounter() {}
 };
 
+class CLevelStatus : public Component
+{
+public:
+    bool completed = false;
+
+    CLevelStatus() {}
+};
 
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
