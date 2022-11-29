@@ -1,7 +1,7 @@
 ﻿  Scene_Overworld.cpp
   Generating code
-  3 of 1243 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  2 of 1241 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    19 functions had inline decision re-evaluated but remain unchanged
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\bin\SFMLGame.exe

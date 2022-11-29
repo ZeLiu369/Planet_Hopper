@@ -28,8 +28,6 @@ class Scene_Overworld : public Scene
     void sMovement();
     void sAnimation();
     void sCollision();
-    void sCamera();
-    
 
 public:
 

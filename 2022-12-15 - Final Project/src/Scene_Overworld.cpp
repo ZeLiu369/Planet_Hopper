@@ -35,6 +35,8 @@ void Scene_Overworld::init()
     m_levelPaths.push_back("level2.txt");
     m_levelPaths.push_back("level3.txt");
 
+    m_text.setFont(m_game->assets().getFont("Megaman"));
+
     loadMap();
 }
 
@@ -46,16 +48,19 @@ void Scene_Overworld::loadMap()
     planet1->addComponent<CAnimation>(m_game->assets().getAnimation("Plan1"), true);
     planet1->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan1").getSize());
     planet1->addComponent<CTransform>(Vec2(400, 360));
+    planet1->addComponent<CLevelStatus>();
 
     std::shared_ptr<Entity> planet2 = m_entityManager.addEntity("planet");
     planet2->addComponent<CAnimation>(m_game->assets().getAnimation("Plan2"), true);
     planet2->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan2").getSize());
     planet2->addComponent<CTransform>(Vec2(500, 360));
+    planet2->addComponent<CLevelStatus>();
 
     std::shared_ptr<Entity> planet3 = m_entityManager.addEntity("planet");
     planet3->addComponent<CAnimation>(m_game->assets().getAnimation("Plan3"), true);
     planet3->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan3").getSize());
     planet3->addComponent<CTransform>(Vec2(600, 360));
+    planet3->addComponent<CLevelStatus>();
 
     spawnPlayer();
 }
@@ -64,7 +69,7 @@ void Scene_Overworld::spawnPlayer()
 {
     m_player = m_entityManager.addEntity("player");
 
-    m_player->addComponent<CTransform>(Vec2(640, 360));
+    m_player->addComponent<CTransform>(Vec2(120, 650));
     m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
     m_player->addComponent<CBoundingBox>(Vec2(48, 48));
     m_player->addComponent<CInput>();
@@ -113,38 +118,24 @@ void Scene_Overworld::sCollision()
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan2") { m_selectedMenuIndex = 1; }
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan3") { m_selectedMenuIndex = 2; }
 
+        if (Physics::IsInside(m_player->getComponent<CTransform>().pos, p))
+        {
+            p->getComponent<CAnimation>().animation.getSprite();
+        }
+
         if (m_changeScene && Physics::IsInside(m_player->getComponent<CTransform>().pos, p))
         {
             m_game->changeScene("PLAY", std::make_shared<Scene_Play>(m_game, m_levelPaths[m_selectedMenuIndex]));
         }
+
+        Vec2& pos = m_player->getComponent<CTransform>().pos;
+        Vec2& r =   m_player->getComponent<CBoundingBox>().halfSize;
+        if (pos.x - r.x <= 0) { pos.x = r.x; }
+        if (pos.y - r.y <= 0) { pos.y = r.y; }
+        if (pos.x + r.x >= m_game->window().getSize().x) { pos.x = m_game->window().getSize().x - r.x; }
+        if (pos.y + r.y >= m_game->window().getSize().y) { pos.y = m_game->window().getSize().y - r.y; }
+
     }
-}
-
-void Scene_Overworld::sCamera()
-{
-    //sf::View view = m_game->window().getView();
-
-    //Vec2 m_pos = m_player->getComponent<CTransform>().pos;
-    //int w_posX = m_game->window().getSize().x;
-    //int w_posY = m_game->window().getSize().y;
-    //int x = 0;
-    //int y = 0;
-    ////int x = w_posX * (m_pos.x / w_posX);
-    ////int y = w_posY * (m_pos.y / w_posY);
-
-    //if (m_pos.x < 0) 
-    //{
-    //    int x = w_posX * ((int)(m_pos.x / w_posX) - 1);
-    //    int y = w_posY * ((int)(m_pos.y / w_posY) - 1);
-    //}
-    //else
-    //{
-    //    int x = w_posX * (int)(m_pos.x / w_posX);
-    //    int y = w_posY * (int)(m_pos.y / w_posY);
-    //}
-    ////std::cout << (int)m_pos.x / w_posX << ", " << (int)m_pos.y / w_posY << "\n";
-    //view.reset(sf::FloatRect(x, y, w_posX, w_posY));
-    //m_game->window().setView(view);
 }
 
 void Scene_Overworld::sDoAction(const Action& action)
@@ -168,6 +159,7 @@ void Scene_Overworld::sDoAction(const Action& action)
         else if (action.name() == "DOWN")   { m_player->getComponent<CInput>().down = false; }
         else if (action.name() == "LEFT")   { m_player->getComponent<CInput>().left = false; }
         else if (action.name() == "RIGHT")  { m_player->getComponent<CInput>().right = false; }
+        else if (action.name() == "SELECT") { m_changeScene = false; }
     }
 }
 
@@ -178,7 +170,6 @@ void Scene_Overworld::update()
     sMovement();
     sCollision();
     sAnimation();
-    sCamera();
 
     m_currentFrame++;
 }
