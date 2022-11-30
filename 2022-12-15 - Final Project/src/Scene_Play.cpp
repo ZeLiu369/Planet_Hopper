@@ -72,6 +72,9 @@ void Scene_Play::loadLevel(const std::string & filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
+    m_game->assets().getSound("OverWorld").stop();
+    m_game->playSound("Play");
+
     std::ifstream fin(filename);
     std::string temp;
 
@@ -549,6 +552,8 @@ void Scene_Play::sAnimation()
 void Scene_Play::onEnd()
 {
     m_hasEnded = true;
+    m_game->assets().getSound("Play").stop();
+    m_game->playSound("OverWorld");
     //m_game->changeScene("OVERWORLD",std::shared_ptr<Scene_Overworld>(), true);
     m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
 }

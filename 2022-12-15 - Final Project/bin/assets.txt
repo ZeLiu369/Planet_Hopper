@@ -61,3 +61,5 @@ Font      Mario      fonts/mario.ttf
 Font      Megaman    fonts/megaman.ttf
 
 Sound     MusicTitle sounds/menu.ogg
+Sound     Play       sounds/play.ogg
+Sound     OverWorld  sounds/Overworld_bgm.ogg

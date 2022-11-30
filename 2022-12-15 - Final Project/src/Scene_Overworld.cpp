@@ -37,6 +37,9 @@ void Scene_Overworld::init()
 
     m_text.setFont(m_game->assets().getFont("Megaman"));
 
+    m_game->assets().getSound("MusicTitle").stop();
+    m_game->playSound("OverWorld");
+
     loadMap();
 }
 
@@ -177,8 +180,9 @@ void Scene_Overworld::update()
 void Scene_Overworld::onEnd()
 {
     m_hasEnded = true;
-    m_game->changeScene("MENU", nullptr, true);
+    m_game->assets().getSound("OverWorld").stop();
     m_game->playSound("MusicTitle");
+    m_game->changeScene("MENU", nullptr, true);
 }
 
 void Scene_Overworld::sRender()
