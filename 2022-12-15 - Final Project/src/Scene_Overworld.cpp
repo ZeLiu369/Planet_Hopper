@@ -178,6 +178,7 @@ void Scene_Overworld::onEnd()
 {
     m_hasEnded = true;
     m_game->changeScene("MENU", nullptr, true);
+    m_game->playSound("MusicTitle");
 }
 
 void Scene_Overworld::sRender()

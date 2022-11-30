@@ -47,6 +47,8 @@ void Scene_Menu::init()
 
     m_menuText.setFont(m_game->assets().getFont("Megaman"));
     m_menuText.setCharacterSize(64);
+
+    m_game->playSound("MusicTitle");
 }
 
 void Scene_Menu::update()
@@ -73,6 +75,7 @@ void Scene_Menu::sDoAction(const Action& action)
             if (m_selectedMenuIndex == 0)
             {
                 m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+                m_game->assets().getSound("MusicTitle").stop();
             }
         }
         else if (action.name() == "EDIT")
