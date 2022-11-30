@@ -88,7 +88,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
             x = (x * m_gridSize.x) + (tSize.x / 2);
             y = (height()) - ((y * m_gridSize.y) + (tSize.y / 2));
 
-            auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
+            auto& tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(Vec2(x, y));
 

@@ -51,8 +51,10 @@ public:
     void quit();
     void run();
 
+    void playSound(const std::string &soundName);
+
     sf::RenderWindow & window();
-    const Assets& assets() const;
+    Assets& assets();
     bool isRunning();
 };
 
