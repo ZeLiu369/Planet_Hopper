@@ -113,6 +113,18 @@ void Scene_Play::loadLevel(const std::string & filename)
                 }
                 continue;
             }
+            if (type == "Lighting")
+            {
+                std::string time;
+                fin >> time;
+                if (time == "Night")
+                {
+                    m_renderTexture.create(m_game->window().getSize().x, m_game->window().getSize().y);
+                    m_lightTexture = m_game->assets().getTexture("TexLight");
+                    m_night = true;
+                }
+                continue;
+            }
             float x, y;
             fin >> texture >> x >> y;
 
@@ -674,6 +686,41 @@ void Scene_Play::sCamera()
     }
 }
 
+sf::Sprite Scene_Play::getLightingSprite()
+{
+    // this is for lighting
+    sf::BlendMode blendMode(
+        sf::BlendMode::Factor::Zero,
+        sf::BlendMode::Factor::DstColor,
+        sf::BlendMode::Equation::Add,
+        sf::BlendMode::Factor::Zero,
+        sf::BlendMode::Factor::OneMinusSrcAlpha,
+        sf::BlendMode::Equation::Add);
+
+    sf::Sprite light(m_lightTexture);
+    light.setOrigin(light.getTexture()->getSize().x / 2.0f, light.getTexture()->getSize().y / 2.0f);
+    if (m_player->getComponent<CTransform>().pos.x > m_game->window().getSize().x / 2.0f)
+    {
+        light.setPosition(m_game->window().getSize().x / 2.0f, m_player->getComponent<CTransform>().pos.y);
+    }
+    else
+    {
+        light.setPosition(m_player->getComponent<CTransform>().pos.x, m_player->getComponent<CTransform>().pos.y);
+    }
+    m_renderTexture.clear();
+    m_renderTexture.draw(light, blendMode);
+    m_renderTexture.display();
+    sf::Sprite night(m_renderTexture.getTexture());
+    night.setOrigin(night.getTexture()->getSize().x / 2, night.getTexture()->getSize().y / 2);
+    float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, m_player->getComponent<CTransform>().pos.x);
+    night.setPosition(windowCenterX, m_game->window().getSize().y / 2.0f);
+
+    float luminosity = 240.0f;
+    night.setColor(sf::Color(10.0f, 10.0f, 10.0f, luminosity));
+
+    return night;
+}
+
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
@@ -729,6 +776,13 @@ void Scene_Play::sRender()
                 m_game->window().draw(rect);
             }
         }
+    }
+
+    // only do lighting for night time levels
+    if (m_night)
+    {
+        sf::Sprite sprite = getLightingSprite();
+        m_game->window().draw(sprite);
     }
 
     // draw the grid so that students can easily debug
