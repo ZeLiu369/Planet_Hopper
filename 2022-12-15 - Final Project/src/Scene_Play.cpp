@@ -26,20 +26,21 @@
 #include <fstream>
 #include <sstream>
 
-Scene_Play::Scene_Play(GameEngine * gameEngine, const std::string & levelPath)
+Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
     : Scene(gameEngine)
     , m_levelPath(levelPath)
 {
     init(m_levelPath);
 }
 
-void Scene_Play::init(const std::string & levelPath)
+void Scene_Play::init(const std::string& levelPath)
 {
-    registerAction(sf::Keyboard::P,     "PAUSE");
-    registerAction(sf::Keyboard::Escape,"QUIT");
-    registerAction(sf::Keyboard::T,     "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
-    registerAction(sf::Keyboard::C,     "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
-    registerAction(sf::Keyboard::G,     "TOGGLE_GRID");         // Toggle drawing (G)rid
+    registerAction(sf::Keyboard::P, "PAUSE");
+    registerAction(sf::Keyboard::Escape, "QUIT");
+    registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
+    registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
+    registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
+    registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -47,7 +48,7 @@ void Scene_Play::init(const std::string & levelPath)
     registerAction(sf::Keyboard::D, "RIGHT");
     registerAction(sf::Keyboard::Space, "SHOOT");
     registerAction(sf::Keyboard::M, "MONEY");
-                                                     
+
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("Tech"));
 
@@ -68,7 +69,7 @@ Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity
     );
 }
 
-void Scene_Play::loadLevel(const std::string & filename)
+void Scene_Play::loadLevel(const std::string& filename)
 {
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
@@ -81,7 +82,7 @@ void Scene_Play::loadLevel(const std::string & filename)
 
     while (fin >> temp)
     {
-        if (temp != "Player")
+        if (temp != "Item" && temp != "Player")
         {
             std::string type = temp;
             std::string texture;
@@ -138,14 +139,33 @@ void Scene_Play::loadLevel(const std::string & filename)
 
             if (type == "Tile") tile->addComponent<CBoundingBox>(tSize);
         }
+        else if (temp == "Item")
+        {
+            std::string tileName;
+            float tileGX, tileGY;
+            float x, y;
+            fin >> tileName >> tileGX >> tileGY;
+
+            Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
+            x = (tileGX * m_gridSize.x) + (tSize.x / 2);
+            y = (height()) - ((tileGY * m_gridSize.y) + (tSize.y / 2));
+            auto item = m_entityManager.addEntity("item");
+
+            item->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
+            item->addComponent<CTransform>(Vec2(x, y));
+            item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
+        }
         else
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
         }
-
     }
+    std::shared_ptr<Entity> inventory = m_entityManager.addEntity("inventory");
+    inventory->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
+    inventory->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, 0));
+    inventory->addComponent<CBoundingBox>(m_game->assets().getAnimation("Inventory").getSize());;
 
     spawnPlayer();
 }
@@ -194,7 +214,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f),
             entityT.scale,
             0.0f
-        );
+            );
 
     bullet->addComponent<CBoundingBox>(BULLET_SIZE);
 
@@ -283,7 +303,7 @@ void Scene_Play::sMovement()
     {
         // player should be on ground
         transform.velocity.y = 0;
-        
+
         // enables player to jump
         if (input.up && input.canJump)
         {
@@ -398,7 +418,7 @@ void Scene_Play::sScroll()
         }
     }
 }
-                                                     
+
 void Scene_Play::sLifespan()
 {
     for (auto& e : m_entityManager.getEntities())
@@ -411,6 +431,19 @@ void Scene_Play::sLifespan()
                 e->destroy();
             }
         }
+    }
+
+    if (m_player->getComponent<CCoinCounter>().coins > 0)
+    {
+        float x = m_game->window().getView().getCenter().x - width() / 2;
+        auto inv_t = Vec2(7 + x, 3);
+        for (float i = 0; i < 5; i++)
+        {
+            auto& coin = m_entityManager.addEntity("items");
+            coin->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
+            coin->addComponent<CAnimation>(m_game->assets().getAnimation("DmgPotion"), false);
+        }
+
     }
 }
 
@@ -535,7 +568,7 @@ void Scene_Play::sCollision()
                         m_game->assets().getAnimation("Coin"), false);
 
                     // ? block adds one coin
-                    m_player->getComponent<CCoinCounter>().coins++;
+                    //m_player->getComponent<CCoinCounter>().coins++;
                 }
             }
         }
@@ -564,55 +597,68 @@ void Scene_Play::sCollision()
             e->getComponent<CTransform>().pos = e->getComponent<CTransform>().originalPos;
         }
     }
+
+    // item collisions
+    for (auto& e : m_entityManager.getEntities("item"))
+    {
+        auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and coin
+        if (overlap.x >= 0 && overlap.y >= 0)
+        {
+            m_player->getComponent<CCoinCounter>().coins++;
+            std::cout << m_player->getComponent<CCoinCounter>().coins << "\n";
+            e->destroy();
+        }
+    }
 }
 
 void Scene_Play::sDoAction(const Action& action)
 {
     if (action.type() == "START")
     {
-             if (action.name() == "TOGGLE_TEXTURE")     { m_drawTextures = !m_drawTextures; }
-        else if (action.name() == "TOGGLE_COLLISION")   { m_drawCollision = !m_drawCollision; }
-        else if (action.name() == "TOGGLE_GRID")        { m_drawGrid = !m_drawGrid; }
-        else if (action.name() == "PAUSE")              { setPaused(!m_paused); }
-        else if (action.name() == "QUIT")               { onEnd(); }
+        if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
+        else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
+        else if (action.name() == "INVENTORY") { m_inventory = !m_inventory; setPaused(!m_paused); }
+        else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+        else if (action.name() == "PAUSE") { setPaused(!m_paused); }
+        else if (action.name() == "QUIT") { onEnd(); }
 
-        else if (action.name() == "UP")                 { m_player->getComponent<CInput>().up = true; }
-        else if (action.name() == "DOWN")               { m_player->getComponent<CInput>().down = true; }
-        else if (action.name() == "LEFT")               { m_player->getComponent<CInput>().left = true; }
-        else if (action.name() == "RIGHT")              { m_player->getComponent<CInput>().right = true; }
+        else if (action.name() == "UP") { m_player->getComponent<CInput>().up = true; }
+        else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
+        else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
+        else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
 
-        else if (action.name() == "SHOOT")              { m_player->getComponent<CInput>().shoot = true; }
-        else if (action.name() == "MONEY")              { m_player->getComponent<CInput>().money = true; }
-        
+        else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
+        else if (action.name() == "MONEY") { m_player->getComponent<CInput>().money = true; }
+
     }
     else if (action.type() == "END")
     {
-        if (action.name() == "UP")   
-        { 
-            m_player->getComponent<CInput>().up = false; 
+        if (action.name() == "UP")
+        {
+            m_player->getComponent<CInput>().up = false;
             m_player->getComponent<CInput>().canJump = true;
         }
-        if (action.name() == "DOWN") 
-        { 
+        if (action.name() == "DOWN")
+        {
             m_player->getComponent<CInput>().down = false;
             m_player->getComponent<CInput>().canJump = true;
         }
         if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = false; }
-        if (action.name() == "RIGHT"){ m_player->getComponent<CInput>().right = false; }
+        if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = false; }
         if (action.name() == "SHOOT")
-        { 
+        {
             m_player->getComponent<CInput>().shoot = false;
-            m_player->getComponent<CInput>().canShoot = true; 
+            m_player->getComponent<CInput>().canShoot = true;
         }
         if (action.name() == "MONEY")
         {
             m_player->getComponent<CInput>().money = false;
             m_player->getComponent<CInput>().canShoot = true;
         }
-        
+
     }
 }
-                                                     
+
 void Scene_Play::sAnimation()
 {
 
@@ -647,7 +693,7 @@ void Scene_Play::sAnimation()
             m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Air"), true);
         }
     }
-    
+
     // update animation frame for all entities
     for (auto& e : m_entityManager.getEntities())
     {
@@ -665,7 +711,10 @@ void Scene_Play::onEnd()
     m_hasEnded = true;
     m_game->assets().getSound("Play").stop();
     m_game->playSound("OverWorld");
-    //m_game->changeScene("OVERWORLD",std::shared_ptr<Scene_Overworld>(), true);
+
+    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
+    gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
+    m_game->window().setView(gameView);
     m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
 }
 
@@ -673,10 +722,19 @@ void Scene_Play::sCamera()
 {
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_player->getComponent<CTransform>().pos;
-    float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
+
+    /*float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
     sf::View view = m_game->window().getView();
     view.setCenter(windowCenterX, m_game->window().getSize().y - view.getCenter().y);
-    m_game->window().setView(view);
+    m_game->window().setView(view);*/
+
+
+    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
+    float windowCenterX = std::max(1280 / 2.0f, pPos.x);
+    auto windowCenterY = 768 - gameView.getCenter().y;
+    gameView.setCenter(windowCenterX, windowCenterY);
+    gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
+    m_game->window().setView(gameView);
 
     // always keep no scroll background on screen
     for (auto e : m_entityManager.getEntities("noscrollbackground"))
@@ -727,7 +785,9 @@ void Scene_Play::sRender()
     //if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
     //else { m_game->window().clear(sf::Color(50, 50, 150)); }
     m_game->window().clear();
-   
+
+
+
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
@@ -735,7 +795,7 @@ void Scene_Play::sRender()
         {
             auto& transform = e->getComponent<CTransform>();
 
-            if (e->hasComponent<CAnimation>())
+            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items")
             {
                 auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
@@ -746,17 +806,60 @@ void Scene_Play::sRender()
         }
     }
 
-    // Coin Counter display
-    if (m_player->hasComponent<CCoinCounter>())
-    {
-        float leftX = m_game->window().getView().getCenter().x - width() / 2;
-        std::string coinAmount = std::to_string(m_player->getComponent<CCoinCounter>().coins);
+    sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
+    miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
+    m_game->window().setView(miniView);
 
-        m_coinText.setString("Coins: " + coinAmount + "\nPress 'M' to shoot money");
-        m_coinText.setPosition(leftX, 0);
-        m_game->window().draw(m_coinText);
+    sf::RectangleShape line(sf::Vector2f(1280, 5));
+    line.setPosition(0, 300);
+    m_game->window().draw(line);
+
+    //gridX* m_gridSize.x) + size.x / 2,
+    for (auto e : m_entityManager.getEntities())
+    {
+        auto transform = e->getComponent<CTransform>();
+
+        if (e->hasComponent<CAnimation>() && e->tag() == "player")
+        {
+            transform.pos.y = 680;
+            Animation animation = m_game->assets().getAnimation("Stand");
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            animation.getSprite().setPosition(x, (transform.pos.y / 2) - 70);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+        if (e->hasComponent<CAnimation>() && (e->getComponent<CAnimation>().animation.getName() == "Pole"
+            || e->getComponent<CAnimation>().animation.getName() == "PoleTop"))
+        {
+            auto& animation = e->getComponent<CAnimation>().animation;
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            animation.getSprite().setPosition(x - 20, (transform.pos.y / 2) - 34);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
     }
-                                                     
+
+    auto& pPos = m_player->getComponent<CTransform>().pos;
+    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
+    float windowCenterX = std::max(1280 / 2.0f, pPos.x);
+    auto windowCenterY = 768 - gameView.getCenter().y;
+    gameView.setCenter(windowCenterX, windowCenterY);
+    gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
+    m_game->window().setView(gameView);
+
+    //// Coin Counter display
+    //if (m_player->hasComponent<CCoinCounter>())
+    //{
+    //    float leftX = m_game->window().getView().getCenter().x - width() / 2;
+    //    std::string coinAmount = std::to_string(m_player->getComponent<CCoinCounter>().coins);
+
+    //    m_coinText.setString("Coins: " + coinAmount + "\nPress 'M' to shoot money");
+    //    m_coinText.setPosition(leftX, 0);
+    //    m_game->window().draw(m_coinText);
+    //}
+
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
     {
@@ -764,10 +867,10 @@ void Scene_Play::sRender()
         {
             if (e->hasComponent<CBoundingBox>())
             {
-                auto & box = e->getComponent<CBoundingBox>();
-                auto & transform = e->getComponent<CTransform>();
+                auto& box = e->getComponent<CBoundingBox>();
+                auto& transform = e->getComponent<CTransform>();
                 sf::RectangleShape rect;
-                rect.setSize(sf::Vector2f(box.size.x-1, box.size.y-1));
+                rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
                 rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
                 rect.setPosition(transform.pos.x, transform.pos.y);
                 rect.setFillColor(sf::Color(0, 0, 0, 0));
@@ -811,9 +914,38 @@ void Scene_Play::sRender()
             }
         }
     }
+
+    if (m_inventory)
+    {
+        for (auto e : m_entityManager.getEntities("inventory"))
+        {
+            auto& transform = e->getComponent<CTransform>();
+            transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, 0);
+
+            auto& animation = e->getComponent<CAnimation>().animation;
+            animation.getSprite().setRotation(transform.angle);
+            animation.getSprite().setOrigin(0, 0);
+            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+
+        for (auto e : m_entityManager.getEntities("items"))
+        {
+            auto& transform = e->getComponent<CTransform>();
+            //transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, 0);
+
+            auto& animation = e->getComponent<CAnimation>().animation;
+            animation.getSprite().setRotation(transform.angle);
+            animation.getSprite().setOrigin(0, 0);
+            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+    }
 }
-                                                     
-                                                     
+
+
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)
