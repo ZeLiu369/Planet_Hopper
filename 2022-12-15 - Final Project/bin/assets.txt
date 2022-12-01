@@ -1,3 +1,11 @@
+Texture   TexSky     images/misc/sky.png
+Texture   TexStars   images/misc/star.png
+Texture   TexHill    images/misc/hill.png
+Texture   TexLand    images/misc/land.png
+Texture   TexCraters images/misc/crater.png
+Texture   TexSkyObj  images/misc/skyObjects.png
+Texture   TexRock    images/misc/rock.png
+Texture   TexLight   images/misc/light.png
 Texture   TexStand   images/megaman/stand64.png              
 Texture   TexRun     images/megaman/run64.png                
 Texture   TexAir     images/megaman/air64.png                
@@ -27,6 +35,13 @@ Texture   TexPlanet1 images/new/planet01.png
 Texture   TexPlanet2 images/new/planet02.png
 Texture   TexPlanet3 images/new/planet07.png
 
+Animation Sky        TexSky      1    0
+Animation Stars      TexStars    1    0
+Animation Hill	     TexHill     1    0
+Animation Land       TexLand     1    0
+Animation Craters    TexCraters  1    0
+Animation SkyObj     TexSkyObj   1    0
+Animation Rock       TexRock     1    0
 Animation Stand      TexStand    1    0   
 Animation Run        TexRun      4   10    
 Animation Air        TexAir      1    0  

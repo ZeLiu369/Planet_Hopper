@@ -27,15 +27,19 @@ public:
 class CTransform : public Component
 {
 public:
-    Vec2 pos        = { 0.0, 0.0 };
-    Vec2 prevPos    = { 0.0, 0.0 };
-    Vec2 scale      = { 1.0, 1.0 };
-    Vec2 velocity   = { 0.0, 0.0 };
+    Vec2 originalPos  = { 0.0, 0.0 };
+    Vec2 pos          = { 0.0, 0.0 };
+    Vec2 prevPos      = { 0.0, 0.0 };
+    Vec2 scale        = { 1.0, 1.0 };
+    Vec2 velocity     = { 0.0, 0.0 };
+    Vec2 scrollFactor = { 0.0, 0.0 };
     float angle     = 0;
                                                      
     CTransform() {}
     CTransform(const Vec2 & p)
         : pos(p), prevPos(p) {}
+    CTransform(const Vec2& p, const Vec2& sc, const Vec2& sf)
+        : pos(p), prevPos(p), originalPos(p), scale(sc), scrollFactor(sf) {}
     CTransform(const Vec2 & p, const Vec2 & sp, const Vec2 & sc, float a)
         : pos(p), prevPos(p), velocity(sp), scale(sc), angle(a) {}
 
