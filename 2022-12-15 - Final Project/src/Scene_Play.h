@@ -40,6 +40,7 @@ protected:
     PlayerConfig            m_playerConfig;
     bool                    m_drawTextures = true;
     bool                    m_drawCollision = false;
+    bool                    m_inventory = false;
     bool                    m_drawGrid = false;
     bool                    m_night = false;
     const Vec2              m_gridSize = { 64, 64 };

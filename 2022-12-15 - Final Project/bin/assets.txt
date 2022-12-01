@@ -34,6 +34,8 @@ Texture   TexJupiter images/new/jupiter.png
 Texture   TexPlanet1 images/new/planet01.png
 Texture   TexPlanet2 images/new/planet02.png
 Texture   TexPlanet3 images/new/planet07.png
+Texture   TexInv     images/new/spritesheet.png
+Texture   TexDmg     images/new/DamagePotion.png
 
 Animation Sky        TexSky      1    0
 Animation Stars      TexStars    1    0
@@ -70,6 +72,9 @@ Animation Mars       TexMars     6   10
 Animation Plan1      TexPlanet1  1    0
 Animation Plan2      TexPlanet2  1    0
 Animation Plan3      TexPlanet3  1    0
+Animation Inventory  TexInv      1    0
+Animation DmgPotion  TexDmg      1    0
+
 
 Font      Tech       fonts/tech.ttf
 Font      Mario      fonts/mario.ttf
