@@ -33,6 +33,7 @@ class Scene_Play : public Scene
 protected:
 
     std::shared_ptr<Entity> m_player;
+    std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
     std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
     bool                    m_drawTextures = true;
@@ -56,6 +57,7 @@ protected:
     
     void sDoAction(const Action& action);
 
+    void sScroll();
     void sCamera();
     void sMovement();
     void sLifespan();

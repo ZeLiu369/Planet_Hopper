@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 Scene_Play::Scene_Play(GameEngine * gameEngine, const std::string & levelPath)
     : Scene(gameEngine)
@@ -58,12 +59,12 @@ void Scene_Play::init(const std::string & levelPath)
 
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
 {
-
     Vec2 size = entity->getComponent<CAnimation>().animation.getSize();
+    auto& eScale = entity->getComponent<CTransform>().scale;
 
     return Vec2(
-        (gridX * m_gridSize.x) + size.x / 2,
-        height() - ((gridY * m_gridSize.y) - size.y / 2)
+        (gridX * m_gridSize.x) + size.x * eScale.x / 2,
+        height() - ((gridY * m_gridSize.y) - size.y * eScale.y / 2)
     );
 }
 
@@ -82,15 +83,42 @@ void Scene_Play::loadLevel(const std::string & filename)
     {
         if (temp != "Player")
         {
-
             std::string type = temp;
             std::string texture;
+            if (type == "Background")
+            {
+                int scroll;
+                float scaleX, scaleY, x, y, scrollFactor;
+                fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
+                if (scroll == 1)
+                {
+                    fin >> scrollFactor;
+                    auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
+                    backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                    backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                    auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
+                    backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                    backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                    m_backgroundsMap[texture].push_back(backgroundScroll);
+                    m_backgroundsMap[texture].push_back(backgroundScroll2);
+                }
+                else
+                {
+                    auto backgroundNoScroll = m_entityManager.addEntity("noscrollbackground");
+                    backgroundNoScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                    backgroundNoScroll->addComponent<CTransform>(Vec2(x, y));
+                    backgroundNoScroll->getComponent<CTransform>().scale = { scaleX, scaleY };
+                }
+                continue;
+            }
             float x, y;
             fin >> texture >> x >> y;
 
             Vec2 tSize = m_game->assets().getAnimation(texture).getSize();
-            x = (x  * m_gridSize.x) + (tSize.x/2); 
-            y = (height()) - ((y * m_gridSize.y) + (tSize.y/2));
+            x = (x * m_gridSize.x) + (tSize.x / 2);
+            y = (height()) - ((y * m_gridSize.y) + (tSize.y / 2));
 
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
@@ -101,7 +129,7 @@ void Scene_Play::loadLevel(const std::string & filename)
         else
         {
             PlayerConfig& pc = m_playerConfig;
-            fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED 
+            fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
         }
 
@@ -127,6 +155,12 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CState>("air");
 
     m_player->addComponent<CCoinCounter>();
+
+    // reset background positions
+    for (auto bg : m_entityManager.getEntities("scrollbackground"))
+    {
+        bg->getComponent<CTransform>().pos = bg->getComponent<CTransform>().originalPos;
+    }
 }
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
@@ -196,6 +230,7 @@ void Scene_Play::update()
     // sRender() doesn't need to be called here
     //sRender();
     sCamera();
+    sScroll();
 
     m_currentFrame++;
 }
@@ -297,6 +332,59 @@ void Scene_Play::sMovement()
             ct.pos.x += ct.velocity.x;
         }
     }
+    // update background movement
+    for (auto bg : m_entityManager.getEntities("scrollbackground"))
+    {
+        if (m_player->getComponent<CTransform>().pos.x > m_game->window().getSize().x / 2.0f)
+        {
+            bg->getComponent<CTransform>().velocity.x = transform.velocity.x * bg->getComponent<CTransform>().scrollFactor.x;
+        }
+        else
+        {
+            bg->getComponent<CTransform>().velocity.x = 0;
+        }
+        bg->getComponent<CTransform>().pos.x += bg->getComponent<CTransform>().velocity.x;
+    }
+}
+
+void Scene_Play::sScroll()
+{
+    auto& playerTransform = m_player->getComponent<CTransform>();
+    for (auto e : m_entityManager.getEntities("scrollbackground"))
+    {
+        auto& eVelocity = e->getComponent<CTransform>().velocity;
+        auto& ePos = e->getComponent<CTransform>().pos;
+        auto& eOriginalPos = e->getComponent<CTransform>().originalPos;
+        auto& eAnimation = e->getComponent<CAnimation>().animation;
+        auto& eScrollFactor = e->getComponent<CTransform>().scrollFactor;
+        if (playerTransform.pos.x > m_game->window().getSize().x)
+        {
+            auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
+            auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
+            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
+            {
+                if (playerTransform.velocity.x > 0)
+                {
+                    backgroundTwoPos.x = backgroundOnePos.x + m_game->window().getSize().x - eVelocity.x;
+                }
+                else
+                {
+                    backgroundTwoPos.x = backgroundOnePos.x - m_game->window().getSize().x - eVelocity.x;
+                }
+            }
+            else if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
+            {
+                if (playerTransform.velocity.x > 0)
+                {
+                    backgroundOnePos.x = backgroundTwoPos.x + m_game->window().getSize().x - eVelocity.x;
+                }
+                else
+                {
+                    backgroundOnePos.x = backgroundTwoPos.x - m_game->window().getSize().x - eVelocity.x;
+                }
+            }
+        }
+    }
 }
                                                      
 void Scene_Play::sLifespan()
@@ -349,6 +437,11 @@ void Scene_Play::sCollision()
                         // collison correction for player
                         if (prev.y > 0)
                         {
+                            // prevent background from moving
+                            for (auto bg : m_entityManager.getEntities("scrollbackground"))
+                            {
+                                bg->getComponent<CTransform>().pos.x -= bg->getComponent<CTransform>().velocity.x;
+                            }
                             et.pos.x += delta.x > 0 ? overlap.x : -overlap.x;
                         }
 
@@ -452,6 +545,12 @@ void Scene_Play::sCollision()
 
         Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, m_player);
         m_player->addComponent<CTransform>(spawnPos);
+
+        // reset backgrounds
+        for (auto e : m_entityManager.getEntities("scrollbackground"))
+        {
+            e->getComponent<CTransform>().pos = e->getComponent<CTransform>().originalPos;
+        }
     }
 }
 
@@ -566,24 +665,32 @@ void Scene_Play::sCamera()
     sf::View view = m_game->window().getView();
     view.setCenter(windowCenterX, m_game->window().getSize().y - view.getCenter().y);
     m_game->window().setView(view);
+
+    // always keep no scroll background on screen
+    for (auto e : m_entityManager.getEntities("noscrollbackground"))
+    {
+        auto& ePos = e->getComponent<CTransform>().pos;
+        ePos.x = m_game->window().getView().getCenter().x;
+    }
 }
 
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
-    if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
-    else { m_game->window().clear(sf::Color(50, 50, 150)); }
+    //if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
+    //else { m_game->window().clear(sf::Color(50, 50, 150)); }
+    m_game->window().clear();
    
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
         for (auto e : m_entityManager.getEntities())
         {
-            auto & transform = e->getComponent<CTransform>();
+            auto& transform = e->getComponent<CTransform>();
 
             if (e->hasComponent<CAnimation>())
             {
-                auto & animation = e->getComponent<CAnimation>().animation;
+                auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
                 animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
                 animation.getSprite().setScale(transform.scale.x, transform.scale.y);
