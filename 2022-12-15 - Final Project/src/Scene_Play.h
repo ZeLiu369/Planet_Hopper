@@ -34,11 +34,14 @@ protected:
 
     std::shared_ptr<Entity> m_player;
     std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
+    sf::RenderTexture       m_renderTexture;
+    sf::Texture             m_lightTexture;
     std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
     bool                    m_drawTextures = true;
     bool                    m_drawCollision = false;
     bool                    m_drawGrid = false;
+    bool                    m_night = false;
     const Vec2              m_gridSize = { 64, 64 };
     sf::Text                m_gridText;
     sf::Text                m_coinText;
@@ -52,6 +55,8 @@ protected:
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
     void spawnMoney(std::shared_ptr<Entity> entity);
+
+    sf::Sprite getLightingSprite();
 
     Vec2 gridToMidPixel(float x, float y, std::shared_ptr<Entity> entity);
     

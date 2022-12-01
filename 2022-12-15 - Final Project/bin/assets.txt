@@ -5,6 +5,7 @@ Texture   TexLand    images/misc/land.png
 Texture   TexCraters images/misc/crater.png
 Texture   TexSkyObj  images/misc/skyObjects.png
 Texture   TexRock    images/misc/rock.png
+Texture   TexLight   images/misc/light.png
 Texture   TexStand   images/megaman/stand64.png              
 Texture   TexRun     images/megaman/run64.png                
 Texture   TexAir     images/megaman/air64.png                

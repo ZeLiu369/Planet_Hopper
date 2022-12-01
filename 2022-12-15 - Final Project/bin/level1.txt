@@ -1,3 +1,4 @@
+Lighting    Day
 Background  Sky     0 1.25 1.5  640 384 
 Background  Stars   1 1.25 1.65 640 384  0.95
 Background  SkyObj  1 1    1    640 200  0.85
