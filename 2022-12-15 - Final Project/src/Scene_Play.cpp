@@ -73,6 +73,9 @@ void Scene_Play::loadLevel(const std::string & filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
+    m_game->assets().getSound("OverWorld").stop();
+    m_game->playSound("Play");
+
     std::ifstream fin(filename);
     std::string temp;
 
@@ -169,7 +172,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
     PlayerConfig& pc = m_playerConfig;
 
     CTransform& entityT = entity->getComponent<CTransform>();
-    auto& bullet = m_entityManager.addEntity("bullet");
+    auto bullet = m_entityManager.addEntity("bullet");
 
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(pc.WEAPON), true);
 
@@ -196,7 +199,7 @@ void Scene_Play::spawnMoney(std::shared_ptr<Entity> entity)
     PlayerConfig& pc = m_playerConfig;
 
     CTransform& entityT = entity->getComponent<CTransform>();
-    auto& bullet = m_entityManager.addEntity("coinbullet");
+    auto bullet = m_entityManager.addEntity("coinbullet");
 
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Coin"), true);
 
@@ -418,7 +421,7 @@ void Scene_Play::sCollision()
                 bool destroyBrick = false;
                 bool robbery = false;
 
-                Vec2& overlap = Physics::GetOverlap(e, tile);
+                Vec2 overlap = Physics::GetOverlap(e, tile);
                 if (overlap.x >= 0 && overlap.y >= 0)
                 {
                     if (e->tag() == "player")
@@ -426,7 +429,7 @@ void Scene_Play::sCollision()
                         CTransform& et = e->getComponent<CTransform>();
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
-                        Vec2& prev = Physics::GetPreviousOverlap(e, tile);
+                        Vec2 prev = Physics::GetPreviousOverlap(e, tile);
 
                         if (tile->getComponent<CAnimation>().animation.getName() == "Pole" ||
                             tile->getComponent<CAnimation>().animation.getName() == "PoleTop") goal = true;
@@ -514,7 +517,7 @@ void Scene_Play::sCollision()
                     CTransform& qt = tile->getComponent<CTransform>();
                     int sizeY = m_game->assets().getAnimation("Question2").getSize().y;
 
-                    auto& coin = m_entityManager.addEntity("coin");
+                    auto coin = m_entityManager.addEntity("coin");
                     coin->addComponent<CTransform>(Vec2(qt.pos.x, qt.pos.y - sizeY));
                     coin->addComponent<CAnimation>(
                         m_game->assets().getAnimation("Coin"), false);
@@ -648,6 +651,8 @@ void Scene_Play::sAnimation()
 void Scene_Play::onEnd()
 {
     m_hasEnded = true;
+    m_game->assets().getSound("Play").stop();
+    m_game->playSound("OverWorld");
     //m_game->changeScene("OVERWORLD",std::shared_ptr<Scene_Overworld>(), true);
     m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
 }

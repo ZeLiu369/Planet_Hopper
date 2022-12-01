@@ -51,6 +51,12 @@ void Assets::loadFromFile(const std::string & path)
             file >> name >> path;
             addFont(name, path);
         }
+        else if (str == "Sound")
+        {
+            std::string name, path;
+            file >> name >> path;
+            addSound(name, path);
+        }
         else
         {
             std::cerr << "Unknown Asset Type: " << str << std::endl;
@@ -111,6 +117,27 @@ const sf::Font & Assets::getFont(const std::string & fontName) const
     return m_fontMap.at(fontName);
 }
 
+void Assets::addSound(const std::string &soundName, const std::string &path)
+{
+    m_soundBufferMap[soundName] = sf::SoundBuffer();
+    if (!m_soundBufferMap[soundName].loadFromFile(path))
+    {
+        std::cerr << "Could not load sound file: " << path << std::endl;
+        m_soundBufferMap.erase(soundName);
+    }
+    else
+    {
+        std::cout << "Loaded Sound:    " << path << std::endl;
+        m_soundMap[soundName] = sf::Sound(m_soundBufferMap[soundName]);
+        m_soundMap[soundName].setVolume(25);
+    }
+}
+
+sf::Sound& Assets::getSound(const std::string& soundName)
+{
+    assert(m_soundMap.find(soundName) != m_soundMap.end());
+    return m_soundMap.at(soundName);
+}
 
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3

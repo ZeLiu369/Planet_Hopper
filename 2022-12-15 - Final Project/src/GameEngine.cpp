@@ -139,9 +139,14 @@ void GameEngine::quit()
     m_running = false;
 }
 
-const Assets& GameEngine::assets() const
+Assets& GameEngine::assets()
 {
     return m_assets;
+}
+
+void GameEngine::playSound(const std::string &soundName)
+{
+    m_assets.getSound(soundName).play();
 }
 
 // Copyright (C) David Churchill - All Rights Reserved
