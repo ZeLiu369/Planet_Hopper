@@ -1,3 +1,10 @@
+Background  Sky     0 1.25 1.5  640 384 
+Background  Stars   1 1.25 1.65 640 384  0.95
+Background  SkyObj  1 1    1    640 200  0.85
+Background  Hill    1 1.25 1    640 574  0.50
+Background  Rock    1 1    1    640 574  0.10
+Background  Land    0 1.25 1    640 717
+Background  Craters 1 1    1    640 717  0.01
 Tile Ground  0 0
 Tile Ground  1 0
 Tile Ground  2 0
