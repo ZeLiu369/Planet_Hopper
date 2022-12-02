@@ -24,6 +24,15 @@ public:
     bool has = false;
 };
 
+class CDraggable : public Component
+{
+public:
+    bool dragging = false;
+    CDraggable() {}
+    CDraggable(bool d)
+        : dragging(d) {}
+};
+
 class CClickable : public Component
 {
 public:
@@ -102,6 +111,10 @@ public:
     bool canJump    = true;
     // new input
     bool money      = false;
+    // mouse inputs
+    bool click1 = false;
+    bool click2 = false;
+    bool click3 = false;
 
     CInput() {}
 };
