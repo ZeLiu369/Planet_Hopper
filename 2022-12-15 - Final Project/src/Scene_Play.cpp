@@ -85,7 +85,6 @@ void Scene_Play::loadLevel(const std::string& filename)
     m_inventoryEntity = m_entityManager.addEntity("inventory");
     m_inventoryEntity->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
     m_inventoryEntity->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, 0));
-    m_inventoryEntity->addComponent<CBoundingBox>(m_game->assets().getAnimation("Inventory").getSize());
     m_inventoryEntity->addComponent<CInventory>();
 
     while (fin >> temp)
