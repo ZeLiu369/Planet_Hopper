@@ -67,7 +67,6 @@ protected:
     bool                    m_drop = false;
     bool                    m_place = false;
     bool                    m_texture = true;
-    bool                    m_copy = false;
     std::shared_ptr<Entity> m_selected = NULL;
 
     // animation list
