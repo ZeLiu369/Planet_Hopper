@@ -76,7 +76,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     m_entityManager = EntityManager();
 
     m_game->assets().getSound("OverWorld").stop();
-    //m_game->playSound("Play");
+    m_game->playSound("Play");
 
     std::ifstream fin(filename);
     std::string temp;
