@@ -16,7 +16,9 @@
 *.map
 *.pdb
 *.ilk
-**/visualstudio
+visualstudio
+visualstudio/
+*visualstudio
 2022-12-15 - Final Project/bin/sfmlgame
 .gitignore
 .vscode/settings.json
