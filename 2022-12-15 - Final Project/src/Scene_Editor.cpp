@@ -33,26 +33,34 @@ Scene_Editor::Scene_Editor(GameEngine* gameEngine, const std::string& levelPath)
 
 void Scene_Editor::init(const std::string& levelPath)
 {
-    registerAction(sf::Keyboard::P, "PAUSE");
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
+    registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");         // Toggle drawing (F)amera
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
-    registerAction(sf::Keyboard::Space, "SHOOT");
-    registerAction(sf::Keyboard::M, "MONEY");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("Tech"));
 
-    m_exampleText.setCharacterSize(24);
-    m_exampleText.setFont(m_game->assets().getFont("Tech"));
+    m_controlText.setCharacterSize(24);
+    m_controlText.setFont(m_game->assets().getFont("Tech"));
 
     loadLevel(levelPath);
+}
+
+Vec2 Scene_Editor::windowToWorld(const Vec2& window) const
+{
+    auto view = m_game->window().getView();
+
+    float wx = view.getCenter().x - (m_game->window().getSize().x / 2);
+    float wy = view.getCenter().y - (m_game->window().getSize().y / 2);
+
+    return { window.x + wx, window.y + wy };
 }
 
 Vec2 Scene_Editor::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
@@ -62,9 +70,78 @@ Vec2 Scene_Editor::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Enti
 
     return Vec2(
         (gridX * m_gridSize.x) + size.x / 2,
-        height() - ((gridY * m_gridSize.y) - size.y / 2)
+        (m_BOUNDARYPOS.y - gridY) * m_gridSize.y - (size.y / 2)
     );
 }
+
+Vec2 Scene_Editor::midPixelToGrid(std::shared_ptr<Entity> entity)
+{
+
+    Vec2 size = entity->getComponent<CAnimation>().animation.getSize();
+    Vec2 pos = entity->getComponent<CTransform>().pos;
+
+    return Vec2(
+        (pos.x - (size.x / 2)) / m_gridSize.x,
+        m_BOUNDARYPOS.y - ((pos.y + (size.y / 2)) / m_gridSize.y)
+    );
+}
+
+// makes sure entity is alligned to grid
+// won't place if a certain entity is overlaping another or if out of bounds
+bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
+{
+    Vec2& ePos = entity->getComponent<CTransform>().pos;
+    Vec2 snap = gridToMidPixel(floor(ePos.x / m_gridSize.x), (m_BOUNDARYPOS.y - 1) - floor(ePos.y / m_gridSize.y), entity);
+
+    if (entity->tag() == "tile" || entity->tag() == "player" || entity->tag() == "npc")
+    {
+        for (auto& e : m_entityManager.getEntities())
+        {
+            if ((e->tag() == "tile" || e->tag() == "player" || e->tag() == "npc") && e != entity)
+            {
+                if (e->getComponent<CTransform>().pos == snap)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
+    Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
+
+    // out of bounds
+    if (snap.x < absoluteNeg.x || snap.x > absolutePos.x ||
+        snap.y < absoluteNeg.y || snap.y > absolutePos.y)
+    {
+        return false;
+    }
+
+    ePos = snap;
+    return true;
+}
+/*
+
+// dev plan for level editor here
+these ones first
+copy mode / grabbing entity puts it in selected, copy selected by right clicking in move mode
+
+delete mode / right click while in move state, maybe use special state
+
+place stuff with menu
+
+save and load menu, using virtual keyboard
+
+change world properites with hotkeys, such as music, background, and dark. name will be changed with save menu
+
+modify mode / modifiy entity by middle click, camera locks onto entity, middle click entity to disengage,
+list if values to change appears next to entity: 
+health, speed, ai (cycle),gravity,jump,maxspeed?,damage, etc all will be increment cycle or increment
+extra mode if ai is patrol, when right clicking on enemy, enter patrol mode, 
+click on empty spaces to create points, then finish by clicking on enemy
+list of entities that can be changed: player, enemy, hazard, moving platform
+
+*/
 
 void Scene_Editor::loadLevel(const std::string& filename)
 {
@@ -76,7 +153,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
 
     while (fin >> temp)
     {
-        if (temp != "Player")
+        if (temp == "Tile" || temp == "Dec")
         {
 
             std::string type = temp;
@@ -88,85 +165,193 @@ void Scene_Editor::loadLevel(const std::string& filename)
             x = (x * m_gridSize.x) + (tSize.x / 2);
             y = (height()) - ((y * m_gridSize.y) + (tSize.y / 2));
 
-            auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
+            auto& tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(Vec2(x, y));
 
             if (type == "Tile") tile->addComponent<CBoundingBox>(tSize);
+            tile->addComponent<CDraggable>();
         }
-        else
+        else if (temp == "NPC")
+        {
+            // todo
+        }
+        else if (temp == "Player")
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
+            
         }
 
     }
-
+    spawnPlayer();
     spawnCamera();
+}
+
+void Scene_Editor::spawnPlayer()
+{
+    PlayerConfig& pc = m_playerConfig;
+
+    // here is a sample player entity which you can use to construct other entities
+    auto& player = m_entityManager.addEntity("player");
+    player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
+
+    Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, player);
+    player->addComponent<CTransform>(spawnPos);
+    player->addComponent<CBoundingBox>(Vec2(pc.CX, pc.CY));
+    player->addComponent<CDraggable>();
 }
 
 void Scene_Editor::spawnCamera()
 {
-    std::string CAMERA_AVATAR = "Stand";
-    Vec2 BOUND_BOX = Vec2(5, 5);
     PlayerConfig& pc = m_playerConfig;
 
     m_camera = m_entityManager.addEntity("camera");
-    m_camera->addComponent<CAnimation>(m_game->assets().getAnimation(CAMERA_AVATAR), true);
+    m_camera->addComponent<CAnimation>(m_game->assets().getAnimation(m_CAMERA_AVATAR), true);
 
     Vec2 spawnPos = gridToMidPixel(0, 0, m_camera);
     m_camera->addComponent<CTransform>(spawnPos);
-    m_camera->addComponent<CBoundingBox>(BOUND_BOX);
+    m_camera->addComponent<CBoundingBox>(m_BOUND_BOX);
 
     m_camera->addComponent<CInput>();
     m_camera->addComponent<CState>("move");
+}
+
+bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
+{
+    auto& entity = m_entityManager.addEntity(e->tag());
+    entity->addComponent<CTransform>(windowToWorld(m_mPos));
+    entity->addComponent<CDraggable>();
+
+    if (e->hasComponent<CBoundingBox>()) entity->addComponent<CBoundingBox>() = e->getComponent<CBoundingBox>();
+    if (e->hasComponent<CAnimation>()) entity->addComponent<CAnimation>() = e->getComponent<CAnimation>();
+    if (e->hasComponent<CGravity>()) entity->addComponent<CGravity>() = e->getComponent<CGravity>();
+
+    if (snapToGrid(entity))
+    {
+        return(true);
+    }
+    else
+    {
+        entity->destroy();
+        return(false);
+    }
 }
 
 void Scene_Editor::update()
 {
     m_entityManager.update();
 
-    if (!m_paused)
-    {
-        sMovement();
-        sLifespan();
-        sCollision();
-        sAnimation();
-    }
+    sState();
+    sMovement();
+    sLifespan();
+    sCollision();
+    sAnimation();
     sRender();
 
     m_currentFrame++;
 }
 
+void Scene_Editor::sState()
+{
+
+    CState& state = m_camera->getComponent<CState>();
+    CInput& input = m_camera->getComponent<CInput>();
+
+    // can drag if in move state
+    if (state.state == "move")
+    {
+        if (input.click1 && !m_place)
+        {
+            for (auto e : m_entityManager.getEntities())
+            {
+                if (e->hasComponent<CDraggable>() && Physics::IsInside(windowToWorld(m_mPos), e))
+                {
+                    if (!e->getComponent<CDraggable>().dragging)
+                    {
+                        e->getComponent<CDraggable>().dragging = true;
+                        m_selected = e;
+                        state.state = "drag";
+                        m_drop = false;
+                        break;
+                    }
+                }
+            }
+        }
+        else if (input.click2 && m_copy && m_selected != NULL && m_selected->tag() != "player")
+        {
+            //m_copy = false;
+            pasteEntity(m_selected);
+        }
+    }
+    // can place and change to move during drag
+    else if (state.state == "drag")
+    {
+        if (input.click1 && m_drop)
+        {
+            if (snapToGrid(m_selected))
+            {
+                m_selected->getComponent<CDraggable>().dragging = false;
+                state.state = "move";
+                m_place = true;
+            }
+        }
+
+        // change animation of selected entity based on tag
+        else if (input.click2 && m_texture && m_selected->tag() != "player")
+        {
+            m_texture = false;
+            int aniType = 0;
+            int nextAni = 0;
+
+            if (m_selected->tag() == "dec") aniType = 1;
+            else if(m_selected->tag() == "npc") aniType = 2;
+
+            for (nextAni = 0; nextAni < m_animations[aniType].size(); nextAni++)
+            {
+                if (m_animations[aniType][nextAni] == m_selected->getComponent<CAnimation>().animation.getName())
+                {
+                    nextAni = (nextAni + 1) % m_animations[aniType].size();
+                    break;
+                }
+            }
+
+            m_selected->addComponent<CAnimation>(m_game->assets().getAnimation(m_animations[aniType][nextAni] ), true);
+
+            // make sure to change bounding box of some tiles
+            if (m_selected->tag() == "tile")
+            {
+                Vec2 tSize = m_game->assets().getAnimation(m_animations[aniType][nextAni]).getSize();
+                m_selected->addComponent<CBoundingBox>(tSize);
+            }
+        }
+    }
+}
+
 void Scene_Editor::sMovement()
 {
-    PlayerConfig& pc = m_playerConfig;
-
     CTransform& transform = m_camera->getComponent<CTransform>();
     CInput& input = m_camera->getComponent<CInput>();
-    CState& state = m_camera->getComponent<CState>();
 
-    // player movement
+    // camera movement \\
 
     // horizontal movement
     Vec2 dir = Vec2((input.right - input.left), (input.down - input.up));
-    transform.velocity = dir * pc.SPEED;
-
-    // player speed limits
-    if (abs(transform.velocity.x) > pc.MAXSPEED)
-    {
-        transform.velocity.x = transform.velocity.x > 0 ? pc.MAXSPEED : -pc.MAXSPEED;
-    }
-    if (abs(transform.velocity.y) > pc.MAXSPEED)
-    {
-        transform.velocity.y = transform.velocity.y > 0 ? pc.MAXSPEED : -pc.MAXSPEED;
-    }
+    transform.velocity = dir * m_CAMERA_SPEED;
 
     // updates prevPos and current pos
     transform.prevPos = transform.pos;
-    transform.pos.x += transform.velocity.x;
-    transform.pos.y += transform.velocity.y;
+    transform.pos += transform.velocity;
+
+    // Dragging \\
+
+    // if entity is being dragged, move with mouse
+    if (m_selected != NULL && m_selected->getComponent<CDraggable>().dragging)
+    {
+        m_selected->getComponent<CTransform>().pos = windowToWorld(m_mPos);
+    }
+
 }
 
 void Scene_Editor::sLifespan()
@@ -199,11 +384,11 @@ void Scene_Editor::sCollision()
     Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
     Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
 
-    // when the player goes to far left
+    // when the camera travels too far 
     if (transform.pos.x < absoluteNeg.x) transform.pos.x = absolutePos.x - box.halfSize.x;
     if (transform.pos.x > absolutePos.x) transform.pos.x = absoluteNeg.x + box.halfSize.x;
 
-    // when the player falls into a pit
+    // when the camerea falls into the sky
     if (transform.pos.y < absoluteNeg.y) transform.pos.y = absolutePos.y - box.halfSize.y;
     if (transform.pos.y > absolutePos.y) transform.pos.y = absoluteNeg.y + box.halfSize.y;
 }
@@ -215,13 +400,18 @@ void Scene_Editor::sDoAction(const Action& action)
         if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
         else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = (m_drawGrid + 1) % 3; }
-        else if (action.name() == "PAUSE") { setPaused(!m_paused); }
+        else if (action.name() == "TOGGLE_CAMERA") { m_drawCamera = !m_drawCamera; }
         else if (action.name() == "QUIT") { onEnd(); }
 
         else if (action.name() == "UP") { m_camera->getComponent<CInput>().up = true; }
         else if (action.name() == "DOWN") { m_camera->getComponent<CInput>().down = true; }
         else if (action.name() == "LEFT") { m_camera->getComponent<CInput>().left = true; }
         else if (action.name() == "RIGHT") { m_camera->getComponent<CInput>().right = true; }
+
+        else if (action.name() == "LEFT_CLICK") { m_camera->getComponent<CInput>().click1 = true; }
+        else if (action.name() == "RIGHT_CLICK") { m_camera->getComponent<CInput>().click2 = true; }
+        else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = true; }
+        else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
     }
     else if (action.type() == "END")
@@ -230,6 +420,20 @@ void Scene_Editor::sDoAction(const Action& action)
         if (action.name() == "DOWN") { m_camera->getComponent<CInput>().down = false; }
         if (action.name() == "LEFT") { m_camera->getComponent<CInput>().left = false; }
         if (action.name() == "RIGHT") { m_camera->getComponent<CInput>().right = false; }
+
+        else if (action.name() == "LEFT_CLICK") 
+        {
+            m_camera->getComponent<CInput>().click1 = false; 
+            m_drop = true;
+            m_place = false;
+        }
+        else if (action.name() == "RIGHT_CLICK") 
+        { 
+            m_camera->getComponent<CInput>().click2 = false;
+            m_texture = true;
+            m_copy = true;
+        }
+        else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = false; }
 
     }
 }
@@ -258,15 +462,10 @@ void Scene_Editor::onEnd()
 void Scene_Editor::sRender()
 {
     // color the background darker so you know that the game is paused
-    if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
-    else { m_game->window().clear(sf::Color(50, 50, 150)); }
+    m_game->window().clear(sf::Color(100, 100, 255));
 
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_camera->getComponent<CTransform>().pos;
-
-    // Don't need this anymore (maybe)
-    //float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
-    //float windowCenterY = std::max(m_game->window().getSize().y / 2.0f, pPos.y);
 
     sf::View view = m_game->window().getView();
     view.setCenter(pPos.x, pPos.y);
@@ -277,6 +476,8 @@ void Scene_Editor::sRender()
     {
         for (auto e : m_entityManager.getEntities())
         {
+            if (e->tag() == "camera" && !m_drawCamera) continue;
+
             auto& transform = e->getComponent<CTransform>();
 
             if (e->hasComponent<CAnimation>())
@@ -294,9 +495,10 @@ void Scene_Editor::sRender()
     Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
                                 (m_game->window().getView().getCenter().y - height() / 2));
 
-    m_exampleText.setString("EXAMPLE HELP INTERFACE");
-    m_exampleText.setPosition(upperLeftCorner.x,upperLeftCorner.y);
-    m_game->window().draw(m_exampleText);
+    m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
+    + "\nMenus: Entity = 1 | Level = 2 | Save/Load = 3 doesn't work yet lol");
+    m_controlText.setPosition(upperLeftCorner.x,upperLeftCorner.y);
+    m_game->window().draw(m_controlText);
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
@@ -330,28 +532,31 @@ void Scene_Editor::sRender()
         float rightX = absolutePos.x;
         float upY = absoluteNeg.y;
         float downY = absolutePos.y;
-        float flippedY = downY - pPos.y;
+
+        float halfWidth = width() / 2.0f;
+        float halfHeight = height() / 2.0f;
 
         float nextGridX = leftX - ((int)leftX % (int)m_gridSize.x);
 
-        for (float x = nextGridX; x < rightX; x += m_gridSize.x)
+        for (float x = nextGridX; x < rightX + 1; x += m_gridSize.x)
         {
-            drawLine(Vec2(x, 0), Vec2(x, downY));
+            drawLine(Vec2(x, upY), Vec2(x, downY));
         }
 
-        for (float y = upY; y < downY; y += m_gridSize.y)
+        for (float y = upY; y < downY + 1; y += m_gridSize.y)
         {
-            drawLine(Vec2(leftX, downY - y), Vec2(rightX, downY - y));
+            drawLine(Vec2(leftX, y), Vec2(rightX, y));
 
+            if (y == downY) continue;
             for (float x = nextGridX; x < rightX; x += m_gridSize.x)
             {
-                if (x > pPos.x - width() && x < pPos.x + width() && y > flippedY - height() && y < flippedY + height() &&
+                if (x > pPos.x - halfWidth && x < pPos.x + halfWidth && y > pPos.y - halfHeight && y < pPos.y + halfHeight &&
                     m_drawGrid == 2)
                 {
                     std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
-                    std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
+                    std::string yCell = std::to_string(((int)m_BOUNDARYPOS.y - 1) - ((int)y / (int)m_gridSize.y));
                     m_gridText.setString("(" + xCell + "," + yCell + ")");
-                    m_gridText.setPosition(x + 3, downY - y - m_gridSize.y + 2);
+                    m_gridText.setPosition(x + 3, y + 2);
                     m_game->window().draw(m_gridText);
                 }
             }
