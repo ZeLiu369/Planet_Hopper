@@ -38,6 +38,7 @@ void Scene_Editor::init(const std::string& levelPath)
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
     registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");         // Toggle drawing (F)amera
+    registerAction(sf::Keyboard::Delete, "DELETE_MODE");         // Toggle (Delete) mode
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -279,9 +280,8 @@ void Scene_Editor::sState()
                 }
             }
         }
-        else if (input.click2 && m_copy && m_selected != NULL && m_selected->tag() != "player")
+        else if (input.click2 &&  m_selected != NULL && m_selected->tag() != "player")
         {
-            //m_copy = false;
             pasteEntity(m_selected);
         }
     }
@@ -324,6 +324,17 @@ void Scene_Editor::sState()
             {
                 Vec2 tSize = m_game->assets().getAnimation(m_animations[aniType][nextAni]).getSize();
                 m_selected->addComponent<CBoundingBox>(tSize);
+            }
+        }
+    }
+    else if (state.state == "delete" && input.click2)
+    {
+        for (auto e : m_entityManager.getEntities())
+        {
+            if (e->hasComponent<CDraggable>() && Physics::IsInside(windowToWorld(m_mPos), e) && e->tag() != "player")
+            {
+                if (e == m_selected) m_selected = NULL;
+                e->destroy();
             }
         }
     }
@@ -413,6 +424,18 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = true; }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
+        else if (action.name() == "DELETE_MODE") 
+        {
+            if (m_camera->getComponent<CState>().state == "move")
+            {
+                m_camera->getComponent<CState>().state = "delete";
+            }
+            else if (m_camera->getComponent<CState>().state == "delete")
+            {
+                m_camera->getComponent<CState>().state = "move";
+            }
+        }
+
     }
     else if (action.type() == "END")
     {
@@ -431,7 +454,6 @@ void Scene_Editor::sDoAction(const Action& action)
         { 
             m_camera->getComponent<CInput>().click2 = false;
             m_texture = true;
-            m_copy = true;
         }
         else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = false; }
 
@@ -495,8 +517,11 @@ void Scene_Editor::sRender()
     Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
                                 (m_game->window().getView().getCenter().y - height() / 2));
 
+    std::string s = m_camera->getComponent<CState>().state;
+
     m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
-    + "\nMenus: Entity = 1 | Level = 2 | Save/Load = 3 doesn't work yet lol");
+    // + "\nMenus: Entity = 1 | Level = 2 | Save/Load = 3 doesn't work yet lol"
+    + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" : (s == "move" ? "Delete Mode (DEL)" : "")));
     m_controlText.setPosition(upperLeftCorner.x,upperLeftCorner.y);
     m_game->window().draw(m_controlText);
 
