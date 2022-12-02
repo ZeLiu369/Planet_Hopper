@@ -40,6 +40,7 @@ protected:
     sf::Texture             m_lightTexture;
     std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
+    float                   m_prevCameraPosX;
     bool                    m_drawTextures = true;
     bool                    m_drawCollision = false;
     bool                    m_inventory = false;
@@ -55,6 +56,7 @@ protected:
 
     void loadLevel(const std::string & filename);
 
+    void updateBackgrounds();
     void update();
     void onEnd();
     void spawnPlayer();
@@ -68,7 +70,6 @@ protected:
     
     void sDoAction(const Action& action);
 
-    void sScroll();
     void sCamera();
     void sClick();
     void sMovement();
