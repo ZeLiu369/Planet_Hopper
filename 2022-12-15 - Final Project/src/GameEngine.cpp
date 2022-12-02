@@ -122,6 +122,11 @@ void GameEngine::sUserInput()
             default: break;
             }
         }
+
+        if (event.type == sf::Event::MouseMoved)
+        {
+            currentScene()->doAction(Action("MOUSE_MOVE", "START", Vec2(event.mouseMove.x, event.mouseMove.y)));
+        }
     }
 }
 
