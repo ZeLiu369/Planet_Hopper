@@ -33,7 +33,9 @@ class Scene_Play : public Scene
 protected:
 
     std::shared_ptr<Entity> m_player;
+    std::shared_ptr<Entity> m_inventoryEntity;
     std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
+    std::vector<bool> inventoryItems;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
     std::string             m_levelPath;
@@ -47,6 +49,8 @@ protected:
     sf::Text                m_gridText;
     sf::Text                m_coinText;
 
+    Vec2                    m_mPos;
+
     void init(const std::string & levelPath);
 
     void loadLevel(const std::string & filename);
@@ -59,12 +63,14 @@ protected:
 
     sf::Sprite getLightingSprite();
 
+    Vec2 windowToWorld(const Vec2& window) const;
     Vec2 gridToMidPixel(float x, float y, std::shared_ptr<Entity> entity);
     
     void sDoAction(const Action& action);
 
     void sScroll();
     void sCamera();
+    void sClick();
     void sMovement();
     void sLifespan();
     void sAnimation();

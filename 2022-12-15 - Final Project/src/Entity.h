@@ -21,6 +21,7 @@
 class EntityManager;
 
 typedef std::tuple<
+    CClickable,
     CTransform,
     CLifeSpan,
     CInput,
@@ -29,7 +30,8 @@ typedef std::tuple<
     CGravity,
     CState,
     CCoinCounter,
-    CLevelStatus
+    CLevelStatus,
+    CInventory
 > ComponentTuple;
 
 class Entity

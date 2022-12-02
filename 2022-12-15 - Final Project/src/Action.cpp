@@ -28,6 +28,14 @@ Action::Action(const std::string & name, const std::string & type)
 {
                                                      
 }
+
+Action::Action(const std::string& name, const std::string& type, const Vec2& pos)
+    : m_name(name)
+    , m_type(type)
+    , m_pos(pos)
+{
+
+}
                                                      
 const std::string & Action::name() const
 {
@@ -37,6 +45,11 @@ const std::string & Action::name() const
 const std::string & Action::type() const
 {
     return m_type;
+}
+
+const Vec2& Action::pos() const
+{
+    return m_pos;
 }
                                                      
 std::string Action::toString() const
