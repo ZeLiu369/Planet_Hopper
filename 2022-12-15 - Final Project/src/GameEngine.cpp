@@ -96,6 +96,32 @@ void GameEngine::sUserInput()
             // look up the action and send the action to the scene
             currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
         }
+
+        auto mousePos = sf::Mouse::getPosition(m_window);
+        Vec2 mpos(mousePos.x, mousePos.y);
+
+        if (event.type == sf::Event::MouseButtonPressed)
+        {
+            switch (event.mouseButton.button)
+            {
+            case sf::Mouse::Left: { currentScene()->doAction(Action("LEFT_CLICK", "START", mpos)); break; }
+            case sf::Mouse::Middle: { currentScene()->doAction(Action("MIDDLE_CLICK", "START", mpos)); break; }
+            case sf::Mouse::Right: { currentScene()->doAction(Action("RIGHT_CLICK", "START", mpos)); break; }
+            default: break;
+            }
+
+        }
+
+        if (event.type == sf::Event::MouseButtonReleased)
+        {
+            switch (event.mouseButton.button)
+            {
+            case sf::Mouse::Left: { currentScene()->doAction(Action("LEFT_CLICK", "END", mpos)); break; }
+            case sf::Mouse::Middle: { currentScene()->doAction(Action("MIDDLE_CLICK", "END", mpos)); break; }
+            case sf::Mouse::Right: { currentScene()->doAction(Action("RIGHT_CLICK", "END", mpos)); break; }
+            default: break;
+            }
+        }
     }
 }
 

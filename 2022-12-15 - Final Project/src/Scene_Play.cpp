@@ -55,6 +55,7 @@ void Scene_Play::init(const std::string& levelPath)
     m_coinText.setCharacterSize(24);
     m_coinText.setFont(m_game->assets().getFont("Tech"));
 
+    inventoryItems = { false, false, false, false, false };
     loadLevel(levelPath);
 }
 
@@ -79,6 +80,13 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     std::ifstream fin(filename);
     std::string temp;
+    int i = 0;
+
+    m_inventoryEntity = m_entityManager.addEntity("inventory");
+    m_inventoryEntity->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
+    m_inventoryEntity->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, 0));
+    m_inventoryEntity->addComponent<CBoundingBox>(m_game->assets().getAnimation("Inventory").getSize());
+    m_inventoryEntity->addComponent<CInventory>();
 
     while (fin >> temp)
     {
@@ -145,7 +153,6 @@ void Scene_Play::loadLevel(const std::string& filename)
             float tileGX, tileGY;
             float x, y;
             fin >> tileName >> tileGX >> tileGY;
-
             Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
             x = (tileGX * m_gridSize.x) + (tSize.x / 2);
             y = (height()) - ((tileGY * m_gridSize.y) + (tSize.y / 2));
@@ -154,6 +161,10 @@ void Scene_Play::loadLevel(const std::string& filename)
             item->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
             item->addComponent<CTransform>(Vec2(x, y));
             item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
+            item->addComponent<CInventory>(i++);
+            item->addComponent<CClickable>();
+            //std::cout << item->getComponent<CInventory>().index << "\n";
+            m_inventoryEntity->getComponent<CInventory>().inventoryItems.push_back(tileName);
         }
         else
         {
@@ -162,10 +173,6 @@ void Scene_Play::loadLevel(const std::string& filename)
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
         }
     }
-    std::shared_ptr<Entity> inventory = m_entityManager.addEntity("inventory");
-    inventory->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
-    inventory->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, 0));
-    inventory->addComponent<CBoundingBox>(m_game->assets().getAnimation("Inventory").getSize());;
 
     spawnPlayer();
 }
@@ -255,8 +262,8 @@ void Scene_Play::update()
     if (!m_paused)
     {
         sMovement();
-        sLifespan();
         sCollision();
+        sLifespan();
         sAnimation();
     }
     // sRender() doesn't need to be called here
@@ -439,12 +446,34 @@ void Scene_Play::sLifespan()
         auto inv_t = Vec2(7 + x, 3);
         for (float i = 0; i < 5; i++)
         {
-            auto& coin = m_entityManager.addEntity("items");
-            coin->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
-            coin->addComponent<CAnimation>(m_game->assets().getAnimation("DmgPotion"), false);
+            if (m_inventoryEntity->getComponent<CInventory>().in_Inventory[i]) 
+            {
+                auto& item = m_entityManager.addEntity("items");
+                item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
+                auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
+                item->addComponent<CAnimation>(m_game->assets().getAnimation(s), false);
+            }
+
         }
 
     }
+
+
+    //for (auto& i : m_entityManager.getEntities("item"))
+    //{
+    //    if (inventoryItems[i->getComponent<CInventory>().index])
+    //    {
+    //        float x = m_game->window().getView().getCenter().x - width() / 2;
+    //        auto inv_t = Vec2(7 + x, 3);
+    //        auto& item = m_entityManager.addEntity("items");
+    //        item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
+    //        auto s = i->getComponent<CAnimation>().animation.getName();
+    //        std::cout << s << "; " << i->getComponent<CInventory>().index << ";  ";
+    //        std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
+    //        item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
+    //    }
+    //}
+
 }
 
 void Scene_Play::sCollision()
@@ -604,8 +633,10 @@ void Scene_Play::sCollision()
         auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and coin
         if (overlap.x >= 0 && overlap.y >= 0)
         {
+            auto index = e->getComponent<CInventory>().index;
+            inventoryItems[index] = true;
+            m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
             m_player->getComponent<CCoinCounter>().coins++;
-            std::cout << m_player->getComponent<CCoinCounter>().coins << "\n";
             e->destroy();
         }
     }
@@ -630,6 +661,19 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
         else if (action.name() == "MONEY") { m_player->getComponent<CInput>().money = true; }
 
+        else if (action.name() == "LEFT_CLICK")
+        {
+            m_mPos = action.pos();
+            Vec2 worldPos = windowToWorld(m_mPos);
+            std::cout << "Mouse Clickled: " << worldPos.x << ", " << worldPos.y << "\n";
+            for (auto e : m_entityManager.getEntities())
+            {
+                if (e->hasComponent<CClickable>() && Physics::IsInside(worldPos, e))
+                {
+                    e->getComponent<CClickable>().clicking = !e->getComponent<CClickable>().clicking;
+                }
+            }
+        }
     }
     else if (action.type() == "END")
     {
@@ -704,6 +748,30 @@ void Scene_Play::sAnimation()
             if (!eAni.repeat && eAni.animation.hasEnded()) e->destroy();
         }
     }
+}
+
+void Scene_Play::sClick()
+{
+    for (auto e : m_entityManager.getEntities())
+    {
+        if (e->hasComponent<CClickable>() && e->getComponent<CClickable>().clicking)
+        {
+            //Vec2 worldPos = windowToWorld(m_mPos);
+            //auto index = e->getComponent<CInventory>().index;
+            //inventoryItems[index] = false;
+            //m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = false;
+        }
+    }
+}
+
+Vec2 Scene_Play::windowToWorld(const Vec2& window) const
+{
+    auto view = m_game->window().getView();
+
+    float wx = view.getCenter().x - (m_game->window().getSize().x / 2);
+    float wy = view.getCenter().y - (m_game->window().getSize().y / 2);
+
+    return Vec2(window.x + wx, window.y + wy);
 }
 
 void Scene_Play::onEnd()
@@ -933,8 +1001,11 @@ void Scene_Play::sRender()
         for (auto e : m_entityManager.getEntities("items"))
         {
             auto& transform = e->getComponent<CTransform>();
-            //transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, 0);
-
+            //float x = m_game->window().getView().getCenter().x - width() / 2;
+            //auto inv_t = Vec2(7 + x, 3);
+            //transform.pos = Vec2(inv_t.x + (73 * i), inv_t.y);
+            //std::cout << "Render stuff: " << " ";
+            //std::cout << transform.pos.x << ", " << transform.pos.y << "\n";
             auto& animation = e->getComponent<CAnimation>().animation;
             animation.getSprite().setRotation(transform.angle);
             animation.getSprite().setOrigin(0, 0);

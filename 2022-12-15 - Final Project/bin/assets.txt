@@ -36,6 +36,10 @@ Texture   TexPlanet2 images/new/planet02.png
 Texture   TexPlanet3 images/new/planet07.png
 Texture   TexInv     images/new/spritesheet.png
 Texture   TexDmg     images/new/DamagePotion.png
+Texture   TexHeal    images/new/HealingPotion.png
+Texture   TexIn      images/new/InvisibilityPotion.png
+Texture   TexMana    images/new/ManaPotion.png
+Texture   TexPoi     images/new/PoisonPotion.png
 
 Animation Sky        TexSky      1    0
 Animation Stars      TexStars    1    0
@@ -74,6 +78,10 @@ Animation Plan2      TexPlanet2  1    0
 Animation Plan3      TexPlanet3  1    0
 Animation Inventory  TexInv      1    0
 Animation DmgPotion  TexDmg      1    0
+Animation HealPotion TexHeal     1    0
+Animation InvPotion  TexIn       1    0
+Animation ManaPotion TexMana     1    0
+Animation PoiPotion  TexPoi      1    0
 
 
 Font      Tech       fonts/tech.ttf

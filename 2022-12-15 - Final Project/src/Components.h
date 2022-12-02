@@ -23,6 +23,13 @@ class Component
 public:
     bool has = false;
 };
+
+class CClickable : public Component
+{
+public:
+    bool clicking = false;
+    CClickable() {}
+};
                                                      
 class CTransform : public Component
 {
@@ -174,6 +181,17 @@ public:
     bool completed = false;
 
     CLevelStatus() {}
+};
+
+class CInventory : public Component
+{
+public:
+    std::vector<bool>           in_Inventory{false, false, false, false, false};
+    std::vector<std::string>    inventoryItems;
+    float index = 0;
+
+    CInventory() {}
+    CInventory(float i) : index(i) {}
 };
 
 // Copyright (C) David Churchill - All Rights Reserved
