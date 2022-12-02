@@ -192,8 +192,10 @@ class CLevelStatus : public Component
 {
 public:
     bool completed = false;
+    bool unlocked  = false;
 
     CLevelStatus() {}
+    CLevelStatus(bool i) : unlocked(i) {}
 };
 
 class CInventory : public Component
