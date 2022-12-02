@@ -64,10 +64,10 @@ Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity
     Vec2 size = entity->getComponent<CAnimation>().animation.getSize();
     auto& eScale = entity->getComponent<CTransform>().scale;
 
-    return Vec2(
-        (gridX * m_gridSize.x) + size.x * eScale.x / 2,
-        height() - ((gridY * m_gridSize.y) - size.y * eScale.y / 2)
-    );
+    float x = (gridX * m_gridSize.x) + (size.x * eScale.x / 2);
+    float y = (height()) - ((gridY * m_gridSize.y) + (size.y * eScale.y / 2));
+
+    return Vec2(x, y);
 }
 
 void Scene_Play::loadLevel(const std::string& filename)
@@ -136,29 +136,23 @@ void Scene_Play::loadLevel(const std::string& filename)
             float x, y;
             fin >> texture >> x >> y;
 
-            Vec2 tSize = m_game->assets().getAnimation(texture).getSize();
-            x = (x * m_gridSize.x) + (tSize.x / 2);
-            y = (height()) - ((y * m_gridSize.y) + (tSize.y / 2));
-
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-            tile->addComponent<CTransform>(Vec2(x, y));
+            tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tSize);
+            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
         }
         else if (temp == "Item")
         {
             std::string tileName;
-            float tileGX, tileGY;
             float x, y;
-            fin >> tileName >> tileGX >> tileGY;
+            fin >> tileName >> x >> y;
             Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
-            x = (tileGX * m_gridSize.x) + (tSize.x / 2);
-            y = (height()) - ((tileGY * m_gridSize.y) + (tSize.y / 2));
+
             auto item = m_entityManager.addEntity("item");
 
             item->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
-            item->addComponent<CTransform>(Vec2(x, y));
+            item->addComponent<CTransform>(gridToMidPixel(x, y, item));
             item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
             item->addComponent<CInventory>(i++);
             item->addComponent<CClickable>();
