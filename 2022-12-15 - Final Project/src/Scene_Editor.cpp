@@ -39,9 +39,11 @@ void Scene_Editor::init(const std::string& levelPath)
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
     registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");         // Toggle drawing (F)amera
     registerAction(sf::Keyboard::Delete, "DELETE_MODE");         // Toggle (Delete) mode
+
     registerAction(sf::Keyboard::Num8, "MUSIC");
     registerAction(sf::Keyboard::Num9, "BACKGROUND");
     registerAction(sf::Keyboard::Num0, "DARK");
+    registerAction(sf::Keyboard::Num1, "ENTITY_MENU");
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -54,6 +56,7 @@ void Scene_Editor::init(const std::string& levelPath)
     m_controlText.setCharacterSize(24);
     m_controlText.setFont(m_game->assets().getFont("Tech"));
 
+    fillAssetList();
     loadLevel(levelPath);
 }
 
@@ -122,16 +125,10 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
 /*
 
 // dev plan for level editor here
-these ones first
-copy mode / grabbing entity puts it in selected, copy selected by right clicking in move mode
-
-delete mode / right click while in move state, maybe use special state
 
 place stuff with menu
 
 save and load menu, using virtual keyboard
-
-change world properites with hotkeys, such as music, background, and dark. name will be changed with save menu
 
 modify mode / modifiy entity by middle click, camera locks onto entity, middle click entity to disengage,
 list if values to change appears next to entity: 
@@ -141,6 +138,38 @@ click on empty spaces to create points, then finish by clicking on enemy
 list of entities that can be changed: player, enemy, hazard, moving platform
 
 */
+
+void Scene_Editor::fillAssetList()
+{
+    std::vector<std::string> BLACK_LIST =
+    {
+        "Inventory", "Sky", "Stars", "Hill", "Land", "Craters", "SkyObj", "Rock", "Space"
+    };
+
+    std::string ASSET_FILE = "assets.txt";
+
+    std::ifstream fin(ASSET_FILE);
+    std::string temp;
+
+    while (fin >> temp)
+    {
+        if (temp == "Animation")
+        {
+            fin >> temp;
+            if (std::find(BLACK_LIST.begin(), BLACK_LIST.end(), temp) != BLACK_LIST.end())
+            {
+                fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
+            }
+            else
+            {
+                m_aniAssets.push_back(temp);
+            }
+            fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        else fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+}
 
 void Scene_Editor::loadLevel(const std::string& filename)
 {
@@ -326,27 +355,23 @@ void Scene_Editor::sState()
         else if (input.click2 && m_texture && m_selected->tag() != "player")
         {
             m_texture = false;
-            int aniType = 0;
             int nextAni = 0;
 
-            if (m_selected->tag() == "dec") aniType = 1;
-            else if(m_selected->tag() == "npc") aniType = 2;
-
-            for (nextAni = 0; nextAni < m_animations[aniType].size(); nextAni++)
+            for (nextAni = 0; nextAni < m_aniAssets.size(); nextAni++)
             {
-                if (m_animations[aniType][nextAni] == m_selected->getComponent<CAnimation>().animation.getName())
+                if (m_aniAssets[nextAni] == m_selected->getComponent<CAnimation>().animation.getName())
                 {
-                    nextAni = (nextAni + 1) % m_animations[aniType].size();
+                    nextAni = (nextAni + 1) % m_aniAssets.size();
                     break;
                 }
             }
 
-            m_selected->addComponent<CAnimation>(m_game->assets().getAnimation(m_animations[aniType][nextAni] ), true);
+            m_selected->addComponent<CAnimation>(m_game->assets().getAnimation(m_aniAssets[nextAni] ), true);
 
             // make sure to change bounding box of some tiles
             if (m_selected->tag() == "tile")
             {
-                Vec2 tSize = m_game->assets().getAnimation(m_animations[aniType][nextAni]).getSize();
+                Vec2 tSize = m_game->assets().getAnimation(m_aniAssets[nextAni]).getSize();
                 m_selected->addComponent<CBoundingBox>(tSize);
             }
         }
@@ -406,11 +431,6 @@ void Scene_Editor::sLifespan()
 
 void Scene_Editor::sCollision()
 {
-    // REMEMBER: SFML's (0,0) position is on the TOP-LEFT corner
-    //           This means jumping will have a negative y-component
-    //           and gravity will have a positive y-component
-    //           Also, something BELOW something else will have a y value GREATER than it
-    //           Also, something ABOVE something else will have a y value LESS than it
 
     // boundary collison
     CTransform& transform = m_camera->getComponent<CTransform>();
@@ -448,7 +468,7 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = true; }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
-        else if (action.name() == "DELETE_MODE") 
+        else if (action.name() == "DELETE_MODE")
         {
             if (m_camera->getComponent<CState>().state == "move")
             {
@@ -487,6 +507,18 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "DARK")
         {
             m_levelConfig.DARK = !m_levelConfig.DARK;
+        }
+
+        else if (action.name() == "ENTITY_MENU")
+        {
+            if (m_camera->getComponent<CState>().state == "entity")
+            {
+                m_camera->getComponent<CState>().state = "move";
+            }
+            else
+            {
+                m_camera->getComponent<CState>().state = "entity";
+            }
         }
 
     }
@@ -588,7 +620,7 @@ void Scene_Editor::sRender()
     std::string s = m_camera->getComponent<CState>().state;
 
     m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
-    // + "\nMenus: Entity = 1 | Level = 2 | Save/Load = 3 doesn't work yet lol"
+    + "\nMenus: Entity = 1"
     + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" : (s == "move" ? "Delete Mode (DEL)" : "")));
     m_controlText.setPosition(upperLeftCorner.x,upperLeftCorner.y);
     m_game->window().draw(m_controlText);
