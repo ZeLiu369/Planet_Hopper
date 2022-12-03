@@ -71,15 +71,7 @@ protected:
     std::shared_ptr<Entity> m_selected = NULL;
 
     // animation list
-    std::vector<std::vector<std::string>>m_animations =
-    {
-        // Tile List
-        {"Ground", "Brick", "Question", "Block", "PipeTall", "Pole","PoleTop"},
-        // Dec list
-        {"BushBig", "CloudSmall", "CloudBig", "Flag", "Coin", "Pole"},
-        // NPC list
-        {}
-    };
+    std::vector<std::string> m_aniAssets = {};
 
     std::map<std::string, std::vector<std::string>>m_levelAssetList =
     {
@@ -88,6 +80,8 @@ protected:
     };
 
     void init(const std::string& levelPath);
+
+    void fillAssetList();
 
     void loadLevel(const std::string& filename);
 
