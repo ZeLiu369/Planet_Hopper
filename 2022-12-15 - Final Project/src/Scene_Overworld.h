@@ -19,7 +19,7 @@ class Scene_Overworld : public Scene
     bool                        m_drawTextures = true;
     bool                        m_drawCollision = false;
     bool                        m_changeScene = false;
-    bool                        shake = false;
+    std::string                 shake;
     sf::Sprite                  background;
     sf::Shader                  *shader, red_shader, grey_shader, fade_shader, shake_shader;
     sf::Clock                   time;

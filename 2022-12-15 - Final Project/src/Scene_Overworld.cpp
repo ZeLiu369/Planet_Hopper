@@ -228,21 +228,17 @@ void Scene_Overworld::sMovement()
 
 void Scene_Overworld::sCollision()
 {
-    shake = false;
     for (auto p : m_entityManager.getEntities("planet"))
     {
         if      (p->getComponent<CAnimation>().animation.getName() == "Plan1") { m_selectedMenuIndex = 0; }
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan2") { m_selectedMenuIndex = 1; }
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan3") { m_selectedMenuIndex = 2; }
 
-        if (p->getComponent<CLevelStatus>().unlocked == true) { shader = &fade_shader; }
-        if (p->getComponent<CLevelStatus>().unlocked == false) { shader = &red_shader; }
-
         Vec2 overlap = Physics::GetOverlap(m_player, p);
         if (overlap.x >= 0 && overlap.y >= 0)
         {
             p->getComponent<CAnimation>().animation.getSprite();
-            shake = true;
+            shake = p->getComponent<CAnimation>().animation.getName();
         }
 
         if (m_changeScene && overlap.x >= 0 && overlap.y >= 0)
@@ -349,8 +345,6 @@ void Scene_Overworld::sRender()
     // Set shader parameters
     fade_shader.setUniform("time", time.getElapsedTime().asSeconds());
     shake_shader.setUniform("time", time.getElapsedTime().asSeconds());
-    //red_shader.setUniform("time", time.getElapsedTime().asSeconds());
-    //grey_shader.setUniform("time", time.getElapsedTime().asSeconds());
     
     // draw all Entity textures / animations
     if (m_drawTextures)
@@ -369,8 +363,11 @@ void Scene_Overworld::sRender()
                 if (e->tag() == "planet")   
                 {
                     if (e->getComponent<CLevelStatus>().unlocked == true)   { shader = &fade_shader; }
-                    if (e->getComponent<CLevelStatus>().unlocked && shake)  { shader = &shake_shader; }
                     if (e->getComponent<CLevelStatus>().unlocked == false)  { shader = &red_shader; }
+                    if (e->getComponent<CLevelStatus>().unlocked && shake == e->getComponent<CAnimation>().animation.getName()) 
+                    {
+                        shader = &shake_shader; 
+                    }
                     //std::cout << "getting here" << "\n";
                     m_game->window().draw(animation.getSprite(), shader); 
                 }
