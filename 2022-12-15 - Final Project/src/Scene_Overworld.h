@@ -13,6 +13,7 @@ class Scene_Overworld : public Scene
     std::shared_ptr<Entity>     m_player;
     std::shared_ptr<Entity>     planet1, planet2, planet3;
     std::vector<std::string>    m_levelPaths;
+    int                         m_level;
     sf::Text                    m_text;
     size_t                      m_selectedMenuIndex = 0;
     bool                        m_drawTextures = true;
@@ -22,21 +23,24 @@ class Scene_Overworld : public Scene
     sf::Sprite                  background;
     sf::Shader                  *shader, red_shader, grey_shader, fade_shader, shake_shader;
     sf::Clock                   time;
+    std::string                 direction = "none";
+    int                         offset = 0;
+    int                         currPlanet;
+    std::vector<sf::VertexArray> points;
 
-    void init();
+    void init(const int& level);
     int  loadShaders();
-    void loadMap();
+    void loadMap(const int& levelAvailable);
     void update();
     void onEnd();
     void spawnPlayer();
 
     void sMovement();
-    void sAnimation();
     void sCollision();
 
 public:
 
-    Scene_Overworld(GameEngine* gameEngine);
+    Scene_Overworld(GameEngine* gameEngine, const int& level);
 
     void sRender();
     void sDoAction(const Action& action);

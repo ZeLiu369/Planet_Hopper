@@ -167,6 +167,10 @@ void Scene_Play::loadLevel(const std::string& filename)
         }
     }
 
+    if (filename == "level1.txt") { m_level = 1;  }
+    if (filename == "level2.txt") { m_level = 2; }
+    if (filename == "level3.txt") { m_level = 3; }
+
     spawnPlayer();
 }
 
@@ -560,6 +564,12 @@ void Scene_Play::sCollision()
             e->destroy();
         }
     }
+
+    if (goal)
+    {
+        m_level++;
+        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    }
 }
 
 void Scene_Play::sDoAction(const Action& action)
@@ -703,7 +713,7 @@ void Scene_Play::onEnd()
     sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
-    m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+    m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
 }
 
 void Scene_Play::updateBackgrounds()
