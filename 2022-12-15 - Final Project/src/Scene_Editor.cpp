@@ -243,12 +243,6 @@ void Scene_Editor::spawnCamera()
     m_camera->addComponent<CState>("move");
 }
 
-void Scene_Editor::setLevelProperties()
-{
-    LevelConfig& lc = m_levelConfig;
-    // maybe add some stuff :)
-}
-
 bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
 {
     auto& entity = m_entityManager.addEntity(e->tag());
@@ -489,7 +483,6 @@ void Scene_Editor::sDoAction(const Action& action)
                     break;
                 }
             }
-            std::cout << m_levelConfig.BACKGROUND;
         }
         else if (action.name() == "DARK")
         {
