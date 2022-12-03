@@ -41,6 +41,7 @@ protected:
     std::shared_ptr<Entity> m_camera;
     std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
+    LevelConfig             m_levelConfig;
 
     // drawing
     bool                    m_drawTextures = true;
@@ -80,6 +81,11 @@ protected:
         {}
     };
 
+    std::map<std::string, std::vector<std::string>>m_levelAssetList =
+    {
+        {"Music", {"MusicTitle", "Play", "OverWorld"}},
+        {"Background", {"Background1", "Background2", "Background3", "None"}}
+    };
 
     void init(const std::string& levelPath);
 
