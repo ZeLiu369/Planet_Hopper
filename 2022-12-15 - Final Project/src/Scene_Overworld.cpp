@@ -13,13 +13,14 @@
 #include <iostream>
 #include <fstream>
 
-Scene_Overworld::Scene_Overworld(GameEngine* gameEngine)
+Scene_Overworld::Scene_Overworld(GameEngine* gameEngine, const int& level)
     : Scene(gameEngine)
+    , m_level(level)
 {
-    init();
+    init(m_level);
 }
 
-void Scene_Overworld::init()
+void Scene_Overworld::init(const int& level)
 {
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
@@ -38,7 +39,7 @@ void Scene_Overworld::init()
     m_game->assets().getSound("MusicTitle").stop();
     m_game->playSound("OverWorld");
 
-    loadMap();
+    loadMap(level);
     std::cout << loadShaders() << "\n";
 }
 
@@ -74,7 +75,7 @@ int Scene_Overworld::loadShaders()
     }
 }
 
-void Scene_Overworld::loadMap()
+void Scene_Overworld::loadMap(const int& levelAvailable)
 {
     m_entityManager = EntityManager();
 
@@ -96,6 +97,12 @@ void Scene_Overworld::loadMap()
     planet3->addComponent<CTransform>(Vec2(1150, 360));
     planet3->addComponent<CLevelStatus>();
 
+    if (levelAvailable == 2) { planet2->addComponent<CLevelStatus>(true); }
+    if (levelAvailable == 3)
+    { 
+        planet2->addComponent<CLevelStatus>(true);
+        planet3->addComponent<CLevelStatus>(true);
+    }
     
     sf::VertexArray point(sf::Points, 1);
     for (int i = 0; i < 1280; i += 20)

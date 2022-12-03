@@ -39,6 +39,7 @@ protected:
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
     std::string             m_levelPath;
+    int                     m_level;
     PlayerConfig            m_playerConfig;
     float                   m_prevCameraPosX;
     bool                    m_drawTextures = true;
