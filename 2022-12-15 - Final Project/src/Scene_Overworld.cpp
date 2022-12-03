@@ -136,13 +136,13 @@ void Scene_Overworld::sMovement()
 
     if (input.right)
     {
-        transform.velocity.x = 5;
+        transform.velocity.x = 10;
         direction = "right";
         
     }
     if (input.left)
     {
-        transform.velocity.x = -5;
+        transform.velocity.x = -10;
         direction = "left";
     }
 
