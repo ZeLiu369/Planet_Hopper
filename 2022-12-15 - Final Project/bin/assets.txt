@@ -9,7 +9,14 @@ Texture   TexLight   images/misc/light.png
 
 Texture   TexStand   images/misc/spritesheetIdle.png              
 Texture   TexRun     images/misc/spritesheetRun.png     
-Texture   TexAir     images/misc/spritesheetJump.png       
+Texture   TexAir     images/misc/spritesheetJump.png
+
+Texture   TexPlat      images/misc/platform.png
+Texture   TexWavy      images/misc/platformWavy.png
+Texture   TexWavyLeft  images/misc/platformWavyLeft.png 
+Texture   TexWavyMid   images/misc/platformWavyMiddle.png
+Texture   TexWavyRight images/misc/platformWavyRight.png
+Texture   TexSpikeUp   images/misc/spikeUp.png        
          
 Texture   TexBuster  images/megaman/buster.png
 Texture   TexExplode images/misc/explosion128.png
@@ -53,7 +60,14 @@ Animation Rock       TexRock     1    0
 
 Animation Stand      TexStand    10   5   
 Animation Run        TexRun      8    4
-Animation Air        TexAir      20   5  
+Animation Air        TexAir      20   5
+
+Animation Plat       TexPlat      1    0
+Animation Wavy       TexWavy      1    0
+Animation WavyLeft   TexWavyLeft  1    0
+Animation WavyMid    TexWavyMid   1    0
+Animation WavyRight  TexWavyRight 1    0   
+Animation SpikeUp    TexSpikeUp   1    0  
 
 Animation Buster     TexBuster   1    0   
 Animation Explosion  TexExplode 48    2   
