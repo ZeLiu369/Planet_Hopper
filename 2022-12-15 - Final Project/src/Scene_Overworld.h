@@ -22,6 +22,10 @@ class Scene_Overworld : public Scene
     sf::Sprite                  background;
     sf::Shader                  *shader, red_shader, grey_shader, fade_shader, shake_shader;
     sf::Clock                   time;
+    std::string                 direction = "none";
+    int                         offset = 0;
+    int                         currPlanet;
+    std::vector<sf::VertexArray> points;
 
     void init();
     int  loadShaders();
@@ -31,7 +35,6 @@ class Scene_Overworld : public Scene
     void spawnPlayer();
 
     void sMovement();
-    void sAnimation();
     void sCollision();
 
 public:

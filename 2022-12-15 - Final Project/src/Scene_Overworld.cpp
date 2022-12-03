@@ -96,6 +96,16 @@ void Scene_Overworld::loadMap()
     planet3->addComponent<CTransform>(Vec2(1150, 360));
     planet3->addComponent<CLevelStatus>();
 
+    
+    sf::VertexArray point(sf::Points, 1);
+    for (int i = 0; i < 1280; i += 20)
+    {
+        point[0].position.x = i;
+        point[0].position.y = 360;
+        point[0].color = sf::Color::Red;
+        points.push_back(point);
+    }
+
     spawnPlayer();
 }
 
@@ -103,8 +113,8 @@ void Scene_Overworld::spawnPlayer()
 {
     m_player = m_entityManager.addEntity("player");
 
-    m_player->addComponent<CTransform>(Vec2(100, 360));
-    m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
+    m_player->addComponent<CTransform>(Vec2(30, 360));
+    m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Spaceship"), true);
     m_player->addComponent<CBoundingBox>(Vec2(48, 48));
     m_player->addComponent<CInput>();
 }
@@ -115,64 +125,98 @@ void Scene_Overworld::sMovement()
     CTransform& transform = m_player->getComponent<CTransform>();
     CInput& input = m_player->getComponent<CInput>();
     int offset = 40;
+    
+
     if (input.right)
     {
-        //transform.prevPos.x = transform.pos.x;
-        if (planet1->getComponent<CLevelStatus>().unlocked 
-            && transform.pos.x + offset < planet1->getComponent<CTransform>().pos.x)  
-        { 
-            transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; 
-        }
-        else if (planet2->getComponent<CLevelStatus>().unlocked 
-            && transform.pos.x + offset < planet2->getComponent<CTransform>().pos.x)  
-        { 
-            transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; 
-        }
-        else if (planet3->getComponent<CLevelStatus>().unlocked 
-            && transform.pos.x + offset < planet3->getComponent<CTransform>().pos.x)  
-        { 
-            transform.pos.x = planet3->getComponent<CTransform>().pos.x - offset; 
-        }
-        //std::cout << "pos: " << transform.pos.x << "\n";
-        //std::cout << "prev pos: " << transform.prevPos.x << "\n";
-        input.right = false;
+        transform.velocity.x = 5;
+        direction = "right";
+        
     }
-    else if (input.left)
+    if (input.left)
     {
-        //transform.pos.x = transform.prevPos.x;
-        if      (transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x) { transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; }
-        else if (transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x) { transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; }
-        else if (transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x) { transform.pos.x = transform.prevPos.x; }
-        input.left = false;
+        transform.velocity.x = -5;
+        direction = "left";
     }
-    
-    //// horizontal movement
-    //int xdir = (input.right - input.left);
-    //transform.velocity.x = xdir * 350;
-    //if (xdir != 0) transform.scale.x = xdir;
 
-    //// vertical movement
-    ////int ydir = (input.down - input.up);
-    ////transform.velocity.y = ydir * 5;
+    transform.prevPos = transform.pos;
 
-    //// player speed limits
-    //if (abs(transform.velocity.x) > 350)
+    if (direction == "right")
+    {
+        //std::cout << "in right" << "\n";
+
+        if (currPlanet == 1 && !planet2->getComponent<CLevelStatus>().unlocked) { return; }
+        else if (currPlanet == 2 && !planet3->getComponent<CLevelStatus>().unlocked) { return; }
+
+        transform.scale.x = 1.0;
+        if (direction != "none") { transform.pos.x += transform.velocity.x; }
+        
+        if (planet1->getComponent<CLevelStatus>().unlocked
+            && transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x)
+        {
+            direction = "none";
+            currPlanet = 1;
+            //std::cout << "in right: 1" << "\n";
+        }
+        else if (planet2->getComponent<CLevelStatus>().unlocked
+            && transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x)
+        {
+            direction = "none";
+            currPlanet = 2;
+            //std::cout << "in right: 2" << "\n";
+        }
+        else if (planet3->getComponent<CLevelStatus>().unlocked
+            && transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x)
+        {
+            direction = "none";
+            currPlanet = 3;
+            //std::cout << "in right: 3" << "\n";
+        }
+    }
+
+    if (direction == "left")
+    {
+        transform.pos.x += transform.velocity.x;
+        transform.scale.x = -1.0;
+        if      (transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x) { currPlanet = 3; direction = "none"; }
+        else if (transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x) { currPlanet = 2; direction = "none"; }
+        else if (transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x) { currPlanet = 1; direction = "none"; }
+        else { currPlanet = 0; }
+    }
+
+    if (transform.pos.x < 30)   { transform.pos.x = 30; }
+    if (transform.pos.x > 1255) { transform.pos.x = 1255; }
+
+    //if (input.right)
     //{
-    //    transform.velocity.x = transform.velocity.x > 0 ? 350 : -350;
+    //    //transform.prevPos.x = transform.pos.x;
+    //    if (planet1->getComponent<CLevelStatus>().unlocked 
+    //        && transform.pos.x + offset < planet1->getComponent<CTransform>().pos.x)  
+    //    { 
+    //        transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; 
+    //    }
+    //    else if (planet2->getComponent<CLevelStatus>().unlocked 
+    //        && transform.pos.x + offset < planet2->getComponent<CTransform>().pos.x)  
+    //    { 
+    //        transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; 
+    //    }
+    //    else if (planet3->getComponent<CLevelStatus>().unlocked 
+    //        && transform.pos.x + offset < planet3->getComponent<CTransform>().pos.x)  
+    //    { 
+    //        transform.pos.x = planet3->getComponent<CTransform>().pos.x - offset; 
+    //    }
+    //    //std::cout << "pos: " << transform.pos.x << "\n";
+    //    //std::cout << "prev pos: " << transform.prevPos.x << "\n";
+    //    input.right = false;
     //}
-    ////if (abs(transform.velocity.y) > 20)
-    ////{
-    ////    transform.velocity.y = transform.velocity.y > 0 ? 20 : -20;
-    ////}
-
-    //// updates prevPos and current pos
-    //transform.prevPos = transform.pos;
-    //transform.pos += transform.velocity;
-}
-
-void Scene_Overworld::sAnimation()
-{
-
+    //else if (input.left)
+    //{
+    //    //transform.pos.x = transform.prevPos.x;
+    //    if      (transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x) { transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; }
+    //    else if (transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x) { transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; }
+    //    else if (transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x) { transform.pos.x = transform.prevPos.x; }
+    //    input.left = false;
+    //}
 }
 
 void Scene_Overworld::sCollision()
@@ -192,7 +236,6 @@ void Scene_Overworld::sCollision()
         {
             p->getComponent<CAnimation>().animation.getSprite();
             shake = true;
-            //shader = &shake_shader;
         }
 
         if (m_changeScene && overlap.x >= 0 && overlap.y >= 0)
@@ -231,13 +274,13 @@ void Scene_Overworld::sDoAction(const Action& action)
     }
 }
 
+
 void Scene_Overworld::update()
 {
     m_entityManager.update();
 
     sMovement();
     sCollision();
-    sAnimation();
 
     m_currentFrame++;
 }
@@ -254,9 +297,16 @@ void Scene_Overworld::sRender()
 {
     m_game->window().clear(sf::Color(127, 127, 127));
     sf::Texture backgroundTexture;
-    backgroundTexture.loadFromFile("images/new/blue.png");
-    backgroundTexture.setSmooth(false);
-    //background.setTexture(backgroundTexture);
+    backgroundTexture.loadFromFile("images/new/stars.png");
+    backgroundTexture.setSmooth(true);
+    backgroundTexture.setRepeated(true);
+
+    sf::Texture backgroundTexture2;
+    backgroundTexture2.loadFromFile("images/new/stars.png");
+    backgroundTexture2.setSmooth(true);
+    backgroundTexture2.setRepeated(true);
+
+    
 
     Vec2 TextureSize(backgroundTexture.getSize().x, backgroundTexture.getSize().y);  //Added to store texture size.
     Vec2 WindowSize(m_game->window().getSize().x, m_game->window().getSize().y);   //Added to store window size.
@@ -265,14 +315,36 @@ void Scene_Overworld::sRender()
     float ScaleY = (float)WindowSize.y / TextureSize.y;     //Calculate scale.
 
     background.setTexture(backgroundTexture);
-    background.setScale(ScaleX, ScaleY);      //Set scale.  
+    background.setScale(ScaleX, ScaleY);      //Set scale.
+    
+
+    sf::Sprite background2;
+    background2.setTexture(backgroundTexture2);
+    background2.setScale(ScaleX, ScaleY);      //Set scale.  
+
+    offset++;
+    background.setPosition(0 + offset, 0);
+    background2.setPosition(-1280 + offset, 0);
+
+    if (offset >= 1280)
+    {
+        offset = 0;
+        background.setPosition(0, 0);
+        background2.setPosition(-1280, 0);
+
+    }
+    
     m_game->window().draw(background);
+    m_game->window().draw(background2);
+
+    
 
     // Set shader parameters
     fade_shader.setUniform("time", time.getElapsedTime().asSeconds());
     shake_shader.setUniform("time", time.getElapsedTime().asSeconds());
     //red_shader.setUniform("time", time.getElapsedTime().asSeconds());
     //grey_shader.setUniform("time", time.getElapsedTime().asSeconds());
+    
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
@@ -321,10 +393,23 @@ void Scene_Overworld::sRender()
         }
     }
 
+    // draw the game name in the top middle of the screem
+    m_text.setCharacterSize(40);
+    m_text.setFillColor(sf::Color::White);
+    m_text.setString("PLANET HOPPER");
+    m_text.setPosition(sf::Vector2f(400, 50));
+    m_game->window().draw(m_text);
+
     // draw the controls in the bottom-left
     m_text.setCharacterSize(20);
     m_text.setFillColor(sf::Color::White);
     m_text.setString("move left: a    move right: d   select: space   back: esc");
     m_text.setPosition(sf::Vector2f(10, 690));
     m_game->window().draw(m_text);
+
+    // draw red dotted points
+    for (auto& p : points)
+    {
+        m_game->window().draw(p);
+    }
 }
