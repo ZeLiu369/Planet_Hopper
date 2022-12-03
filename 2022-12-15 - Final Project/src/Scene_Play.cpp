@@ -76,7 +76,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     m_entityManager = EntityManager();
 
     m_game->assets().getSound("OverWorld").stop();
-    m_game->playSound("Play");
+    //m_game->playSound("Play");
 
     std::ifstream fin(filename);
     std::string temp;
@@ -192,7 +192,7 @@ void Scene_Play::spawnPlayer()
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
 
-    Vec2 BULLET_SIZE = Vec2(20, 20);
+    Vec2 BULLET_SIZE = Vec2(67, 19);
     int BULLET_LIFETIME = 60;
 
     PlayerConfig& pc = m_playerConfig;
@@ -720,7 +720,7 @@ void Scene_Play::updateBackgrounds()
         {
             auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
             auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
-            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= 10)
+            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
             {
                 if (playerTransform.velocity.x > 0)
                 {
@@ -731,7 +731,7 @@ void Scene_Play::updateBackgrounds()
                     backgroundTwoPos.x = backgroundOnePos.x - m_game->window().getSize().x - eVelocity.x;
                 }
             }
-            else if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= 10)
+            else if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
             {
                 if (playerTransform.velocity.x > 0)
                 {

@@ -41,6 +41,7 @@ protected:
     std::shared_ptr<Entity> m_camera;
     std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
+    LevelConfig             m_levelConfig;
 
     // drawing
     bool                    m_drawTextures = true;
@@ -70,18 +71,17 @@ protected:
     std::shared_ptr<Entity> m_selected = NULL;
 
     // animation list
-    std::vector<std::vector<std::string>>m_animations =
+    std::vector<std::string> m_aniAssets = {};
+
+    std::map<std::string, std::vector<std::string>>m_levelAssetList =
     {
-        // Tile List
-        {"Ground", "Brick", "Question", "Block", "PipeTall", "Pole","PoleTop"},
-        // Dec list
-        {"BushBig", "CloudSmall", "CloudBig", "Flag", "Coin", "Pole"},
-        // NPC list
-        {}
+        {"Music", {"MusicTitle", "Play", "OverWorld"}},
+        {"Background", {"Background1", "Background2", "Background3", "None"}}
     };
 
-
     void init(const std::string& levelPath);
+
+    void fillAssetList();
 
     void loadLevel(const std::string& filename);
 
