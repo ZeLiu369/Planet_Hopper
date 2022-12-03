@@ -39,6 +39,9 @@ void Scene_Editor::init(const std::string& levelPath)
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
     registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");         // Toggle drawing (F)amera
     registerAction(sf::Keyboard::Delete, "DELETE_MODE");         // Toggle (Delete) mode
+    registerAction(sf::Keyboard::Num8, "MUSIC");
+    registerAction(sf::Keyboard::Num9, "BACKGROUND");
+    registerAction(sf::Keyboard::Num0, "DARK");
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -94,19 +97,14 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
     Vec2& ePos = entity->getComponent<CTransform>().pos;
     Vec2 snap = gridToMidPixel(floor(ePos.x / m_gridSize.x), (m_BOUNDARYPOS.y - 1) - floor(ePos.y / m_gridSize.y), entity);
 
-    if (entity->tag() == "tile" || entity->tag() == "player" || entity->tag() == "npc")
+    for (auto& e : m_entityManager.getEntities())
     {
-        for (auto& e : m_entityManager.getEntities())
+        if (e->getComponent<CTransform>().pos == snap)
         {
-            if ((e->tag() == "tile" || e->tag() == "player" || e->tag() == "npc") && e != entity)
-            {
-                if (e->getComponent<CTransform>().pos == snap)
-                {
-                    return false;
-                }
-            }
+            return false;
         }
     }
+    
 
     Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
     Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
@@ -149,45 +147,71 @@ void Scene_Editor::loadLevel(const std::string& filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
+    m_game->assets().getSound("MusicTitle").stop();
+
+    m_levelConfig.MUSIC = "Play";
+    m_levelConfig.DARK = false;
+    m_levelConfig.BACKGROUND = "None";
+
     std::ifstream fin(filename);
     std::string temp;
 
     while (fin >> temp)
     {
-        if (temp == "Tile" || temp == "Dec")
+        if (temp != "Item" && temp != "Player")
         {
-
             std::string type = temp;
             std::string texture;
+            if (type == "Lighting")
+            {
+                std::string time;
+                fin >> time;
+                if (time == "Night")
+                {
+                    m_levelConfig.DARK = true;
+                }
+                continue;
+            }
+            if (type == "Background")
+            {
+                fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
+            }
             float x, y;
             fin >> texture >> x >> y;
 
-            Vec2 tSize = m_game->assets().getAnimation(texture).getSize();
-            x = (x * m_gridSize.x) + (tSize.x / 2);
-            y = (height()) - ((y * m_gridSize.y) + (tSize.y / 2));
-
-            auto& tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
+            auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-            tile->addComponent<CTransform>(Vec2(x, y));
+            tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tSize);
+            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
             tile->addComponent<CDraggable>();
         }
-        else if (temp == "NPC")
+        else if (temp == "Item")
         {
-            // todo
+            std::string tileName;
+            float x, y;
+            fin >> tileName >> x >> y;
+            Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
+
+            auto item = m_entityManager.addEntity("item");
+
+            item->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
+            item->addComponent<CTransform>(gridToMidPixel(x, y, item));
+            item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
+            item->addComponent<CDraggable>();
         }
-        else if (temp == "Player")
+        else
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
-            
         }
-
     }
     spawnPlayer();
     spawnCamera();
+
+    m_game->playSound(m_levelConfig.MUSIC);
 }
 
 void Scene_Editor::spawnPlayer()
@@ -217,6 +241,12 @@ void Scene_Editor::spawnCamera()
 
     m_camera->addComponent<CInput>();
     m_camera->addComponent<CState>("move");
+}
+
+void Scene_Editor::setLevelProperties()
+{
+    LevelConfig& lc = m_levelConfig;
+    // maybe add some stuff :)
 }
 
 bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
@@ -280,7 +310,7 @@ void Scene_Editor::sState()
                 }
             }
         }
-        else if (input.click2 &&  m_selected != NULL && m_selected->tag() != "player")
+        else if (input.click2 && m_selected != NULL && m_selected->tag() != "player")
         {
             pasteEntity(m_selected);
         }
@@ -436,6 +466,36 @@ void Scene_Editor::sDoAction(const Action& action)
             }
         }
 
+        else if (action.name() == "MUSIC")
+        {
+            m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+            for (int i = 0; i < m_levelAssetList["Music"].size(); i++)
+            {
+                if (m_levelAssetList["Music"][i] == m_levelConfig.MUSIC)
+                {
+                    m_levelConfig.MUSIC = m_levelAssetList["Music"][(i + 1) % m_levelAssetList["Music"].size()];
+                    break;
+                }
+            }
+            m_game->playSound(m_levelConfig.MUSIC);
+        }
+        else if (action.name() == "BACKGROUND")
+        {
+            for (int i = 0; i < m_levelAssetList["Background"].size(); i++)
+            {
+                if (m_levelAssetList["Background"][i] == m_levelConfig.BACKGROUND)
+                {
+                    m_levelConfig.BACKGROUND = m_levelAssetList["Background"][(i + 1) % m_levelAssetList["Background"].size()];
+                    break;
+                }
+            }
+            std::cout << m_levelConfig.BACKGROUND;
+        }
+        else if (action.name() == "DARK")
+        {
+            m_levelConfig.DARK = !m_levelConfig.DARK;
+        }
+
     }
     else if (action.type() == "END")
     {
@@ -478,13 +538,28 @@ void Scene_Editor::sAnimation()
 void Scene_Editor::onEnd()
 {
     m_hasEnded = true;
+    m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+    m_game->playSound("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
 
 void Scene_Editor::sRender()
 {
     // color the background darker so you know that the game is paused
-    m_game->window().clear(sf::Color(100, 100, 255));
+
+    std::tuple<int,int,int> rgb;
+    if (m_levelConfig.BACKGROUND == "Background1") rgb = { 60, 123, 232 };
+    else if (m_levelConfig.BACKGROUND == "Background2") rgb = { 158, 132, 179 };
+    else if (m_levelConfig.BACKGROUND == "Background3") rgb = { 150, 51, 64 };
+    else rgb = { 148, 148, 148 };
+    if (m_levelConfig.DARK)
+    {
+        std::get<0>(rgb) -= 50;
+        std::get<1>(rgb) -= 50;
+        std::get<2>(rgb) -= 50;
+    }
+
+    m_game->window().clear(sf::Color(std::get<0>(rgb), std::get<1>(rgb), std::get<2>(rgb)));
 
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_camera->getComponent<CTransform>().pos;
