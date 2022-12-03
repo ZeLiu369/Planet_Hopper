@@ -1,4 +1,4 @@
-Lighting    Night
+Lighting    Day
 Background  Sky     0 1.25 1.5  640 384 
 Background  Stars   1 1.25 1.65 640 384  0.95
 Background  SkyObj  1 1    1    640 200  0.85
@@ -18,7 +18,6 @@ Tile Plat	 7 0
 Tile Plat 	 8 0
 Tile Plat 	 9 0
 Tile Plat 	10 0
-
 Tile Plat	 0 11
 Tile Plat	 1 11
 Tile Plat	 2 11
@@ -26,22 +25,18 @@ Tile Plat	 3 11
 Tile Plat	 4 11
 Tile Plat	 5 11
 Tile Plat	 6 11
-
 Tile SpikeUp     7 1
 Tile SpikeUp     8 1
 Tile SpikeUp     9 1
 Tile SpikeUp    10 1
 Tile SpikeUp    11 1
-
 Tile Plat	 7 11
 Tile Plat 	 8 11
 Tile Plat 	 9 11
 Tile Plat 	10 11
-
 Tile WavyLeft 	 8 4
 Tile WavyMid 	 9 4
 Tile WavyRight 	10 4
-
 Tile Plat 	11 0
 Tile Plat 	12 0
 Tile Plat 	13 0
@@ -119,4 +114,4 @@ Tile Plat 	84 0
 Tile Plat 	85 0
 Tile Plat 	86 0
 Tile Plat 	87 0
-Player 2 6 46 70 5 -20 20 0.75 Buster
+Player 2 6 46 70 5 -20 20 0.75 Missile

@@ -76,7 +76,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     m_entityManager = EntityManager();
 
     m_game->assets().getSound("OverWorld").stop();
-    m_game->playSound("Play");
+    //m_game->playSound("Play");
 
     std::ifstream fin(filename);
     std::string temp;
@@ -192,7 +192,7 @@ void Scene_Play::spawnPlayer()
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
 
-    Vec2 BULLET_SIZE = Vec2(20, 20);
+    Vec2 BULLET_SIZE = Vec2(67, 19);
     int BULLET_LIFETIME = 60;
 
     PlayerConfig& pc = m_playerConfig;

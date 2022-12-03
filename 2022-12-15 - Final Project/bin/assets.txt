@@ -17,6 +17,7 @@ Texture   TexWavyLeft  images/misc/platformWavyLeft.png
 Texture   TexWavyMid   images/misc/platformWavyMiddle.png
 Texture   TexWavyRight images/misc/platformWavyRight.png
 Texture   TexSpikeUp   images/misc/spikeUp.png        
+Texture   TexMissile   images/misc/missileSheet.png
          
 Texture   TexBuster  images/megaman/buster.png
 Texture   TexExplode images/misc/explosion128.png
@@ -67,7 +68,8 @@ Animation Wavy       TexWavy      1    0
 Animation WavyLeft   TexWavyLeft  1    0
 Animation WavyMid    TexWavyMid   1    0
 Animation WavyRight  TexWavyRight 1    0   
-Animation SpikeUp    TexSpikeUp   1    0  
+Animation SpikeUp    TexSpikeUp   1    0
+Animation Missile    TexMissile   4    5  
 
 Animation Buster     TexBuster   1    0   
 Animation Explosion  TexExplode 48    2   
