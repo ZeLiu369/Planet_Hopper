@@ -33,7 +33,8 @@ typedef std::tuple<
     CLevelStatus,
     CInventory,
     CDraggable,
-    CWeapon
+    CWeapon,
+    CDamage
 > ComponentTuple;
 
 class Entity
