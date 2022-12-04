@@ -42,6 +42,10 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
 
+    registerAction(sf::Keyboard::Num1, "RAYGUN");
+    registerAction(sf::Keyboard::Num2, "BOMB");
+    registerAction(sf::Keyboard::Num3, "LAUNCHER");
+
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
@@ -54,6 +58,9 @@ void Scene_Play::init(const std::string& levelPath)
 
     m_coinText.setCharacterSize(24);
     m_coinText.setFont(m_game->assets().getFont("Tech"));
+
+    m_weaponUIText.setCharacterSize(14);
+    m_weaponUIText.setFont(m_game->assets().getFont("Tech"));
 
     inventoryItems = { false, false, false, false, false };
     loadLevel(levelPath);
@@ -167,6 +174,10 @@ void Scene_Play::loadLevel(const std::string& filename)
         }
     }
 
+    // load in default weapon
+    auto raygun = m_entityManager.addEntity("weapon");
+    raygun->addComponent<CAnimation>(m_game->assets().getAnimation("Raygun"), true);
+    
     if (filename == "level1.txt") { m_level = 1;  }
     if (filename == "level2.txt") { m_level = 2; }
     if (filename == "level3.txt") { m_level = 3; }
@@ -191,13 +202,13 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CState>("air");
 
     m_player->addComponent<CCoinCounter>();
+    m_player->addComponent<CWeapon>();
 }
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
-
     Vec2 BULLET_SIZE = Vec2(67, 19);
-    int BULLET_LIFETIME = 60;
+    int BULLET_LIFETIME = 240;
 
     PlayerConfig& pc = m_playerConfig;
 
@@ -206,13 +217,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(pc.WEAPON), true);
 
-    bullet->addComponent<CTransform>
-        (
-            entityT.pos,
-            Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f),
-            entityT.scale,
-            0.0f
-            );
+    bullet->addComponent<CTransform>(entityT.pos, Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f), Vec2(1.0, 1.0), 0.0f);
 
     bullet->addComponent<CBoundingBox>(BULLET_SIZE);
 
@@ -273,6 +278,7 @@ void Scene_Play::sMovement()
     CState& state = m_player->getComponent<CState>();
     CGravity& gravity = m_player->getComponent<CGravity>();
     CCoinCounter& counter = m_player->getComponent<CCoinCounter>();
+    CWeapon& weapon = m_player->getComponent<CWeapon>();
 
     // player movement
 
@@ -317,6 +323,19 @@ void Scene_Play::sMovement()
     }
     transform.scale.y = gravity.gravity >= 0 ? 1 : -1;
 
+    // if the player switched weapons
+    if (!(weapon.currentWeapon == weapon.previousWeapon))
+    {
+        // destroy old weapon
+        for (auto w : m_entityManager.getEntities("weapon"))
+        {
+            w->destroy();
+        }
+        auto newWeapon = m_entityManager.addEntity("weapon");
+        newWeapon->addComponent<CAnimation>(m_game->assets().getAnimation(weapon.currentWeapon), true);
+        weapon.previousWeapon = weapon.currentWeapon;
+    }
+
     // player shooting
     if (input.shoot && input.canShoot)
     {
@@ -347,11 +366,78 @@ void Scene_Play::sMovement()
     transform.pos.x += transform.velocity.x;
     transform.pos.y += transform.velocity.y;
 
+    // weapon movement
+    for (auto weapon : m_entityManager.getEntities("weapon"))
+    {
+        auto& weapT = weapon->getComponent<CTransform>();
+        weapT.scale = transform.scale;
+        if (m_player->getComponent<CState>().state == "ground" && m_player->getComponent<CAnimation>().animation.getName() == "Stand")
+        {
+            if (weapT.scale.x == -1 && weapT.scale.y == 1)
+            {
+                weapT.angle = -90.0;
+                weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y + 32 };
+            }
+            else if (weapT.scale.x == 1 && weapT.scale.y == 1)
+            {
+                weapT.angle = 90.0;
+                weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y + 32 };
+            }
+            else if (weapT.scale.x == -1 && weapT.scale.y == -1)
+            {
+                weapT.angle = 90.0;
+                weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y - 32 };
+            }
+            else if (weapT.scale.x == 1 && weapT.scale.y == -1)
+            {
+                weapT.angle = -90.0;
+                weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y - 32 };
+            }
+        }
+        else
+        {
+            weapT.angle = 0.0;
+            if (weapT.scale.x == -1)
+            {
+                weapT.pos.x = m_player->getComponent<CTransform>().pos.x - 30;
+            }
+            else
+            {
+                weapT.pos.x = m_player->getComponent<CTransform>().pos.x + 30;
+            }
+            if (weapT.scale.y == -1)
+            {
+                weapT.pos.y = m_player->getComponent<CTransform>().pos.y - 4;
+            }
+            else
+            {
+                weapT.pos.y = m_player->getComponent<CTransform>().pos.y + 4;
+            }
+        }
+    }
+
     // bullet movement
     for (auto& b : m_entityManager.getEntities("bullet"))
     {
         CTransform& bt = b->getComponent<CTransform>();
-        bt.pos.x += bt.velocity.x;
+        if (b->getComponent<CAnimation>().animation.getName() == "Missile")
+        {
+            Vec2 worldPos = windowToWorld(m_mPos);
+            Vec2 distVec = worldPos - Vec2(bt.pos.x, bt.pos.y);
+            float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);         
+            Vec2 normalizeVec = distVec / dist;
+            float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
+            normalizeVec *= dist2;
+
+            float scale = 1;
+            Vec2 steering = normalizeVec - Vec2(bt.velocity.x, bt.velocity.y);
+            steering *= scale;
+            Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
+
+            bt.angle = (atan2(actual.y, actual.x) * 180 / 3.14159265);
+            bt.velocity = { actual.x, actual.y};
+        }
+        bt.pos += bt.velocity;
     }
     for (auto& c : m_entityManager.getEntities("coinbullet"))
     {
@@ -590,10 +676,14 @@ void Scene_Play::sDoAction(const Action& action)
 
         else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
         else if (action.name() == "MONEY") { m_player->getComponent<CInput>().money = true; }
+        else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
+
+        else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
+        else if (action.name() == "BOMB")     { m_player->getComponent<CWeapon>().currentWeapon = "Bomb";     }
+        else if (action.name() == "LAUNCHER") { m_player->getComponent<CWeapon>().currentWeapon = "Launcher"; }
 
         else if (action.name() == "LEFT_CLICK")
         {
-            m_mPos = action.pos();
             Vec2 worldPos = windowToWorld(m_mPos);
             std::cout << "Mouse Clickled: " << worldPos.x << ", " << worldPos.y << "\n";
             for (auto e : m_entityManager.getEntities())
@@ -833,6 +923,68 @@ sf::Sprite Scene_Play::getLightingSprite()
     return night;
 }
 
+sf::RectangleShape Scene_Play::displayRect(float x, float y, const int size)
+{
+    sf::RectangleShape rect;
+    rect.setSize(sf::Vector2f(size, size));
+    rect.setOrigin(sf::Vector2f(size / 2, size / 2));
+    rect.setPosition(x, y);
+    rect.setFillColor(sf::Color(0, 0, 0, 0));
+    rect.setOutlineColor(sf::Color(255, 255, 255, 255));
+    rect.setOutlineThickness(1);
+   
+    return rect;
+}
+
+sf::Text Scene_Play::displayText(std::string text, float x, float y)
+{
+    m_weaponUIText.setString(text);
+    m_weaponUIText.setPosition(x, y);
+
+    return m_weaponUIText;
+}
+
+void Scene_Play::drawWeaponDisplay()
+{
+    float viewCenterX = m_game->window().getView().getCenter().x;
+    const int size = 48;
+    m_game->window().draw(displayText("1", viewCenterX - size - 20, m_game->window().getSize().y - size / 2 - 30));
+    m_game->window().draw(displayText("2", viewCenterX - 20, m_game->window().getSize().y - size / 2 - 30));
+    m_game->window().draw(displayText("3", viewCenterX + size - 20, m_game->window().getSize().y - size / 2 - 30));
+
+    sf::Sprite raygunDisplay(m_game->assets().getTexture("TexRaygun"));
+    raygunDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    raygunDisplay.setPosition(viewCenterX - size, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(raygunDisplay);
+
+    sf::Sprite bombDisplay(m_game->assets().getTexture("TexBomb"));
+    bombDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    bombDisplay.setPosition(viewCenterX, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(bombDisplay);
+
+    sf::Sprite launcherDisplay(m_game->assets().getTexture("TexLauncher"));
+    launcherDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    launcherDisplay.setPosition(viewCenterX + size, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(launcherDisplay);
+
+    m_game->window().draw(displayRect(viewCenterX - size, m_game->window().getSize().y - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX, m_game->window().getSize().y - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX + size, m_game->window().getSize().y - size / 2 - 4, size));
+}
+
+void Scene_Play::drawWeapon()
+{
+    for (auto weapon : m_entityManager.getEntities("weapon"))
+    {
+        auto& transform = weapon->getComponent<CTransform>();
+        auto& animation = weapon->getComponent<CAnimation>().animation;
+        animation.getSprite().setRotation(transform.angle);
+        animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+        animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+        m_game->window().draw(animation.getSprite());
+    }
+}
+
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
@@ -849,7 +1001,7 @@ void Scene_Play::sRender()
         {
             auto& transform = e->getComponent<CTransform>();
 
-            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items")
+            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items" && e->tag() != "weapon")
             {
                 auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
@@ -859,6 +1011,8 @@ void Scene_Play::sRender()
             }
         }
     }
+    // draw the current weapon
+    drawWeapon();
 
     sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
     miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
@@ -913,6 +1067,7 @@ void Scene_Play::sRender()
     //    m_coinText.setPosition(leftX, 0);
     //    m_game->window().draw(m_coinText);
     //}
+
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
@@ -1000,6 +1155,8 @@ void Scene_Play::sRender()
             m_game->window().draw(animation.getSprite());
         }
     }
+    // Draw the weapon display UI
+    drawWeaponDisplay();
 }
 
 

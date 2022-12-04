@@ -50,6 +50,7 @@ protected:
     const Vec2              m_gridSize = { 64, 64 };
     sf::Text                m_gridText;
     sf::Text                m_coinText;
+    sf::Text                m_weaponUIText;
 
     Vec2                    m_mPos;
 
@@ -57,6 +58,10 @@ protected:
 
     void loadLevel(const std::string & filename);
 
+    sf::Text displayText(std::string, float x, float y);
+    sf::RectangleShape displayRect(float x, float y, const int size);
+    void drawWeapon();
+    void drawWeaponDisplay();
     void updateBackgrounds();
     void update();
     void onEnd();
