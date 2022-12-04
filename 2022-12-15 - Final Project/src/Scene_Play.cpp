@@ -96,50 +96,10 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     while (fin >> temp)
     {
-        if (temp != "Item" && temp != "Player")
+        if (temp == "Dec" || temp == "Tile")
         {
             std::string type = temp;
             std::string texture;
-            if (type == "Background")
-            {
-                int scroll;
-                float scaleX, scaleY, x, y, scrollFactor;
-                fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
-                if (scroll == 1)
-                {
-                    fin >> scrollFactor;
-                    auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
-                    backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
-
-                    auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
-                    backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
-
-                    m_backgroundsMap[texture].push_back(backgroundScroll);
-                    m_backgroundsMap[texture].push_back(backgroundScroll2);
-                }
-                else
-                {
-                    auto backgroundNoScroll = m_entityManager.addEntity("noscrollbackground");
-                    backgroundNoScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundNoScroll->addComponent<CTransform>(Vec2(x, y));
-                    backgroundNoScroll->getComponent<CTransform>().scale = { scaleX, scaleY };
-                }
-                continue;
-            }
-            if (type == "Lighting")
-            {
-                std::string time;
-                fin >> time;
-                if (time == "Night")
-                {
-                    m_renderTexture.create(m_game->window().getSize().x, m_game->window().getSize().y);
-                    m_lightTexture = m_game->assets().getTexture("TexLight");
-                    m_night = true;
-                }
-                continue;
-            }
             float x, y;
             fin >> texture >> x >> y;
 
@@ -148,6 +108,54 @@ void Scene_Play::loadLevel(const std::string& filename)
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
             if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+        }
+        else if (temp == "Background")
+        {
+            int scroll;
+            float scaleX, scaleY, x, y, scrollFactor;
+            std::string texture;
+            fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
+            if (scroll == 1)
+            {
+                fin >> scrollFactor;
+                auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
+                backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
+                backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                m_backgroundsMap[texture].push_back(backgroundScroll);
+                m_backgroundsMap[texture].push_back(backgroundScroll2);
+            }
+            else
+            {
+                auto backgroundNoScroll = m_entityManager.addEntity("noscrollbackground");
+                backgroundNoScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundNoScroll->addComponent<CTransform>(Vec2(x, y));
+                backgroundNoScroll->getComponent<CTransform>().scale = { scaleX, scaleY };
+            }
+        }
+        else if (temp == "Lighting")
+        {
+            std::string time;
+            fin >> time;
+            if (time == "Night")
+            {
+                m_renderTexture.create(m_game->window().getSize().x, m_game->window().getSize().y);
+                m_lightTexture = m_game->assets().getTexture("TexLight");
+                m_night = true;
+            }
+        }
+        else if (temp == "Weapon")
+        {
+            std::string texture;
+            int dmg;
+            fin >> texture >> dmg;
+            auto weapon = m_entityManager.addEntity("weapon");
+            weapon->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+            weapon->addComponent<CDamage>(dmg);
         }
         else if (temp == "Item")
         {
@@ -170,13 +178,9 @@ void Scene_Play::loadLevel(const std::string& filename)
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
-                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
+                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
         }
     }
-
-    // load in default weapon
-    auto raygun = m_entityManager.addEntity("weapon");
-    raygun->addComponent<CAnimation>(m_game->assets().getAnimation("Raygun"), true);
     
     if (filename == "level1.txt") { m_level = 1;  }
     if (filename == "level2.txt") { m_level = 2; }
@@ -202,7 +206,7 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CState>("air");
 
     m_player->addComponent<CCoinCounter>();
-    m_player->addComponent<CWeapon>();
+    m_player->addComponent<CWeapon>("Raygun");
 }
 
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
@@ -214,8 +218,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 
     CTransform& entityT = entity->getComponent<CTransform>();
     auto bullet = m_entityManager.addEntity("bullet");
-
-    bullet->addComponent<CAnimation>(m_game->assets().getAnimation(pc.WEAPON), true);
 
     bullet->addComponent<CTransform>(entityT.pos, Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f), Vec2(1.0, 1.0), 0.0f);
 
@@ -323,19 +325,6 @@ void Scene_Play::sMovement()
     }
     transform.scale.y = gravity.gravity >= 0 ? 1 : -1;
 
-    // if the player switched weapons
-    if (!(weapon.currentWeapon == weapon.previousWeapon))
-    {
-        // destroy old weapon
-        for (auto w : m_entityManager.getEntities("weapon"))
-        {
-            w->destroy();
-        }
-        auto newWeapon = m_entityManager.addEntity("weapon");
-        newWeapon->addComponent<CAnimation>(m_game->assets().getAnimation(weapon.currentWeapon), true);
-        weapon.previousWeapon = weapon.currentWeapon;
-    }
-
     // player shooting
     if (input.shoot && input.canShoot)
     {
@@ -369,49 +358,52 @@ void Scene_Play::sMovement()
     // weapon movement
     for (auto weapon : m_entityManager.getEntities("weapon"))
     {
-        auto& weapT = weapon->getComponent<CTransform>();
-        weapT.scale = transform.scale;
-        if (m_player->getComponent<CState>().state == "ground" && m_player->getComponent<CAnimation>().animation.getName() == "Stand")
+        if (weapon->getComponent<CAnimation>().animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
         {
-            if (weapT.scale.x == -1 && weapT.scale.y == 1)
+            auto& weapT = weapon->getComponent<CTransform>();
+            weapT.scale = transform.scale;
+            if (m_player->getComponent<CState>().state == "ground" && m_player->getComponent<CAnimation>().animation.getName() == "Stand")
             {
-                weapT.angle = -90.0;
-                weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y + 32 };
-            }
-            else if (weapT.scale.x == 1 && weapT.scale.y == 1)
-            {
-                weapT.angle = 90.0;
-                weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y + 32 };
-            }
-            else if (weapT.scale.x == -1 && weapT.scale.y == -1)
-            {
-                weapT.angle = 90.0;
-                weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y - 32 };
-            }
-            else if (weapT.scale.x == 1 && weapT.scale.y == -1)
-            {
-                weapT.angle = -90.0;
-                weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y - 32 };
-            }
-        }
-        else
-        {
-            weapT.angle = 0.0;
-            if (weapT.scale.x == -1)
-            {
-                weapT.pos.x = m_player->getComponent<CTransform>().pos.x - 30;
+                if (weapT.scale.x == -1 && weapT.scale.y == 1)
+                {
+                    weapT.angle = -90.0;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y + 32 };
+                }
+                else if (weapT.scale.x == 1 && weapT.scale.y == 1)
+                {
+                    weapT.angle = 90.0;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y + 32 };
+                }
+                else if (weapT.scale.x == -1 && weapT.scale.y == -1)
+                {
+                    weapT.angle = 90.0;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x - 10, m_player->getComponent<CTransform>().pos.y - 32 };
+                }
+                else if (weapT.scale.x == 1 && weapT.scale.y == -1)
+                {
+                    weapT.angle = -90.0;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10, m_player->getComponent<CTransform>().pos.y - 32 };
+                }
             }
             else
             {
-                weapT.pos.x = m_player->getComponent<CTransform>().pos.x + 30;
-            }
-            if (weapT.scale.y == -1)
-            {
-                weapT.pos.y = m_player->getComponent<CTransform>().pos.y - 4;
-            }
-            else
-            {
-                weapT.pos.y = m_player->getComponent<CTransform>().pos.y + 4;
+                weapT.angle = 0.0;
+                if (weapT.scale.x == -1)
+                {
+                    weapT.pos.x = m_player->getComponent<CTransform>().pos.x - 30;
+                }
+                else
+                {
+                    weapT.pos.x = m_player->getComponent<CTransform>().pos.x + 30;
+                }
+                if (weapT.scale.y == -1)
+                {
+                    weapT.pos.y = m_player->getComponent<CTransform>().pos.y - 4;
+                }
+                else
+                {
+                    weapT.pos.y = m_player->getComponent<CTransform>().pos.y + 4;
+                }
             }
         }
     }
@@ -976,12 +968,15 @@ void Scene_Play::drawWeapon()
 {
     for (auto weapon : m_entityManager.getEntities("weapon"))
     {
-        auto& transform = weapon->getComponent<CTransform>();
         auto& animation = weapon->getComponent<CAnimation>().animation;
-        animation.getSprite().setRotation(transform.angle);
-        animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
-        animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-        m_game->window().draw(animation.getSprite());
+        if (animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
+        {
+            auto& transform = weapon->getComponent<CTransform>();
+            animation.getSprite().setRotation(transform.angle);
+            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
     }
 }
 
