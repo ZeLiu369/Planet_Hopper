@@ -37,8 +37,8 @@ void Scene_Editor::init(const std::string& levelPath)
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
-    registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");         // Toggle drawing (F)amera
-    registerAction(sf::Keyboard::Delete, "DELETE_MODE");         // Toggle (Delete) mode
+    registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");       // Toggle drawing (F)amera
+    registerAction(sf::Keyboard::Delete, "DELETE_MODE");    // Toggle (Delete) mode
 
     registerAction(sf::Keyboard::Num8, "MUSIC");
     registerAction(sf::Keyboard::Num9, "BACKGROUND");
@@ -56,6 +56,12 @@ void Scene_Editor::init(const std::string& levelPath)
     m_controlText.setCharacterSize(24);
     m_controlText.setFont(m_game->assets().getFont("Tech"));
 
+    m_selectionText.setCharacterSize(48);
+    m_selectionText.setFont(m_game->assets().getFont("Tech"));
+
+    m_buttonText.setCharacterSize(24);
+    m_buttonText.setFont(m_game->assets().getFont("Tech"));
+
     fillAssetList();
     loadLevel(levelPath);
 }
@@ -72,8 +78,9 @@ Vec2 Scene_Editor::windowToWorld(const Vec2& window) const
 
 Vec2 Scene_Editor::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
 {
-
-    Vec2 size = entity->getComponent<CAnimation>().animation.getSize();
+    Vec2 size = (entity->hasComponent<CBoundingBox>() ? 
+        entity->getComponent<CBoundingBox>().size : 
+        entity->getComponent<CAnimation>().animation.getSize());
 
     return Vec2(
         (gridX * m_gridSize.x) + size.x / 2,
@@ -83,8 +90,10 @@ Vec2 Scene_Editor::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Enti
 
 Vec2 Scene_Editor::midPixelToGrid(std::shared_ptr<Entity> entity)
 {
+    Vec2 size = (entity->hasComponent<CBoundingBox>() ?
+        entity->getComponent<CBoundingBox>().size :
+        entity->getComponent<CAnimation>().animation.getSize());
 
-    Vec2 size = entity->getComponent<CAnimation>().animation.getSize();
     Vec2 pos = entity->getComponent<CTransform>().pos;
 
     return Vec2(
@@ -129,6 +138,8 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
 place stuff with menu
 
 save and load menu, using virtual keyboard
+
+rotate entity?
 
 modify mode / modifiy entity by middle click, camera locks onto entity, middle click entity to disengage,
 list if values to change appears next to entity: 
@@ -211,9 +222,9 @@ void Scene_Editor::loadLevel(const std::string& filename)
 
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
             tile->addComponent<CDraggable>();
         }
         else if (temp == "Item")
@@ -275,13 +286,14 @@ void Scene_Editor::spawnCamera()
 bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
 {
     auto& entity = m_entityManager.addEntity(e->tag());
-    entity->addComponent<CTransform>(windowToWorld(m_mPos));
+    entity->addComponent<CTransform>() = e->getComponent<CTransform>();
     entity->addComponent<CDraggable>();
 
     if (e->hasComponent<CBoundingBox>()) entity->addComponent<CBoundingBox>() = e->getComponent<CBoundingBox>();
     if (e->hasComponent<CAnimation>()) entity->addComponent<CAnimation>() = e->getComponent<CAnimation>();
     if (e->hasComponent<CGravity>()) entity->addComponent<CGravity>() = e->getComponent<CGravity>();
 
+    entity->getComponent<CTransform>().pos = windowToWorld(m_mPos);
     if (snapToGrid(entity))
     {
         return(true);
@@ -293,13 +305,66 @@ bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
     }
 }
 
+void Scene_Editor::showEntityPage(int page)
+{
+    clearEntityPage();
+    Vec2& camPos = m_camera->getComponent<CTransform>().pos;
+
+    Vec2 startCorner = { camPos.x - (width() / 2), camPos.y - (height() / 2) };
+    Vec2 endCorner = { startCorner.x + width(), startCorner.y + height() };
+    int x = startCorner.x + m_gridSize.x;
+    int y = startCorner.y + m_gridSize.y*3;
+
+    for (int i = (112*page); i < (112*page)+113 && i < m_aniAssets.size(); i++)
+    {
+        auto b = m_entityManager.addEntity("button");
+        b->addComponent<CTransform>(Vec2(x, y));
+        b->addComponent<CAnimation>(m_game->assets().getAnimation(m_aniAssets[i]), true);
+        b->addComponent<CBoundingBox>(Vec2( m_gridSize.x, m_gridSize.y ));
+
+        Vec2 aniSize = b->getComponent<CAnimation>().animation.getSize();
+        b->getComponent<CTransform>().scale = Vec2{ m_gridSize.x / aniSize.x, m_gridSize.y / aniSize.y };
+
+        x += m_gridSize.x + 10;
+        if (x > endCorner.x - m_gridSize.x) { x = startCorner.x + m_gridSize.x; y += (m_gridSize.y + 10); }
+    }
+
+}
+
+void Scene_Editor::clearEntityPage()
+{
+    for (auto e : m_entityManager.getEntities("button"))
+    {
+        e->destroy();
+    }
+}
+
+std::shared_ptr<Entity> Scene_Editor::createEntity(std::string animation)
+{
+    auto e = m_entityManager.addEntity(m_entityTypes[m_menuSelection]);
+
+    e->addComponent<CTransform>(windowToWorld(m_mPos));
+    e->addComponent<CAnimation>(m_game->assets().getAnimation(animation), true);
+    e->addComponent<CDraggable>();
+
+    if (e->tag() == "tile")
+    {
+        e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize());
+    }
+    else if (e->tag() == "item")
+    {
+        e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize());
+    }
+
+    return e;
+}
+
 void Scene_Editor::update()
 {
     m_entityManager.update();
 
     sState();
-    sMovement();
-    sLifespan();
+    if (m_camera->getComponent<CState>().state != "entity") sMovement();
     sCollision();
     sAnimation();
     sRender();
@@ -354,6 +419,7 @@ void Scene_Editor::sState()
         // change animation of selected entity based on tag
         else if (input.click2 && m_texture && m_selected->tag() != "player")
         {
+            /*
             m_texture = false;
             int nextAni = 0;
 
@@ -374,8 +440,10 @@ void Scene_Editor::sState()
                 Vec2 tSize = m_game->assets().getAnimation(m_aniAssets[nextAni]).getSize();
                 m_selected->addComponent<CBoundingBox>(tSize);
             }
+            */
         }
     }
+    // deletes any non important entities in cursor pos
     else if (state.state == "delete" && input.click2)
     {
         for (auto e : m_entityManager.getEntities())
@@ -386,6 +454,23 @@ void Scene_Editor::sState()
                 e->destroy();
             }
         }
+    }
+    // entity menu buttons, makes a new entity if button is clicked
+    else if (state.state == "entity" && input.click1)
+    {
+        for (auto e : m_entityManager.getEntities("button"))
+        {
+            if (Physics::IsInside(windowToWorld(m_mPos), e))
+            {
+                m_selected = createEntity(e->getComponent<CAnimation>().animation.getName());;
+                m_selected->getComponent<CDraggable>().dragging = true;
+                break;
+            }
+        }
+        m_menuSelection = 0;
+        clearEntityPage();
+        state.state = "drag";
+        m_drop = false;
     }
 }
 
@@ -412,21 +497,6 @@ void Scene_Editor::sMovement()
         m_selected->getComponent<CTransform>().pos = windowToWorld(m_mPos);
     }
 
-}
-
-void Scene_Editor::sLifespan()
-{
-    for (auto& e : m_entityManager.getEntities())
-    {
-        if (e->hasComponent<CLifeSpan>())
-        {
-            CLifeSpan& ls = e->getComponent<CLifeSpan>();
-            if (m_currentFrame - ls.frameCreated > ls.lifespan)
-            {
-                e->destroy();
-            }
-        }
-    }
 }
 
 void Scene_Editor::sCollision()
@@ -458,10 +528,43 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_CAMERA") { m_drawCamera = !m_drawCamera; }
         else if (action.name() == "QUIT") { onEnd(); }
 
-        else if (action.name() == "UP") { m_camera->getComponent<CInput>().up = true; }
-        else if (action.name() == "DOWN") { m_camera->getComponent<CInput>().down = true; }
-        else if (action.name() == "LEFT") { m_camera->getComponent<CInput>().left = true; }
-        else if (action.name() == "RIGHT") { m_camera->getComponent<CInput>().right = true; }
+        else if (action.name() == "UP") 
+        { 
+            m_camera->getComponent<CInput>().up = true; 
+            if (m_camera->getComponent<CState>().state == "entity")
+            {
+                m_pageSelection--;
+                if (m_pageSelection < 0) m_pageSelection = floor((m_aniAssets.size() - 1) / 112);
+                showEntityPage(m_pageSelection);
+            }
+        }
+        else if (action.name() == "DOWN") 
+        { 
+            m_camera->getComponent<CInput>().down = true;
+            if (m_camera->getComponent<CState>().state == "entity")
+            {
+                m_pageSelection++;
+                if (m_pageSelection > (int)floor((m_aniAssets.size() - 1) / 112)) m_pageSelection = 0;
+                showEntityPage(m_pageSelection);
+            }
+        }
+        else if (action.name() == "LEFT") 
+        { 
+            m_camera->getComponent<CInput>().left = true; 
+            if (m_camera->getComponent<CState>().state == "entity")
+            {
+                m_menuSelection--;
+                if (m_menuSelection < 0) m_menuSelection = (m_entityTypes.size() - 1);
+            }
+        }
+        else if (action.name() == "RIGHT") 
+        { 
+            m_camera->getComponent<CInput>().right = true;
+            if (m_camera->getComponent<CState>().state == "entity")
+            {
+                m_menuSelection = (m_menuSelection + 1) % m_entityTypes.size();
+            }
+        }
 
         else if (action.name() == "LEFT_CLICK") { m_camera->getComponent<CInput>().click1 = true; }
         else if (action.name() == "RIGHT_CLICK") { m_camera->getComponent<CInput>().click2 = true; }
@@ -477,6 +580,14 @@ void Scene_Editor::sDoAction(const Action& action)
             else if (m_camera->getComponent<CState>().state == "delete")
             {
                 m_camera->getComponent<CState>().state = "move";
+            }
+            else if (m_camera->getComponent<CState>().state == "drag")
+            {
+                m_camera->getComponent<CState>().state = "delete";
+                m_selected->destroy();
+                m_selected = NULL;
+                m_drop = true;
+                m_place = false;
             }
         }
 
@@ -513,11 +624,15 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             if (m_camera->getComponent<CState>().state == "entity")
             {
+                m_menuSelection = 0;
                 m_camera->getComponent<CState>().state = "move";
+                clearEntityPage();
             }
-            else
+            else if (m_camera->getComponent<CState>().state == "move")
             {
+                m_pageSelection = 0;
                 m_camera->getComponent<CState>().state = "entity";
+                showEntityPage(0);
             }
         }
 
@@ -570,8 +685,9 @@ void Scene_Editor::onEnd()
 
 void Scene_Editor::sRender()
 {
-    // color the background darker so you know that the game is paused
+    std::string s = m_camera->getComponent<CState>().state;
 
+    // determines colour of background
     std::tuple<int,int,int> rgb;
     if (m_levelConfig.BACKGROUND == "Background1") rgb = { 60, 123, 232 };
     else if (m_levelConfig.BACKGROUND == "Background2") rgb = { 158, 132, 179 };
@@ -593,13 +709,119 @@ void Scene_Editor::sRender()
     view.setCenter(pPos.x, pPos.y);
     m_game->window().setView(view);
 
-    // draw all Entity textures / animations
-    if (m_drawTextures)
+    Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
+        (m_game->window().getView().getCenter().y - height() / 2));
+    // normal editor drawing
+    if (s != "entity")
     {
-        for (auto e : m_entityManager.getEntities())
+        // draw all Entity textures / animations
+        if (m_drawTextures)
         {
-            if (e->tag() == "camera" && !m_drawCamera) continue;
+            for (auto e : m_entityManager.getEntities())
+            {
+                if (e->tag() == "camera" && !m_drawCamera) continue;
 
+                auto& transform = e->getComponent<CTransform>();
+
+                if (e->hasComponent<CAnimation>())
+                {
+                    auto& animation = e->getComponent<CAnimation>().animation;
+                    animation.getSprite().setRotation(transform.angle);
+                    animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+                    animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+                    m_game->window().draw(animation.getSprite());
+                }
+            }
+        }
+
+        // guide text
+        m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
+            + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" :
+                     (s == "move" ? "Menus: Entity = 1\nDelete Mode (DEL) | Paste Entity (Mouse2) "
+                     + (m_selected != NULL ? "Entity: " + m_selected->getComponent<CAnimation>().animation.getName() : "") : 
+                         "Place Entity (Mouse1) | Delete Mode (DEL)")));
+
+        m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
+        m_game->window().draw(m_controlText);
+
+        // draw all Entity collision bounding boxes with a rectangleshape
+        if (m_drawCollision)
+        {
+            for (auto e : m_entityManager.getEntities())
+            {
+                if (e->hasComponent<CBoundingBox>())
+                {
+                    auto& box = e->getComponent<CBoundingBox>();
+                    auto& transform = e->getComponent<CTransform>();
+                    sf::RectangleShape rect;
+                    rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
+                    rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
+                    rect.setPosition(transform.pos.x, transform.pos.y);
+                    rect.setFillColor(sf::Color(0, 0, 0, 0));
+                    rect.setOutlineColor(sf::Color(255, 255, 255, 255));
+                    rect.setOutlineThickness(1);
+                    m_game->window().draw(rect);
+                }
+            }
+        }
+
+        // draw the grid so that students can easily debug
+        if (m_drawGrid > 0)
+        {
+            Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
+            Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
+
+            // define boundaries for lines
+            float leftX = absoluteNeg.x;
+            float rightX = absolutePos.x;
+            float upY = absoluteNeg.y;
+            float downY = absolutePos.y;
+
+            float halfWidth = width() / 2.0f;
+            float halfHeight = height() / 2.0f;
+
+            float nextGridX = leftX - ((int)leftX % (int)m_gridSize.x);
+
+            for (float x = nextGridX; x < rightX + 1; x += m_gridSize.x)
+            {
+                drawLine(Vec2(x, upY), Vec2(x, downY));
+            }
+
+            for (float y = upY; y < downY + 1; y += m_gridSize.y)
+            {
+                drawLine(Vec2(leftX, y), Vec2(rightX, y));
+
+                if (y == downY) continue;
+                for (float x = nextGridX; x < rightX; x += m_gridSize.x)
+                {
+                    if (x > pPos.x - halfWidth && x < pPos.x + halfWidth && y > pPos.y - halfHeight && y < pPos.y + halfHeight &&
+                        m_drawGrid == 2)
+                    {
+                        std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
+                        std::string yCell = std::to_string(((int)m_BOUNDARYPOS.y - 1) - ((int)y / (int)m_gridSize.y));
+                        m_gridText.setString("(" + xCell + "," + yCell + ")");
+                        m_gridText.setPosition(x + 3, y + 2);
+                        m_game->window().draw(m_gridText);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // menu drawing
+        m_controlText.setString("A/D to cycle type | W/S to cycle page | 1 to return\nPage: " + std::to_string(m_pageSelection) + "/"
+        + std::to_string( (int)floor((m_aniAssets.size() - 1) / 112) ) );
+
+        m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
+        m_game->window().draw(m_controlText);
+
+        m_selectionText.setString(m_entityTypes[m_menuSelection]);
+        m_selectionText.setPosition(upperLeftCorner.x + (width()/2), upperLeftCorner.y + m_gridSize.y);
+        m_game->window().draw(m_selectionText);
+
+        for (auto e : m_entityManager.getEntities("button"))
+        {
             auto& transform = e->getComponent<CTransform>();
 
             if (e->hasComponent<CAnimation>())
@@ -609,81 +831,6 @@ void Scene_Editor::sRender()
                 animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
                 animation.getSprite().setScale(transform.scale.x, transform.scale.y);
                 m_game->window().draw(animation.getSprite());
-            }
-        }
-    }
-
-    // Example ui display
-    Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
-                                (m_game->window().getView().getCenter().y - height() / 2));
-
-    std::string s = m_camera->getComponent<CState>().state;
-
-    m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
-    + "\nMenus: Entity = 1"
-    + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" : (s == "move" ? "Delete Mode (DEL)" : "")));
-    m_controlText.setPosition(upperLeftCorner.x,upperLeftCorner.y);
-    m_game->window().draw(m_controlText);
-
-    // draw all Entity collision bounding boxes with a rectangleshape
-    if (m_drawCollision)
-    {
-        for (auto e : m_entityManager.getEntities())
-        {
-            if (e->hasComponent<CBoundingBox>())
-            {
-                auto& box = e->getComponent<CBoundingBox>();
-                auto& transform = e->getComponent<CTransform>();
-                sf::RectangleShape rect;
-                rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
-                rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
-                rect.setPosition(transform.pos.x, transform.pos.y);
-                rect.setFillColor(sf::Color(0, 0, 0, 0));
-                rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-                rect.setOutlineThickness(1);
-                m_game->window().draw(rect);
-            }
-        }
-    }
-
-    // draw the grid so that students can easily debug
-    if (m_drawGrid > 0)
-    {
-        Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
-        Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
-
-        // define boundaries for lines
-        float leftX = absoluteNeg.x;
-        float rightX = absolutePos.x;
-        float upY = absoluteNeg.y;
-        float downY = absolutePos.y;
-
-        float halfWidth = width() / 2.0f;
-        float halfHeight = height() / 2.0f;
-
-        float nextGridX = leftX - ((int)leftX % (int)m_gridSize.x);
-
-        for (float x = nextGridX; x < rightX + 1; x += m_gridSize.x)
-        {
-            drawLine(Vec2(x, upY), Vec2(x, downY));
-        }
-
-        for (float y = upY; y < downY + 1; y += m_gridSize.y)
-        {
-            drawLine(Vec2(leftX, y), Vec2(rightX, y));
-
-            if (y == downY) continue;
-            for (float x = nextGridX; x < rightX; x += m_gridSize.x)
-            {
-                if (x > pPos.x - halfWidth && x < pPos.x + halfWidth && y > pPos.y - halfHeight && y < pPos.y + halfHeight &&
-                    m_drawGrid == 2)
-                {
-                    std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
-                    std::string yCell = std::to_string(((int)m_BOUNDARYPOS.y - 1) - ((int)y / (int)m_gridSize.y));
-                    m_gridText.setString("(" + xCell + "," + yCell + ")");
-                    m_gridText.setPosition(x + 3, y + 2);
-                    m_game->window().draw(m_gridText);
-                }
             }
         }
     }

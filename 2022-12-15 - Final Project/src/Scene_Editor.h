@@ -57,8 +57,10 @@ protected:
     // text
     sf::Text                m_gridText;
     sf::Text                m_controlText;
+    sf::Text                m_selectionText;
+    sf::Text                m_buttonText;
 
-    // canera
+    // camera
     int                     m_CAMERA_SPEED = 5;
     std::string             m_CAMERA_AVATAR = "Coin";
     Vec2                    m_BOUND_BOX = Vec2(4, 4);
@@ -73,6 +75,17 @@ protected:
     // animation list
     std::vector<std::string> m_aniAssets = {};
 
+    // entity types for menu
+    std::vector<std::string> m_entityTypes
+    {
+        "tile", "dec", "item"
+    };
+
+    // menus
+    int m_menuSelection = 0;
+    int m_pageSelection = 0;
+
+    // level properties
     std::map<std::string, std::vector<std::string>>m_levelAssetList =
     {
         {"Music", {"MusicTitle", "Play", "OverWorld"}},
@@ -100,11 +113,15 @@ protected:
 
     bool snapToGrid(std::shared_ptr<Entity> entity);
 
+    void showEntityPage(int page);
+    void clearEntityPage();
+
+    std::shared_ptr<Entity> createEntity(std::string animation);
+
     void sDoAction(const Action& action);
 
     void sState();
     void sMovement();
-    void sLifespan();
     void sAnimation();
     void sCollision();
     void sRender();
