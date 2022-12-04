@@ -61,6 +61,16 @@ public:
 
 };
 
+class CWeapon : public Component
+{
+public:
+    std::string currentWeapon = "Raygun";
+    std::string previousWeapon = "Raygun";
+    CWeapon() {}
+    CWeapon(std::string weapon)
+        : currentWeapon(weapon), previousWeapon(weapon) {}
+};
+
 class CLifeSpan : public Component
 {
 public:

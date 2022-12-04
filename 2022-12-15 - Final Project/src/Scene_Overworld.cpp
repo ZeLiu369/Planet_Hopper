@@ -89,13 +89,13 @@ void Scene_Overworld::loadMap(const int& levelAvailable)
     planet2->addComponent<CAnimation>(m_game->assets().getAnimation("Plan2"), true);
     planet2->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan2").getSize());
     planet2->addComponent<CTransform>(Vec2(800, 360));
-    planet2->addComponent<CLevelStatus>();
+    planet2->addComponent<CLevelStatus>(true);
 
     planet3 = m_entityManager.addEntity("planet");
     planet3->addComponent<CAnimation>(m_game->assets().getAnimation("Plan3"), true);
     planet3->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan3").getSize());
     planet3->addComponent<CTransform>(Vec2(1150, 360));
-    planet3->addComponent<CLevelStatus>();
+    planet3->addComponent<CLevelStatus>(true);
 
     if (levelAvailable == 2) { planet2->addComponent<CLevelStatus>(true); }
     if (levelAvailable == 3)
