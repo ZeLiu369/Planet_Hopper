@@ -963,8 +963,7 @@ void Scene_Play::sCamera()
     m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
-    float dist = windowY - gameView.getCenter().y;
-    float windowCenterY = pPos.y < dist ? pPos.y : dist;
+    float windowCenterY = std::min(windowY / 2.0f, pPos.y);
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
