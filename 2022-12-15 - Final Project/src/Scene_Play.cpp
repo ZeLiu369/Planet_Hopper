@@ -460,6 +460,15 @@ void Scene_Play::sMovement()
             float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
             normalizeVec *= dist2;
 
+            if (abs(dist) <= 5)
+            {
+                b->removeComponent<CBoundingBox>();
+                b->removeComponent<CLifeSpan>();
+                b->getComponent<CTransform>().velocity = { 0.0, 0.0 };
+                b->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+                continue;
+            }
+
             float scale = 1;
             Vec2 steering = normalizeVec - Vec2(bt.velocity.x, bt.velocity.y);
             steering *= scale;
@@ -636,6 +645,14 @@ void Scene_Play::sCollision()
                         {
                             e->removeComponent<CBoundingBox>();
                             e->removeComponent<CLifeSpan>();
+                            e->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+                        }
+                        if (e->tag() == "bullet")
+                        {
+                            e->removeComponent<CBoundingBox>();
+                            e->removeComponent<CLifeSpan>();
+                            e->removeComponent<CGravity>();
+                            e->getComponent<CTransform>().velocity = { 0.0, 0.0 };
                             e->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
                         }
                         else

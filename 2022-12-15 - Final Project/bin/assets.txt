@@ -26,7 +26,7 @@ Texture   TexBomb      images/misc/bomb.png
 Texture   TexLauncher  images/misc/launcher.png
          
 Texture   TexBuster  images/megaman/buster.png
-Texture   TexExplode images/misc/explosion128.png
+Texture   TexExplode images/misc/explosionSheet.png
 Texture   TexCoin    images/misc/coinspin.png
 Texture   TexBrick   images/mario/brick.png
 Texture   TexQ       images/mario/qfade.png
@@ -83,7 +83,7 @@ Animation Bomb       TexBomb      1    0
 Animation Launcher   TexLauncher  1    0 
 
 Animation Buster     TexBuster   1    0   
-Animation Explosion  TexExplode 48    2   
+Animation Explosion  TexExplode  24   2   
 Animation Coin       TexCoin     6    5 
 Animation Question   TexQ        4   10   
 Animation Brick      TexBrick    1    0   
