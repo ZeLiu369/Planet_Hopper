@@ -17,7 +17,8 @@ Texture   TexWavy      images/misc/platformWavy.png
 Texture   TexWavyLeft  images/misc/platformWavyLeft.png 
 Texture   TexWavyMid   images/misc/platformWavyMiddle.png
 Texture   TexWavyRight images/misc/platformWavyRight.png
-Texture   TexSpikeUp   images/misc/spikeUp.png        
+Texture   TexSpikeUp   images/misc/spikeUp.png
+Texture   TexSpikeDown images/misc/spikeDown.png        
 Texture   TexMissile   images/misc/missileSheet.png
 Texture   TexLaser     images/misc/laser.png
 
@@ -76,6 +77,7 @@ Animation WavyLeft   TexWavyLeft  1    0
 Animation WavyMid    TexWavyMid   1    0
 Animation WavyRight  TexWavyRight 1    0   
 Animation SpikeUp    TexSpikeUp   1    0
+Animation SpikeDown  TexSpikeDown 1    0
 Animation Missile    TexMissile   4    5
 Animation Laser      TexLaser     1    0
 Animation Raygun     TexRaygun    1    0
