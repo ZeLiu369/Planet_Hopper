@@ -76,9 +76,6 @@ void Scene_Menu::sDoAction(const Action& action)
                 m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 1));
                 m_game->assets().getSound("MusicTitle").stop();
             }
-        }
-        else if (action.name() == "EDIT")
-        {
             if (m_selectedMenuIndex == 1)
             {
                 // change scene to Option Scene
