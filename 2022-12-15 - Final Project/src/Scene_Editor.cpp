@@ -23,15 +23,15 @@
 
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
-Scene_Editor::Scene_Editor(GameEngine* gameEngine, const std::string& levelPath)
+Scene_Editor::Scene_Editor(GameEngine* gameEngine)
     : Scene(gameEngine)
-    , m_levelPath(levelPath)
 {
-    init(m_levelPath);
+    init();
 }
 
-void Scene_Editor::init(const std::string& levelPath)
+void Scene_Editor::init()
 {
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
@@ -44,6 +44,7 @@ void Scene_Editor::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num9, "BACKGROUND");
     registerAction(sf::Keyboard::Num0, "DARK");
     registerAction(sf::Keyboard::Num1, "ENTITY_MENU");
+    registerAction(sf::Keyboard::Num2, "SAVE/LOAD_MENU");
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -63,7 +64,7 @@ void Scene_Editor::init(const std::string& levelPath)
     m_buttonText.setFont(m_game->assets().getFont("Tech"));
 
     fillAssetList();
-    loadLevel(levelPath);
+    loadBlankLevel();
 }
 
 Vec2 Scene_Editor::windowToWorld(const Vec2& window) const
@@ -108,10 +109,12 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
 {
     Vec2& ePos = entity->getComponent<CTransform>().pos;
     Vec2 snap = gridToMidPixel(floor(ePos.x / m_gridSize.x), (m_BOUNDARYPOS.y - 1) - floor(ePos.y / m_gridSize.y), entity);
-
+    ePos = snap;
     for (auto& e : m_entityManager.getEntities())
     {
-        if (e->getComponent<CTransform>().pos == snap)
+        if (e == entity || e->tag() == "dec") continue;
+        Vec2 o = Physics::GetOverlap(entity, e);
+        if (o.x > 0 && o.y > 0)
         {
             return false;
         }
@@ -128,16 +131,11 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
         return false;
     }
 
-    ePos = snap;
     return true;
 }
 /*
 
 // dev plan for level editor here
-
-place stuff with menu
-
-save and load menu, using virtual keyboard
 
 rotate entity?
 
@@ -182,51 +180,99 @@ void Scene_Editor::fillAssetList()
     }
 }
 
+// remove floating point annoyance in txt
+std::string Scene_Editor::formatFloat(float f)
+{
+    // round to 2 decimals
+    f = std::ceil(f * 100.0) / 100.0;
+
+    // convert to string
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << f;
+    std::string str = ss.str();
+
+    // remove any trailing 0's
+    str = str.substr(0, str.find_last_not_of('0') + 1);
+    if (str.find('.') == str.size() - 1)
+    {
+        str = str.substr(0, str.size() - 1);
+    }
+    return(str);
+}
+
+void Scene_Editor::loadBlankLevel()
+{
+    m_entityManager = EntityManager();
+
+    m_game->assets().getSound("MusicTitle").stop();
+
+    LevelConfig& lc = m_levelConfig;
+    lc.MUSIC = "Play";
+    lc.DARK = false;
+    lc.BACKGROUND = "None";
+    lc.NAME = "level1.txt";
+
+    PlayerConfig& pc = m_playerConfig;
+    pc.X = 0; pc.Y = 0; pc.CX = 46; pc.CY = 70; pc.SPEED = 5; pc.JUMP = -20; pc.MAXSPEED = 20; pc.GRAVITY = 0.75; pc.WEAPON = "Buster";
+
+    spawnPlayer();
+    spawnCamera();
+    m_game->playSound(m_levelConfig.MUSIC);
+}
+
 void Scene_Editor::loadLevel(const std::string& filename)
 {
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
-    m_game->assets().getSound("MusicTitle").stop();
-
     m_levelConfig.MUSIC = "Play";
     m_levelConfig.DARK = false;
     m_levelConfig.BACKGROUND = "None";
-
+    m_levelConfig.NAME = filename.substr(13);
     std::ifstream fin(filename);
     std::string temp;
 
     while (fin >> temp)
     {
-        if (temp != "Item" && temp != "Player")
+        if (temp == "Lighting")
         {
+            fin >> temp;
+            if (temp == "Night")
+            {
+                m_levelConfig.DARK = true;
+            }
+        }
+        else if (temp == "BackgroundType")
+        {
+            fin >> m_levelConfig.BACKGROUND;
+        }
+        else if (temp == "Music")
+        {
+            fin >> m_levelConfig.MUSIC;
+        }
+
+        else if (temp == "Dec" || temp == "Tile" || temp == "Hazard")
+        {
+            // tile and decs
             std::string type = temp;
             std::string texture;
-            if (type == "Lighting")
-            {
-                std::string time;
-                fin >> time;
-                if (time == "Night")
-                {
-                    m_levelConfig.DARK = true;
-                }
-                continue;
-            }
-            if (type == "Background")
-            {
-                fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                continue;
-            }
             float x, y;
             fin >> texture >> x >> y;
 
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+            if (type == "Tile")
+            {
+                int m; int v;
+                fin >> m >> v;
+                tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize(),m,v);
+            }
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
             tile->addComponent<CDraggable>();
         }
+
+        // items, player, and npc
         else if (temp == "Item")
         {
             std::string tileName;
@@ -241,17 +287,140 @@ void Scene_Editor::loadLevel(const std::string& filename)
             item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
             item->addComponent<CDraggable>();
         }
-        else
+        else if (temp == "Npc")
+        {
+
+        }
+        else if (temp == "Player")
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
         }
+        else
+        {
+            fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
     }
+    fin.close();
     spawnPlayer();
     spawnCamera();
 
     m_game->playSound(m_levelConfig.MUSIC);
+}
+
+void Scene_Editor::saveLevel()
+{
+    LevelConfig& lc = m_levelConfig;
+
+    std::ofstream fout("customLevels/" + lc.NAME);
+    std::string saveLine = "";
+
+    // Player
+    PlayerConfig& pc = m_playerConfig;
+    Vec2 grid = midPixelToGrid(m_player);
+
+    pc.X = grid.x; pc.Y = grid.y;
+    pc.CX = m_player->getComponent<CBoundingBox>().size.x; pc.CY = m_player->getComponent<CBoundingBox>().size.y;
+    pc.GRAVITY = m_player->getComponent<CGravity>().gravity;
+
+    // I made the player pos int because they like to scoot around when saving/loading
+    saveLine = "Player " + std::to_string((int)pc.X) + " " + std::to_string((int)pc.Y) +
+        " " + formatFloat(pc.CX) + " " + formatFloat(pc.CY) + " " +
+        formatFloat(pc.SPEED) + " " + formatFloat(pc.JUMP) + " " + formatFloat(pc.MAXSPEED) +
+        " " + formatFloat(pc.GRAVITY) + " " + pc.WEAPON;
+
+    fout << saveLine << std::endl;
+
+    // World Properties
+    // Lighting
+    saveLine = "Lighting " + std::string(lc.DARK ? "Night" : "Day");
+    fout << saveLine << std::endl;
+
+    // Music
+    saveLine = "Music " + lc.MUSIC;
+    fout << saveLine << std::endl;
+
+    // Background
+    saveLine = "BackgroundType " + lc.BACKGROUND;
+    fout << saveLine << std::endl;
+
+    if (lc.BACKGROUND == m_levelAssetList["Background"][0])
+    {
+        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
+            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
+            "Background Land 0 1.25 1 640 717" + std::string("\n") +
+            "Background Craters 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+    else if (lc.BACKGROUND == m_levelAssetList["Background"][1])
+    {
+        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
+            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
+            "Background Land 0 1.25 1 640 717" + std::string("\n") +
+            "Background Craters 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+    else if (lc.BACKGROUND == m_levelAssetList["Background"][2])
+    {
+        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
+            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
+            "Background Land 0 1.25 1 640 717" + std::string("\n") +
+            "Background Craters 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+
+    // level content
+    for (auto& e : m_entityManager.getEntities())
+    {
+        if (!e->hasComponent<CTransform>() || !e->hasComponent<CAnimation>() || 
+             e->tag() == "camera" || e->tag() == "button" || e->tag() == "player") continue;
+
+        CTransform& t = e->getComponent<CTransform>();
+        CAnimation& a = e->getComponent<CAnimation>();
+        
+        char u[1];
+        u[0] = e->tag()[0];
+        u[0] = toupper(u[0]);
+        std::string tag = u[0] + e->tag().substr(1);
+        
+        grid = midPixelToGrid(e);
+
+        saveLine = tag + " " + a.animation.getName() + " " + formatFloat(grid.x) + " " + formatFloat(grid.y);
+
+        if (e->tag() == "tile")
+        {
+            saveLine = saveLine + " " + std::to_string(e->getComponent<CBoundingBox>().blockMove) +
+                                  " " + std::to_string(e->getComponent<CBoundingBox>().blockVision);
+        }
+        else if (e->tag() == "dec")
+        {
+
+        }
+        else if (e->tag() == "item")
+        {
+
+        }
+        else if (e->tag() == "npc")
+        {
+
+        }
+        else if (e->tag() == "hazard")
+        {
+
+        }
+        fout << saveLine << std::endl;
+    }
+    fout.close();
 }
 
 void Scene_Editor::spawnPlayer()
@@ -266,6 +435,7 @@ void Scene_Editor::spawnPlayer()
     player->addComponent<CTransform>(spawnPos);
     player->addComponent<CBoundingBox>(Vec2(pc.CX, pc.CY));
     player->addComponent<CDraggable>();
+    m_player = player;
 }
 
 void Scene_Editor::spawnCamera()
@@ -307,7 +477,7 @@ bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
 
 void Scene_Editor::showEntityPage(int page)
 {
-    clearEntityPage();
+    clearMenu();
     Vec2& camPos = m_camera->getComponent<CTransform>().pos;
 
     Vec2 startCorner = { camPos.x - (width() / 2), camPos.y - (height() / 2) };
@@ -331,11 +501,29 @@ void Scene_Editor::showEntityPage(int page)
 
 }
 
-void Scene_Editor::clearEntityPage()
+void Scene_Editor::clearMenu()
 {
     for (auto e : m_entityManager.getEntities("button"))
     {
         e->destroy();
+    }
+}
+
+void Scene_Editor::showSLMenu()
+{
+    Vec2& camPos = m_camera->getComponent<CTransform>().pos;
+
+    for (int i = 0; i < 2; i++)
+    {
+        auto b = m_entityManager.addEntity("button");
+        b->addComponent<CTransform>(Vec2(camPos.x + (m_gridSize.x * 2.5 * (i == 0 ? -1 : 1)), camPos.y));
+        b->addComponent<CAnimation>(m_game->assets().getAnimation("Plat"), true);
+        b->addComponent<CBoundingBox>(Vec2(m_gridSize.x * 2, m_gridSize.y));
+
+        Vec2 aniSize = b->getComponent<CAnimation>().animation.getSize();
+        b->getComponent<CTransform>().scale = Vec2{ (m_gridSize.x * 2) / aniSize.x, m_gridSize.y / aniSize.y };
+
+        b->addComponent<CButton>(i == 0 ? "save" : "load");
     }
 }
 
@@ -349,7 +537,7 @@ std::shared_ptr<Entity> Scene_Editor::createEntity(std::string animation)
 
     if (e->tag() == "tile")
     {
-        e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize());
+        e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize(),1,1);
     }
     else if (e->tag() == "item")
     {
@@ -364,7 +552,7 @@ void Scene_Editor::update()
     m_entityManager.update();
 
     sState();
-    if (m_camera->getComponent<CState>().state != "entity") sMovement();
+    if (m_camera->getComponent<CState>().state != "entity" && m_camera->getComponent<CState>().state != "sl") sMovement();
     sCollision();
     sAnimation();
     sRender();
@@ -415,33 +603,6 @@ void Scene_Editor::sState()
                 m_place = true;
             }
         }
-
-        // change animation of selected entity based on tag
-        else if (input.click2 && m_texture && m_selected->tag() != "player")
-        {
-            /*
-            m_texture = false;
-            int nextAni = 0;
-
-            for (nextAni = 0; nextAni < m_aniAssets.size(); nextAni++)
-            {
-                if (m_aniAssets[nextAni] == m_selected->getComponent<CAnimation>().animation.getName())
-                {
-                    nextAni = (nextAni + 1) % m_aniAssets.size();
-                    break;
-                }
-            }
-
-            m_selected->addComponent<CAnimation>(m_game->assets().getAnimation(m_aniAssets[nextAni] ), true);
-
-            // make sure to change bounding box of some tiles
-            if (m_selected->tag() == "tile")
-            {
-                Vec2 tSize = m_game->assets().getAnimation(m_aniAssets[nextAni]).getSize();
-                m_selected->addComponent<CBoundingBox>(tSize);
-            }
-            */
-        }
     }
     // deletes any non important entities in cursor pos
     else if (state.state == "delete" && input.click2)
@@ -458,19 +619,59 @@ void Scene_Editor::sState()
     // entity menu buttons, makes a new entity if button is clicked
     else if (state.state == "entity" && input.click1)
     {
-        for (auto e : m_entityManager.getEntities("button"))
+        bool clicked = false;
+        for (auto& e : m_entityManager.getEntities("button"))
         {
             if (Physics::IsInside(windowToWorld(m_mPos), e))
             {
-                m_selected = createEntity(e->getComponent<CAnimation>().animation.getName());;
+                m_selected = createEntity(e->getComponent<CAnimation>().animation.getName());
                 m_selected->getComponent<CDraggable>().dragging = true;
+                clicked = true;
                 break;
             }
         }
-        m_menuSelection = 0;
-        clearEntityPage();
-        state.state = "drag";
-        m_drop = false;
+        if (clicked)
+        {
+            m_menuSelection = 0;
+            clearMenu();
+            state.state = "drag";
+            m_drop = false;
+        }
+    }
+    else if (state.state == "sl" && input.click1)
+    {
+        std::string choice = "";
+        for (auto& e : m_entityManager.getEntities("button"))
+        {
+            if (Physics::IsInside(windowToWorld(m_mPos), e))
+            {
+                choice = e->getComponent<CButton>().value;
+                break;
+            }
+        }
+        if (choice != "")
+        {
+            if (choice == "save")
+            {
+                clearMenu();
+                m_levelConfig.NAME = "level" + std::to_string(m_menuSelection + 1) + ".txt";
+                saveLevel();
+                state.state = "move";
+                m_menuSelection = 0;
+            }
+            else if (choice == "load")
+            {
+                std::string fileName = ("customLevels/level" + std::to_string(m_menuSelection + 1) + ".txt");
+                std::ifstream f(fileName.c_str());
+                if (f.good() == true)
+                {
+                    clearMenu();
+                    m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+                    loadLevel(fileName);
+                    m_menuSelection = 0;
+                }
+            }
+        }
     }
 }
 
@@ -556,6 +757,11 @@ void Scene_Editor::sDoAction(const Action& action)
                 m_menuSelection--;
                 if (m_menuSelection < 0) m_menuSelection = (m_entityTypes.size() - 1);
             }
+            else if (m_camera->getComponent<CState>().state == "sl")
+            {
+                m_menuSelection--;
+                if (m_menuSelection < 0) m_menuSelection = (m_saveLimit - 1);
+            }
         }
         else if (action.name() == "RIGHT") 
         { 
@@ -563,6 +769,10 @@ void Scene_Editor::sDoAction(const Action& action)
             if (m_camera->getComponent<CState>().state == "entity")
             {
                 m_menuSelection = (m_menuSelection + 1) % m_entityTypes.size();
+            }
+            else if (m_camera->getComponent<CState>().state == "sl")
+            {
+                m_menuSelection = (m_menuSelection + 1) % (m_saveLimit);
             }
         }
 
@@ -618,6 +828,7 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "DARK")
         {
             m_levelConfig.DARK = !m_levelConfig.DARK;
+            saveLevel();
         }
 
         else if (action.name() == "ENTITY_MENU")
@@ -626,13 +837,28 @@ void Scene_Editor::sDoAction(const Action& action)
             {
                 m_menuSelection = 0;
                 m_camera->getComponent<CState>().state = "move";
-                clearEntityPage();
+                clearMenu();
             }
             else if (m_camera->getComponent<CState>().state == "move")
             {
                 m_pageSelection = 0;
                 m_camera->getComponent<CState>().state = "entity";
                 showEntityPage(0);
+            }
+        }
+        else if (action.name() == "SAVE/LOAD_MENU")
+        {
+            if (m_camera->getComponent<CState>().state == "sl")
+            {
+                m_menuSelection = 0;
+                m_camera->getComponent<CState>().state = "move";
+                clearMenu();
+            }
+            else if (m_camera->getComponent<CState>().state == "move")
+            {
+                m_menuSelection = 0;
+                m_camera->getComponent<CState>().state = "sl";
+                showSLMenu();
             }
         }
 
@@ -712,7 +938,7 @@ void Scene_Editor::sRender()
     Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
         (m_game->window().getView().getCenter().y - height() / 2));
     // normal editor drawing
-    if (s != "entity")
+    if (s != "entity" && s != "sl")
     {
         // draw all Entity textures / animations
         if (m_drawTextures)
@@ -737,7 +963,7 @@ void Scene_Editor::sRender()
         // guide text
         m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
             + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" :
-                     (s == "move" ? "Menus: Entity = 1\nDelete Mode (DEL) | Paste Entity (Mouse2) "
+                     (s == "move" ? "Menus: Entity = 1 | Save/Load = 2\nDelete Mode (DEL) | Paste Entity (Mouse2) "
                      + (m_selected != NULL ? "Entity: " + m_selected->getComponent<CAnimation>().animation.getName() : "") : 
                          "Place Entity (Mouse1) | Delete Mode (DEL)")));
 
@@ -807,18 +1033,37 @@ void Scene_Editor::sRender()
             }
         }
     }
+    // menu drawing
     else
     {
-        // menu drawing
-        m_controlText.setString("A/D to cycle type | W/S to cycle page | 1 to return\nPage: " + std::to_string(m_pageSelection) + "/"
-        + std::to_string( (int)floor((m_aniAssets.size() - 1) / 112) ) );
+        float textWidth;
+        if (s == "entity")
+        {
+            // menu drawing
+            m_controlText.setString("A/D to cycle type | W/S to cycle page | 1 to return\nPage: " + std::to_string(m_pageSelection) + "/"
+                + std::to_string((int)floor((m_aniAssets.size() - 1) / 112)));
 
-        m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
-        m_game->window().draw(m_controlText);
+            m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
+            m_game->window().draw(m_controlText);
 
-        m_selectionText.setString(m_entityTypes[m_menuSelection]);
-        m_selectionText.setPosition(upperLeftCorner.x + (width()/2), upperLeftCorner.y + m_gridSize.y);
-        m_game->window().draw(m_selectionText);
+            m_selectionText.setString("< " + m_entityTypes[m_menuSelection] + " >");
+
+            textWidth = m_selectionText.getString().getSize() * m_selectionText.getCharacterSize();
+            m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (textWidth / 2), upperLeftCorner.y + m_gridSize.y);
+            m_game->window().draw(m_selectionText);
+        }
+        else if (s == "sl")
+        {
+            m_controlText.setString("A/D to cycle saves | 2 to return");
+            m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
+            m_game->window().draw(m_controlText);
+
+            m_selectionText.setString("< level" + std::to_string(m_menuSelection + 1) + " >");
+
+            textWidth = m_selectionText.getString().getSize() * m_selectionText.getCharacterSize();
+            m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (textWidth / 2),upperLeftCorner.y + m_gridSize.y);
+            m_game->window().draw(m_selectionText);
+        }
 
         for (auto e : m_entityManager.getEntities("button"))
         {
@@ -832,6 +1077,20 @@ void Scene_Editor::sRender()
                 animation.getSprite().setScale(transform.scale.x, transform.scale.y);
                 m_game->window().draw(animation.getSprite());
             }
+            if (e->hasComponent<CButton>())
+            {
+                m_buttonText.setString(e->getComponent<CButton>().value);
+
+                textWidth = m_buttonText.getString().getSize() * m_buttonText.getCharacterSize();
+                m_buttonText.setPosition(transform.pos.x - (textWidth / 2), transform.pos.y);
+                m_game->window().draw(m_buttonText);
+            }
         }
     }
+    // other controls
+    m_controlText.setString("Music (8): " + m_levelConfig.MUSIC +
+        " | Background (9): " + m_levelConfig.BACKGROUND + " | Dark (0): " + std::to_string(m_levelConfig.DARK)
+    + " | Name: " + m_levelConfig.NAME);
+    m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y + height() - m_controlText.getCharacterSize() - 5);
+    m_game->window().draw(m_controlText);
 }

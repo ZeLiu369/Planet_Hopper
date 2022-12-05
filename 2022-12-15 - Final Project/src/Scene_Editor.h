@@ -38,8 +38,8 @@ class Scene_Editor : public Scene
 
 protected:
 
+    std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_camera;
-    std::string             m_levelPath;
     PlayerConfig            m_playerConfig;
     LevelConfig             m_levelConfig;
 
@@ -84,6 +84,7 @@ protected:
     // menus
     int m_menuSelection = 0;
     int m_pageSelection = 0;
+    int m_saveLimit = 10;
 
     // level properties
     std::map<std::string, std::vector<std::string>>m_levelAssetList =
@@ -92,11 +93,15 @@ protected:
         {"Background", {"Background1", "Background2", "Background3", "None"}}
     };
 
-    void init(const std::string& levelPath);
+    void init();
 
     void fillAssetList();
 
+    std::string formatFloat(float f);
+
+    void loadBlankLevel();
     void loadLevel(const std::string& filename);
+    void saveLevel();
 
     void update();
     void onEnd();
@@ -114,7 +119,8 @@ protected:
     bool snapToGrid(std::shared_ptr<Entity> entity);
 
     void showEntityPage(int page);
-    void clearEntityPage();
+    void clearMenu();
+    void showSLMenu();
 
     std::shared_ptr<Entity> createEntity(std::string animation);
 
@@ -128,6 +134,6 @@ protected:
 
 public:
 
-    Scene_Editor(GameEngine* gameEngine, const std::string& levelPath);
+    Scene_Editor(GameEngine* gameEngine);
 
 };
