@@ -112,7 +112,7 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
     ePos = snap;
     for (auto& e : m_entityManager.getEntities())
     {
-        if (e == entity || e->tag() == "dec") continue;
+        if (e == entity || e->tag() == "dec" || e->tag() == "camera") continue;
         Vec2 o = Physics::GetOverlap(entity, e);
         if (o.x > 0 && o.y > 0)
         {

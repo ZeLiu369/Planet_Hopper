@@ -62,7 +62,7 @@ protected:
 
     // camera
     int                     m_CAMERA_SPEED = 5;
-    std::string             m_CAMERA_AVATAR = "Coin";
+    std::string             m_CAMERA_AVATAR = "Bomb";
     Vec2                    m_BOUND_BOX = Vec2(4, 4);
 
     // mouse
