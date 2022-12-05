@@ -112,23 +112,33 @@ void Scene_Play::loadLevel(const std::string& filename)
         }
         else if (temp == "Background")
         {
-            int scroll;
+            int directionality, scroll;
             float scaleX, scaleY, x, y, scrollFactor;
             std::string texture;
-            fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
+            fin >> texture >> directionality >> scroll >> scaleX >> scaleY >> x >> y;
             if (scroll == 1)
             {
                 fin >> scrollFactor;
                 auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+                backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), scrollFactor);
 
                 auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+                scaleX = -scaleX;
+                backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), scrollFactor);
 
                 m_backgroundsMap[texture].push_back(backgroundScroll);
                 m_backgroundsMap[texture].push_back(backgroundScroll2);
+
+                if (directionality == 2)
+                {
+                    auto backgroundScroll3 = m_entityManager.addEntity("scrollbackground");
+                    backgroundScroll3->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                    scaleY = -scaleY;
+                    backgroundScroll3->addComponent<CTransform>(Vec2(x, y - m_game->window().getSize().y), Vec2(scaleX, scaleY), scrollFactor);
+                    m_backgroundsMap[texture].push_back(backgroundScroll3);
+                }
             }
             else
             {
@@ -900,7 +910,7 @@ void Scene_Play::updateBackgrounds()
         {
             auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
             auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
-            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
+            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor))
             {
                 if (playerTransform.velocity.x > 0)
                 {
@@ -911,7 +921,7 @@ void Scene_Play::updateBackgrounds()
                     backgroundTwoPos.x = backgroundOnePos.x - m_game->window().getSize().x - eVelocity.x;
                 }
             }
-            else if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor.x))
+            if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor))
             {
                 if (playerTransform.velocity.x > 0)
                 {
@@ -923,9 +933,13 @@ void Scene_Play::updateBackgrounds()
                 }
             }
         }
-        else if (playerTransform.pos.x <= m_game->window().getSize().x / 2.0f)
+        if (playerTransform.pos.x <= m_game->window().getSize().x / 2.0f)
         {
             ePos.x = eOriginalPos.x;
+        }
+        if (playerTransform.pos.y >= m_game->window().getSize().y / 2.0f)
+        {
+            ePos.y = eOriginalPos.y;
         }
     }
 }
@@ -942,10 +956,15 @@ void Scene_Play::sCamera()
     m_game->window().setView(view);*/
 
     // needed to determine speed for parallax scrolling
-    m_prevCameraPosX = m_game->window().getView().getCenter().x - m_game->window().getSize().x / 2.0f;
-    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
-    float windowCenterX = std::max(1280 / 2.0f, pPos.x);
-    auto windowCenterY = 768 - gameView.getCenter().y;
+    float viewCenterX = m_game->window().getView().getCenter().x;
+    float viewCenterY = m_game->window().getView().getCenter().y;
+    float windowX = m_game->window().getSize().x;
+    float windowY = m_game->window().getSize().y;
+    m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
+    sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
+    float windowCenterX = std::max(windowX / 2.0f, pPos.x);
+    float dist = windowY - gameView.getCenter().y;
+    float windowCenterY = pPos.y < dist ? pPos.y : dist;
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
@@ -954,8 +973,9 @@ void Scene_Play::sCamera()
     for (auto e : m_entityManager.getEntities("scrollbackground"))
     {
         auto& eTran = e->getComponent<CTransform>();
-        eTran.velocity.x = ((gameView.getCenter().x - m_game->window().getSize().x / 2.0f) - m_prevCameraPosX) * eTran.scrollFactor.x;
-        eTran.pos.x += eTran.velocity.x;
+        eTran.velocity.x = ((gameView.getCenter().x - m_game->window().getSize().x / 2.0f) - m_prevCameraPos.x) * eTran.scrollFactor;
+        eTran.velocity.y = ((gameView.getCenter().y - m_game->window().getSize().y / 2.0f) - m_prevCameraPos.y) * eTran.scrollFactor;
+        eTran.pos += eTran.velocity;
     }
 
     // always keep no scroll background on screen
@@ -963,6 +983,7 @@ void Scene_Play::sCamera()
     {
         auto& ePos = e->getComponent<CTransform>().pos;
         ePos.x = m_game->window().getView().getCenter().x;
+        ePos.y = m_game->window().getView().getCenter().y;
     }
 
     updateBackgrounds();
@@ -1040,29 +1061,31 @@ sf::Text Scene_Play::displayText(std::string text, float x, float y)
 void Scene_Play::drawWeaponDisplay()
 {
     float viewCenterX = m_game->window().getView().getCenter().x;
+    float viewCenterY = m_game->window().getView().getCenter().y;
+    float windowSizeYHalf = m_game->window().getSize().y / 2.0f;
     const int size = 48;
-    m_game->window().draw(displayText("1", viewCenterX - size - 20, m_game->window().getSize().y - size / 2 - 30));
-    m_game->window().draw(displayText("2", viewCenterX - 20, m_game->window().getSize().y - size / 2 - 30));
-    m_game->window().draw(displayText("3", viewCenterX + size - 20, m_game->window().getSize().y - size / 2 - 30));
+    m_game->window().draw(displayText("1", viewCenterX - size - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
+    m_game->window().draw(displayText("2", viewCenterX - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
+    m_game->window().draw(displayText("3", viewCenterX + size - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
 
     sf::Sprite raygunDisplay(m_game->assets().getTexture("TexRaygun"));
     raygunDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    raygunDisplay.setPosition(viewCenterX - size, m_game->window().getSize().y - size / 2);
+    raygunDisplay.setPosition(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2 - 4);
     m_game->window().draw(raygunDisplay);
 
     sf::Sprite bombDisplay(m_game->assets().getTexture("TexBomb"));
     bombDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    bombDisplay.setPosition(viewCenterX, m_game->window().getSize().y - size / 2);
+    bombDisplay.setPosition(viewCenterX, viewCenterY + windowSizeYHalf - size / 2 - 4);
     m_game->window().draw(bombDisplay);
 
     sf::Sprite launcherDisplay(m_game->assets().getTexture("TexLauncher"));
     launcherDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    launcherDisplay.setPosition(viewCenterX + size, m_game->window().getSize().y - size / 2);
+    launcherDisplay.setPosition(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2 - 4);
     m_game->window().draw(launcherDisplay);
 
-    m_game->window().draw(displayRect(viewCenterX - size, m_game->window().getSize().y - size / 2 - 4, size));
-    m_game->window().draw(displayRect(viewCenterX, m_game->window().getSize().y - size / 2 - 4, size));
-    m_game->window().draw(displayRect(viewCenterX + size, m_game->window().getSize().y - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
 }
 
 /*
@@ -1149,9 +1172,15 @@ void Scene_Play::sRender()
     }
 
     auto& pPos = m_player->getComponent<CTransform>().pos;
-    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
-    float windowCenterX = std::max(1280 / 2.0f, pPos.x);
-    auto windowCenterY = 768 - gameView.getCenter().y;
+    float viewCenterX = m_game->window().getView().getCenter().x;
+    float viewCenterY = m_game->window().getView().getCenter().y;
+    float windowX = m_game->window().getSize().x;
+    float windowY = m_game->window().getSize().y;
+    m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
+    sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
+    float windowCenterX = std::max(windowX / 2.0f, pPos.x);
+    float dist = windowY - gameView.getCenter().y;
+    float windowCenterY = pPos.y < dist ? pPos.y : dist;
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
