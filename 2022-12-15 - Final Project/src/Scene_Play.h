@@ -40,7 +40,7 @@ protected:
     std::string             m_levelPath;
     int                     m_level;
     PlayerConfig            m_playerConfig;
-    float                   m_prevCameraPosX;
+    Vec2                    m_prevCameraPos;
     bool                    m_drawTextures = true;
     bool                    m_drawCollision = false;
     bool                    m_inventory = false;
