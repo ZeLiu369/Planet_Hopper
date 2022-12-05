@@ -318,22 +318,6 @@ void Scene_Editor::saveLevel()
     std::ofstream fout("customLevels/" + lc.NAME);
     std::string saveLine = "";
 
-    // Player
-    PlayerConfig& pc = m_playerConfig;
-    Vec2 grid = midPixelToGrid(m_player);
-
-    pc.X = grid.x; pc.Y = grid.y;
-    pc.CX = m_player->getComponent<CBoundingBox>().size.x; pc.CY = m_player->getComponent<CBoundingBox>().size.y;
-    pc.GRAVITY = m_player->getComponent<CGravity>().gravity;
-
-    // I made the player pos int because they like to scoot around when saving/loading
-    saveLine = "Player " + std::to_string((int)pc.X) + " " + std::to_string((int)pc.Y) +
-        " " + formatFloat(pc.CX) + " " + formatFloat(pc.CY) + " " +
-        formatFloat(pc.SPEED) + " " + formatFloat(pc.JUMP) + " " + formatFloat(pc.MAXSPEED) +
-        " " + formatFloat(pc.GRAVITY) + " " + pc.WEAPON;
-
-    fout << saveLine << std::endl;
-
     // World Properties
     // Lighting
     saveLine = "Lighting " + std::string(lc.DARK ? "Night" : "Day");
@@ -380,6 +364,22 @@ void Scene_Editor::saveLevel()
             "Background Craters 1 1 1 640 717 0.01";
         fout << saveLine << std::endl;
     }
+
+    // Player
+    PlayerConfig& pc = m_playerConfig;
+    Vec2 grid = midPixelToGrid(m_player);
+
+    pc.X = grid.x; pc.Y = grid.y;
+    pc.CX = m_player->getComponent<CBoundingBox>().size.x; pc.CY = m_player->getComponent<CBoundingBox>().size.y;
+    pc.GRAVITY = m_player->getComponent<CGravity>().gravity;
+
+    // I made the player pos int because they like to scoot around when saving/loading
+    saveLine = "Player " + std::to_string((int)pc.X) + " " + std::to_string((int)pc.Y) +
+        " " + formatFloat(pc.CX) + " " + formatFloat(pc.CY) + " " +
+        formatFloat(pc.SPEED) + " " + formatFloat(pc.JUMP) + " " + formatFloat(pc.MAXSPEED) +
+        " " + formatFloat(pc.GRAVITY) + " " + pc.WEAPON;
+
+    fout << saveLine << std::endl;
 
     // level content
     for (auto& e : m_entityManager.getEntities())
