@@ -1005,22 +1005,18 @@ sf::Sprite Scene_Play::getLightingSprite()
 
     sf::Sprite light(m_lightTexture);
     light.setOrigin(light.getTexture()->getSize().x / 2.0f, light.getTexture()->getSize().y / 2.0f);
-    if (m_player->getComponent<CTransform>().pos.x > m_game->window().getSize().x / 2.0f)
-    {
-        light.setPosition(m_game->window().getSize().x / 2.0f, m_player->getComponent<CTransform>().pos.y);
-    }
-    else
-    {
-        light.setPosition(m_player->getComponent<CTransform>().pos.x, m_player->getComponent<CTransform>().pos.y);
-    }
+    auto& pPos = m_player->getComponent<CTransform>().pos;
+    float x_pos = std::min(pPos.x, m_game->window().getSize().x / 2.0f);
+    float y_pos = std::max(pPos.y, m_game->window().getSize().y / 2.0f);
+    light.setPosition(x_pos, y_pos);
     m_renderTexture.clear();
     m_renderTexture.draw(light, blendMode);
     m_renderTexture.display();
     sf::Sprite night(m_renderTexture.getTexture());
     night.setOrigin(night.getTexture()->getSize().x / 2, night.getTexture()->getSize().y / 2);
     float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, m_player->getComponent<CTransform>().pos.x);
-    night.setPosition(windowCenterX, m_game->window().getSize().y / 2.0f);
-
+    float windowCenterY = std::min(m_game->window().getSize().y / 2.0f, m_player->getComponent<CTransform>().pos.y);
+    night.setPosition(windowCenterX, windowCenterY);
     float luminosity = 240.0f;
     night.setColor(sf::Color(10.0f, 10.0f, 10.0f, luminosity));
 
