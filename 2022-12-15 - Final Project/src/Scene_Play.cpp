@@ -25,6 +25,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <math.h>
 
 Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
     : Scene(gameEngine)
@@ -255,7 +256,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
             Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
+            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
         }
     }
     else if (weap.currentWeapon == "Bomb")
@@ -269,7 +270,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
             Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
             bullet->addComponent<CGravity>(pc.GRAVITY);
         }
     }
@@ -284,7 +285,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
             Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
         }
     }
 }
@@ -524,7 +525,7 @@ void Scene_Play::sLifespan()
         {
             if (m_inventoryEntity->getComponent<CInventory>().in_Inventory[i]) 
             {
-                auto& item = m_entityManager.addEntity("items");
+                auto item = m_entityManager.addEntity("items");
                 item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
                 auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
                 item->addComponent<CAnimation>(m_game->assets().getAnimation(s), false);
