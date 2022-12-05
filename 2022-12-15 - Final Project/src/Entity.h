@@ -33,6 +33,8 @@ typedef std::tuple<
     CLevelStatus,
     CInventory,
     CDraggable,
+    CWeapon,
+    CDamage,
     CButton
 > ComponentTuple;
 

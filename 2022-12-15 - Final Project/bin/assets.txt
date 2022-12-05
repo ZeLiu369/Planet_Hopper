@@ -10,6 +10,7 @@ Texture   TexLight   images/misc/light.png
 Texture   TexStand   images/misc/spritesheetIdle.png              
 Texture   TexRun     images/misc/spritesheetRun.png     
 Texture   TexAir     images/misc/spritesheetJump.png
+Texture   TexShoot   images/misc/shootIdle.png
 
 Texture   TexPlat      images/misc/platform.png
 Texture   TexWavy      images/misc/platformWavy.png
@@ -18,6 +19,11 @@ Texture   TexWavyMid   images/misc/platformWavyMiddle.png
 Texture   TexWavyRight images/misc/platformWavyRight.png
 Texture   TexSpikeUp   images/misc/spikeUp.png        
 Texture   TexMissile   images/misc/missileSheet.png
+Texture   TexLaser     images/misc/laser.png
+
+Texture   TexRaygun    images/misc/raygun.png
+Texture   TexBomb      images/misc/bomb.png
+Texture   TexLauncher  images/misc/launcher.png
          
 Texture   TexBuster  images/megaman/buster.png
 Texture   TexExplode images/misc/explosion128.png
@@ -59,9 +65,10 @@ Animation Rock       TexRock     1    0
 
 Animation Spaceship  TexShip     1    0   
 
-Animation Stand      TexStand    10   5   
-Animation Run        TexRun      8    4
-Animation Air        TexAir      20   5
+Animation Stand      TexStand     10   5   
+Animation Run        TexRun       8    4
+Animation Air        TexAir       20   5
+Animation Shoot      TexShoot     1    0
 
 Animation Plat       TexPlat      1    0
 Animation Wavy       TexWavy      1    0
@@ -69,7 +76,11 @@ Animation WavyLeft   TexWavyLeft  1    0
 Animation WavyMid    TexWavyMid   1    0
 Animation WavyRight  TexWavyRight 1    0   
 Animation SpikeUp    TexSpikeUp   1    0
-Animation Missile    TexMissile   4    5  
+Animation Missile    TexMissile   4    5
+Animation Laser      TexLaser     1    0
+Animation Raygun     TexRaygun    1    0
+Animation Bomb       TexBomb      1    0
+Animation Launcher   TexLauncher  1    0 
 
 Animation Buster     TexBuster   1    0   
 Animation Explosion  TexExplode 48    2   

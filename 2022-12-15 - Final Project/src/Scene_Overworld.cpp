@@ -37,7 +37,7 @@ void Scene_Overworld::init(const int& level)
     m_text.setFont(m_game->assets().getFont("Megaman"));
 
     m_game->assets().getSound("MusicTitle").stop();
-    m_game->playSound("OverWorld");
+    //m_game->playSound("OverWorld");
 
     loadMap(level);
     std::cout << loadShaders() << "\n";
@@ -89,13 +89,13 @@ void Scene_Overworld::loadMap(const int& levelAvailable)
     planet2->addComponent<CAnimation>(m_game->assets().getAnimation("Plan2"), true);
     planet2->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan2").getSize());
     planet2->addComponent<CTransform>(Vec2(800, 360));
-    planet2->addComponent<CLevelStatus>();
+    planet2->addComponent<CLevelStatus>(true);
 
     planet3 = m_entityManager.addEntity("planet");
     planet3->addComponent<CAnimation>(m_game->assets().getAnimation("Plan3"), true);
     planet3->addComponent<CBoundingBox>(m_game->assets().getAnimation("Plan3").getSize());
     planet3->addComponent<CTransform>(Vec2(1150, 360));
-    planet3->addComponent<CLevelStatus>();
+    planet3->addComponent<CLevelStatus>(true);
 
     if (levelAvailable == 2) { planet2->addComponent<CLevelStatus>(true); }
     if (levelAvailable == 3)
@@ -136,13 +136,13 @@ void Scene_Overworld::sMovement()
 
     if (input.right)
     {
-        transform.velocity.x = 5;
+        transform.velocity.x = 10;
         direction = "right";
         
     }
     if (input.left)
     {
-        transform.velocity.x = -5;
+        transform.velocity.x = -10;
         direction = "left";
     }
 
@@ -228,21 +228,17 @@ void Scene_Overworld::sMovement()
 
 void Scene_Overworld::sCollision()
 {
-    shake = false;
     for (auto p : m_entityManager.getEntities("planet"))
     {
         if      (p->getComponent<CAnimation>().animation.getName() == "Plan1") { m_selectedMenuIndex = 0; }
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan2") { m_selectedMenuIndex = 1; }
         else if (p->getComponent<CAnimation>().animation.getName() == "Plan3") { m_selectedMenuIndex = 2; }
 
-        if (p->getComponent<CLevelStatus>().unlocked == true) { shader = &fade_shader; }
-        if (p->getComponent<CLevelStatus>().unlocked == false) { shader = &red_shader; }
-
         Vec2 overlap = Physics::GetOverlap(m_player, p);
         if (overlap.x >= 0 && overlap.y >= 0)
         {
             p->getComponent<CAnimation>().animation.getSprite();
-            shake = true;
+            shake = p->getComponent<CAnimation>().animation.getName();
         }
 
         if (m_changeScene && overlap.x >= 0 && overlap.y >= 0)
@@ -349,8 +345,6 @@ void Scene_Overworld::sRender()
     // Set shader parameters
     fade_shader.setUniform("time", time.getElapsedTime().asSeconds());
     shake_shader.setUniform("time", time.getElapsedTime().asSeconds());
-    //red_shader.setUniform("time", time.getElapsedTime().asSeconds());
-    //grey_shader.setUniform("time", time.getElapsedTime().asSeconds());
     
     // draw all Entity textures / animations
     if (m_drawTextures)
@@ -369,8 +363,11 @@ void Scene_Overworld::sRender()
                 if (e->tag() == "planet")   
                 {
                     if (e->getComponent<CLevelStatus>().unlocked == true)   { shader = &fade_shader; }
-                    if (e->getComponent<CLevelStatus>().unlocked && shake)  { shader = &shake_shader; }
                     if (e->getComponent<CLevelStatus>().unlocked == false)  { shader = &red_shader; }
+                    if (e->getComponent<CLevelStatus>().unlocked && shake == e->getComponent<CAnimation>().animation.getName()) 
+                    {
+                        shader = &shake_shader; 
+                    }
                     //std::cout << "getting here" << "\n";
                     m_game->window().draw(animation.getSprite(), shader); 
                 }

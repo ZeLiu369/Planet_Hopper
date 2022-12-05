@@ -1,15 +1,3 @@
 ﻿  Scene_Overworld.cpp
-  Scene_Play.cpp
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(864,57): warning C4305: 'argument': truncation from 'double' to 'T'
-          with
-          [
-              T=float
-          ]
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(66,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(219): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
-          with
-          [
-              T=CLifeSpan
-          ]
 C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Overworld.cpp(76): warning C4715: 'Scene_Overworld::loadShaders': not all control paths return a value
   SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\bin\SFMLGame_d.exe

@@ -42,6 +42,10 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
 
+    registerAction(sf::Keyboard::Num1, "RAYGUN");
+    registerAction(sf::Keyboard::Num2, "BOMB");
+    registerAction(sf::Keyboard::Num3, "LAUNCHER");
+
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
@@ -54,6 +58,9 @@ void Scene_Play::init(const std::string& levelPath)
 
     m_coinText.setCharacterSize(24);
     m_coinText.setFont(m_game->assets().getFont("Tech"));
+
+    m_weaponUIText.setCharacterSize(14);
+    m_weaponUIText.setFont(m_game->assets().getFont("Tech"));
 
     inventoryItems = { false, false, false, false, false };
     loadLevel(levelPath);
@@ -89,50 +96,10 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     while (fin >> temp)
     {
-        if (temp != "Item" && temp != "Player")
+        if (temp == "Dec" || temp == "Tile")
         {
             std::string type = temp;
             std::string texture;
-            if (type == "Background")
-            {
-                int scroll;
-                float scaleX, scaleY, x, y, scrollFactor;
-                fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
-                if (scroll == 1)
-                {
-                    fin >> scrollFactor;
-                    auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
-                    backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
-
-                    auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
-                    backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
-
-                    m_backgroundsMap[texture].push_back(backgroundScroll);
-                    m_backgroundsMap[texture].push_back(backgroundScroll2);
-                }
-                else
-                {
-                    auto backgroundNoScroll = m_entityManager.addEntity("noscrollbackground");
-                    backgroundNoScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    backgroundNoScroll->addComponent<CTransform>(Vec2(x, y));
-                    backgroundNoScroll->getComponent<CTransform>().scale = { scaleX, scaleY };
-                }
-                continue;
-            }
-            if (type == "Lighting")
-            {
-                std::string time;
-                fin >> time;
-                if (time == "Night")
-                {
-                    m_renderTexture.create(m_game->window().getSize().x, m_game->window().getSize().y);
-                    m_lightTexture = m_game->assets().getTexture("TexLight");
-                    m_night = true;
-                }
-                continue;
-            }
             float x, y;
             fin >> texture >> x >> y;
 
@@ -141,6 +108,45 @@ void Scene_Play::loadLevel(const std::string& filename)
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
             if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+        }
+        else if (temp == "Background")
+        {
+            int scroll;
+            float scaleX, scaleY, x, y, scrollFactor;
+            std::string texture;
+            fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
+            if (scroll == 1)
+            {
+                fin >> scrollFactor;
+                auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
+                backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
+                backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundScroll2->addComponent<CTransform>(Vec2(x + m_game->window().getSize().x, y), Vec2(scaleX, scaleY), Vec2(scrollFactor, scrollFactor));
+
+                m_backgroundsMap[texture].push_back(backgroundScroll);
+                m_backgroundsMap[texture].push_back(backgroundScroll2);
+            }
+            else
+            {
+                auto backgroundNoScroll = m_entityManager.addEntity("noscrollbackground");
+                backgroundNoScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+                backgroundNoScroll->addComponent<CTransform>(Vec2(x, y));
+                backgroundNoScroll->getComponent<CTransform>().scale = { scaleX, scaleY };
+            }
+        }
+        else if (temp == "Lighting")
+        {
+            std::string time;
+            fin >> time;
+            if (time == "Night")
+            {
+                m_renderTexture.create(m_game->window().getSize().x, m_game->window().getSize().y);
+                m_lightTexture = m_game->assets().getTexture("TexLight");
+                m_night = true;
+            }
         }
         else if (temp == "Item")
         {
@@ -163,10 +169,19 @@ void Scene_Play::loadLevel(const std::string& filename)
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
-                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
+                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
         }
     }
 
+    // Load in the weapons
+    // Hardcoded because weapons will be the same for each level
+    // Third weapon will be the launcher on the player sprite's arm that will fire a missile
+    auto raygun = m_entityManager.addEntity("weapon");
+    raygun->addComponent<CAnimation>(m_game->assets().getAnimation("Raygun"), true);
+
+    auto bomb = m_entityManager.addEntity("weapon");
+    bomb->addComponent<CAnimation>(m_game->assets().getAnimation("Bomb"), true);
+    
     if (filename == "level1.txt") { m_level = 1;  }
     if (filename == "level2.txt") { m_level = 2; }
     if (filename == "level3.txt") { m_level = 3; }
@@ -191,32 +206,87 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CState>("air");
 
     m_player->addComponent<CCoinCounter>();
+    // raygun is default weapon
+    m_player->addComponent<CWeapon>("Raygun");
 }
 
+/*
+* Setup the bullet with the appropriate components
+*/
+std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetime, int dmg, Vec2 vel, std::string name)
+{
+    auto bullet = m_entityManager.addEntity("bullet");
+    bullet->addComponent<CAnimation>(m_game->assets().getAnimation(name), true);
+    bullet->addComponent<CTransform>(pos);
+    bullet->getComponent<CTransform>().velocity = vel;
+    bullet->addComponent<CBoundingBox>(size);
+    bullet->addComponent<CLifeSpan>(lifetime, m_currentFrame);
+    bullet->addComponent<CDamage>(dmg);
+
+    return bullet;
+}
+
+/*
+* Spawn the correct bullet at location relative to given entity
+*/
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
-
-    Vec2 BULLET_SIZE = Vec2(67, 19);
-    int BULLET_LIFETIME = 60;
-
+    auto& weap = m_player->getComponent<CWeapon>();
+    // This means the player is standing idle and shooting so we set their attack state to shoot idle to play the correct animation
+    // have to keep track of the frame created so we can choose how long we play the animation
+    if (m_player->getComponent<CAnimation>().animation.getName() == "Stand" || m_player->getComponent<CAnimation>().animation.getName() == "Shoot")
+    {
+        weap.attackState = "ShootIdle";
+        weap.frameCreated = m_currentFrame;
+    }
     PlayerConfig& pc = m_playerConfig;
-
     CTransform& entityT = entity->getComponent<CTransform>();
     auto bullet = m_entityManager.addEntity("bullet");
+    // Following code sets up the bullets based on the current weapon
+    if (weap.currentWeapon == "Launcher")
+    {
+        // If enough time has passed since last firing bullet, it can be fired again
+        if (weap.lastFiredLauncher == 0 || m_currentFrame - weap.lastFiredLauncher >= 240)
+        {
+            weap.lastFiredLauncher = m_currentFrame;
+            Vec2 BULLET_SIZE = Vec2(67, 19);
+            int BULLET_LIFETIME = 240;
+            int DMG = 1;
+            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
 
-    bullet->addComponent<CAnimation>(m_game->assets().getAnimation(pc.WEAPON), true);
+            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
+        }
+    }
+    else if (weap.currentWeapon == "Bomb")
+    {
+        if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
+        {
+            weap.lastFiredBomb = m_currentFrame;
+            Vec2 BULLET_SIZE = Vec2(24, 24);
+            int BULLET_LIFETIME = 180;
+            int DMG = 1;
+            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
 
-    bullet->addComponent<CTransform>
-        (
-            entityT.pos,
-            Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f),
-            entityT.scale,
-            0.0f
-            );
+            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+            bullet->addComponent<CGravity>(pc.GRAVITY);
+        }
+    }
+    else if (weap.currentWeapon == "Raygun")
+    {
+        if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+        {
+            weap.lastFiredRaygun = m_currentFrame;
+            Vec2 BULLET_SIZE = Vec2(30, 17);
+            int BULLET_LIFETIME = 60;
+            int DMG = 1;
+            Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
-    bullet->addComponent<CBoundingBox>(BULLET_SIZE);
-
-    bullet->addComponent<CLifeSpan>(BULLET_LIFETIME, m_currentFrame);
+            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+        }
+    }
 }
 
 // fires a coin bullet
@@ -273,6 +343,7 @@ void Scene_Play::sMovement()
     CState& state = m_player->getComponent<CState>();
     CGravity& gravity = m_player->getComponent<CGravity>();
     CCoinCounter& counter = m_player->getComponent<CCoinCounter>();
+    CWeapon& weapon = m_player->getComponent<CWeapon>();
 
     // player movement
 
@@ -317,13 +388,6 @@ void Scene_Play::sMovement()
     }
     transform.scale.y = gravity.gravity >= 0 ? 1 : -1;
 
-    // player shooting
-    if (input.shoot && input.canShoot)
-    {
-        input.canShoot = false;
-        spawnBullet(m_player);
-    }
-
     // if a player has a coin, fire the coin
     if (input.money && input.canShoot && counter.coins > 0)
     {
@@ -347,12 +411,78 @@ void Scene_Play::sMovement()
     transform.pos.x += transform.velocity.x;
     transform.pos.y += transform.velocity.y;
 
+    // weapon movement
+    for (auto weapon : m_entityManager.getEntities("weapon"))
+    {
+        if (weapon->getComponent<CAnimation>().animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
+        {
+            auto& weapT = weapon->getComponent<CTransform>();
+            weapT.scale = transform.scale;
+            if (m_player->getComponent<CState>().state == "ground" && m_player->getComponent<CAnimation>().animation.getName() == "Stand")
+            {
+                if (weapT.scale.y == 1)
+                { 
+                    weapT.angle = 90.0 * weapT.scale.x;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10 * weapT.scale.x, m_player->getComponent<CTransform>().pos.y + 32 };
+                }
+                else if (weapT.scale.y == -1)
+                {
+                    weapT.angle = 90.0 * weapT.scale.x * -1;
+                    weapT.pos = { m_player->getComponent<CTransform>().pos.x + 10 * weapT.scale.x, m_player->getComponent<CTransform>().pos.y - 32 };
+                }
+            }
+            else
+            {
+                weapT.angle = 0.0;
+                weapT.pos = { m_player->getComponent<CTransform>().pos.x + 30 * weapT.scale.x, m_player->getComponent<CTransform>().pos.y + 4 * weapT.scale.y };
+            }
+        }
+    }
+
+    // player shooting
+    if (input.shoot)
+    {
+        spawnBullet(m_player);
+    }
+
     // bullet movement
     for (auto& b : m_entityManager.getEntities("bullet"))
     {
         CTransform& bt = b->getComponent<CTransform>();
-        bt.pos.x += bt.velocity.x;
+        // Right now steering is not implemented as scale is set to 1, missile will just follow mouse currently
+        // TODO: figure out best way to do steering for missile
+        if (b->getComponent<CAnimation>().animation.getName() == "Missile")
+        {
+            Vec2 worldPos = windowToWorld(m_mPos);
+            Vec2 distVec = worldPos - Vec2(bt.pos.x, bt.pos.y);
+            float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);         
+            Vec2 normalizeVec = distVec / dist;
+            float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
+            normalizeVec *= dist2;
+
+            float scale = 1;
+            Vec2 steering = normalizeVec - Vec2(bt.velocity.x, bt.velocity.y);
+            steering *= scale;
+            Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
+
+            bt.angle = (atan2(actual.y, actual.x) * 180 / 3.14159265);
+            bt.velocity = { actual.x, actual.y};
+        }
+        // The bomb will have gravity
+        if (b->hasComponent<CGravity>())
+        {
+            if (abs(b->getComponent<CTransform>().velocity.y) > pc.MAXSPEED)
+            {
+                b->getComponent<CTransform>().velocity.y = pc.MAXSPEED;
+            }
+            else
+            {
+                b->getComponent<CTransform>().velocity.y += b->getComponent<CGravity>().gravity;
+            }
+        }
+        bt.pos += bt.velocity;
     }
+
     for (auto& c : m_entityManager.getEntities("coinbullet"))
     {
         if (c->hasComponent<CBoundingBox>())
@@ -391,6 +521,17 @@ void Scene_Play::sLifespan()
                 item->addComponent<CAnimation>(m_game->assets().getAnimation(s), false);
             }
 
+        }
+    }
+
+    // once duration has been exceeded change attack state so animation will be stopped playing
+    // in sAnimation()
+    if (m_player->getComponent<CWeapon>().attackState == "ShootIdle")
+    {
+        auto& weap = m_player->getComponent<CWeapon>();
+        if (m_currentFrame - weap.frameCreated > weap.duration)
+        {
+            m_player->getComponent<CWeapon>().attackState = "Idle";
         }
     }
 
@@ -590,10 +731,14 @@ void Scene_Play::sDoAction(const Action& action)
 
         else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
         else if (action.name() == "MONEY") { m_player->getComponent<CInput>().money = true; }
+        else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
+
+        else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
+        else if (action.name() == "BOMB")     { m_player->getComponent<CWeapon>().currentWeapon = "Bomb";     }
+        else if (action.name() == "LAUNCHER") { m_player->getComponent<CWeapon>().currentWeapon = "Launcher"; }
 
         else if (action.name() == "LEFT_CLICK")
         {
-            m_mPos = action.pos();
             Vec2 worldPos = windowToWorld(m_mPos);
             std::cout << "Mouse Clickled: " << worldPos.x << ", " << worldPos.y << "\n";
             for (auto e : m_entityManager.getEntities())
@@ -622,7 +767,6 @@ void Scene_Play::sDoAction(const Action& action)
         if (action.name() == "SHOOT")
         {
             m_player->getComponent<CInput>().shoot = false;
-            m_player->getComponent<CInput>().canShoot = true;
         }
         if (action.name() == "MONEY")
         {
@@ -652,10 +796,15 @@ void Scene_Play::sAnimation()
         }
         else
         {
-            // when they are standing
-            if (pAni.animation.getName() != "Stand")
+            // when they are standing and not attacking
+            if (pAni.animation.getName() != "Stand" && !(m_player->getComponent<CWeapon>().attackState == "ShootIdle"))
             {
                 m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
+            }
+            // standing and attacking
+            else if (pAni.animation.getName() != "Shoot" && m_player->getComponent<CWeapon>().attackState == "ShootIdle")
+            {
+                m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Shoot"), true);
             }
         }
     }
@@ -716,6 +865,9 @@ void Scene_Play::onEnd()
     m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
 }
 
+/*
+* Set the positions of each set of layers constantly for parallaxing
+*/
 void Scene_Play::updateBackgrounds()
 {
     auto& playerTransform = m_player->getComponent<CTransform>();
@@ -798,6 +950,9 @@ void Scene_Play::sCamera()
     updateBackgrounds();
 }
 
+/*
+* Get the lighting sprite to be drawn on the screen around player for illumination
+*/
 sf::Sprite Scene_Play::getLightingSprite()
 {
     // this is for lighting
@@ -833,6 +988,84 @@ sf::Sprite Scene_Play::getLightingSprite()
     return night;
 }
 
+/*
+* Display a rectangle with white outline at given position with given size
+*/
+sf::RectangleShape Scene_Play::displayRect(float x, float y, const int size)
+{
+    sf::RectangleShape rect;
+    rect.setSize(sf::Vector2f(size, size));
+    rect.setOrigin(sf::Vector2f(size / 2, size / 2));
+    rect.setPosition(x, y);
+    rect.setFillColor(sf::Color(0, 0, 0, 0));
+    rect.setOutlineColor(sf::Color(255, 255, 255, 255));
+    rect.setOutlineThickness(1);
+   
+    return rect;
+}
+
+/*
+* Display given text at given location
+*/
+sf::Text Scene_Play::displayText(std::string text, float x, float y)
+{
+    m_weaponUIText.setString(text);
+    m_weaponUIText.setPosition(x, y);
+
+    return m_weaponUIText;
+}
+
+/*
+* Draw the weapon display which will be 3 boxes that appear in the bottom middle of the screen
+* with the weapon sprites
+*/
+void Scene_Play::drawWeaponDisplay()
+{
+    float viewCenterX = m_game->window().getView().getCenter().x;
+    const int size = 48;
+    m_game->window().draw(displayText("1", viewCenterX - size - 20, m_game->window().getSize().y - size / 2 - 30));
+    m_game->window().draw(displayText("2", viewCenterX - 20, m_game->window().getSize().y - size / 2 - 30));
+    m_game->window().draw(displayText("3", viewCenterX + size - 20, m_game->window().getSize().y - size / 2 - 30));
+
+    sf::Sprite raygunDisplay(m_game->assets().getTexture("TexRaygun"));
+    raygunDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    raygunDisplay.setPosition(viewCenterX - size, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(raygunDisplay);
+
+    sf::Sprite bombDisplay(m_game->assets().getTexture("TexBomb"));
+    bombDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    bombDisplay.setPosition(viewCenterX, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(bombDisplay);
+
+    sf::Sprite launcherDisplay(m_game->assets().getTexture("TexLauncher"));
+    launcherDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
+    launcherDisplay.setPosition(viewCenterX + size, m_game->window().getSize().y - size / 2);
+    m_game->window().draw(launcherDisplay);
+
+    m_game->window().draw(displayRect(viewCenterX - size, m_game->window().getSize().y - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX, m_game->window().getSize().y - size / 2 - 4, size));
+    m_game->window().draw(displayRect(viewCenterX + size, m_game->window().getSize().y - size / 2 - 4, size));
+}
+
+/*
+* Draw the current weapon in the correct location relative to player
+*/
+void Scene_Play::drawWeapon()
+{
+    for (auto weapon : m_entityManager.getEntities("weapon"))
+    {
+        auto& animation = weapon->getComponent<CAnimation>().animation;
+        if (animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
+        {
+            auto& transform = weapon->getComponent<CTransform>();
+            animation.getSprite().setRotation(transform.angle);
+            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+    }
+}
+
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
@@ -849,7 +1082,7 @@ void Scene_Play::sRender()
         {
             auto& transform = e->getComponent<CTransform>();
 
-            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items")
+            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items" && e->tag() != "weapon")
             {
                 auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
@@ -859,6 +1092,8 @@ void Scene_Play::sRender()
             }
         }
     }
+    // draw the current weapon
+    drawWeapon();
 
     sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
     miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
@@ -913,6 +1148,7 @@ void Scene_Play::sRender()
     //    m_coinText.setPosition(leftX, 0);
     //    m_game->window().draw(m_coinText);
     //}
+
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
@@ -1000,6 +1236,8 @@ void Scene_Play::sRender()
             m_game->window().draw(animation.getSprite());
         }
     }
+    // Draw the weapon display UI
+    drawWeaponDisplay();
 }
 
 
