@@ -209,6 +209,15 @@ public:
     CInventory(float i) : index(i) {}
 };
 
+class CButton : public Component
+{
+public:
+    std::string value;
+
+    CButton() {}
+    CButton(const std::string & s) : value(s) {}
+};
+
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)

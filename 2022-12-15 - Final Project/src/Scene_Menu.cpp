@@ -80,7 +80,7 @@ void Scene_Menu::sDoAction(const Action& action)
         }
         else if (action.name() == "EDIT")
         {
-            m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game, m_levelPaths[m_selectedMenuIndex]));
+            m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game));
         }
         else if (action.name() == "QUIT")
         {
