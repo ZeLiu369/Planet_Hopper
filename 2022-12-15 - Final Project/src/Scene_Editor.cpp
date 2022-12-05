@@ -24,6 +24,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <math.h>
+#include <cmath>
 
 Scene_Editor::Scene_Editor(GameEngine* gameEngine)
     : Scene(gameEngine)
@@ -428,7 +430,7 @@ void Scene_Editor::spawnPlayer()
     PlayerConfig& pc = m_playerConfig;
 
     // here is a sample player entity which you can use to construct other entities
-    auto& player = m_entityManager.addEntity("player");
+    auto player = m_entityManager.addEntity("player");
     player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
 
     Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, player);
@@ -455,7 +457,7 @@ void Scene_Editor::spawnCamera()
 
 bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
 {
-    auto& entity = m_entityManager.addEntity(e->tag());
+    auto entity = m_entityManager.addEntity(e->tag());
     entity->addComponent<CTransform>() = e->getComponent<CTransform>();
     entity->addComponent<CDraggable>();
 
