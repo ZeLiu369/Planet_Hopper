@@ -37,7 +37,7 @@ void Scene_Overworld::init(const int& level)
     m_text.setFont(m_game->assets().getFont("Megaman"));
 
     m_game->assets().getSound("MusicTitle").stop();
-    m_game->playSound("OverWorld");
+    //m_game->playSound("OverWorld");
 
     loadMap(level);
     std::cout << loadShaders() << "\n";

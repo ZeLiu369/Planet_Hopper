@@ -64,11 +64,18 @@ public:
 class CWeapon : public Component
 {
 public:
-    std::string currentWeapon = "Raygun";
-    std::string previousWeapon = "Raygun";
+    std::string currentWeapon  = "Raygun";
+    std::string attackState    = "Idle";
+    int duration               = 30;
+    int frameCreated           = 0;
+    int lastFiredLauncher      = 0;
+    int lastFiredRaygun        = 0;
+    int lastFiredBomb          = 0;
     CWeapon() {}
-    CWeapon(std::string weapon)
-        : currentWeapon(weapon), previousWeapon(weapon) {}
+    CWeapon(std::string weapon) 
+        : currentWeapon(weapon) {}
+    CWeapon(std::string weapon, std::string atk, int dur, int created)
+        : currentWeapon(weapon), attackState(atk), duration(dur), frameCreated(created) {}
 };
 
 class CLifeSpan : public Component
