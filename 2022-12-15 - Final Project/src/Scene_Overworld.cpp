@@ -193,6 +193,7 @@ void Scene_Overworld::sMovement()
         if      (transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x) { currPlanet = 3; direction = "none"; }
         else if (transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x) { currPlanet = 2; direction = "none"; }
         else if (transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x) { currPlanet = 1; direction = "none"; }
+        else if (transform.pos.x + offset > planet3->getComponent<CTransform>().pos.x) { currPlanet = 3; }
         else { currPlanet = 0; }
     }
 

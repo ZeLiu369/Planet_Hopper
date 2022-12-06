@@ -115,7 +115,7 @@ Tile Plat 35 9 1 1
 Tile Plat 36 9 1 1
 Tile Plat 37 9 1 1
 Tile Plat 38 9 1 1
-Tile Plat 37 10 1 1
+Tile Plat 37 16 1 1
 Tile Plat 36 10 1 1
 Tile Plat 35 10 1 1
 Tile Plat 34 10 1 1
@@ -123,7 +123,7 @@ Tile Plat 33 10 1 1
 Tile Plat 32 10 1 1
 Tile Plat 31 10 1 1
 Tile Plat 30 10 1 1
-Tile Plat 29 10 1 1
+Tile Plat 29 18 1 1
 Tile Plat 29 9 1 1
 Tile Plat 29 11 1 1
 Tile Plat 30 11 1 1
@@ -134,7 +134,7 @@ Tile Plat 34 11 1 1
 Tile Plat 35 11 1 1
 Tile Plat 36 11 1 1
 Tile Plat 37 11 1 1
-Tile Plat 38 11 1 1
+Tile Plat 38 14 1 1
 Tile Plat 38 10 1 1
 Tile Plat 38 12 1 1
 Tile Plat 37 12 1 1
@@ -142,10 +142,10 @@ Tile Plat 36 12 1 1
 Tile Plat 35 12 1 1
 Tile Plat 34 12 1 1
 Tile Plat 33 12 1 1
-Tile Plat 32 12 1 1
+Tile Plat 32 19 1 1
 Tile Plat 31 12 1 1
 Tile Plat 30 12 1 1
-Tile Plat 29 12 1 1
+Tile Plat 29 14 1 1
 Tile Plat 29 13 1 1
 Tile Plat 30 13 1 1
 Tile Plat 31 13 1 1
@@ -177,7 +177,7 @@ Tile Plat 36 15 1 1
 Tile Plat 37 15 1 1
 Tile Plat 38 15 1 1
 Tile Plat 28 15 1 1
-Tile Plat 27 15 1 1
+Tile Plat 27 14 1 1
 Tile Plat 26 15 1 1
 Tile Plat 25 15 1 1
 Tile Plat 24 15 1 1
@@ -191,7 +191,7 @@ Tile SpikeDown 26 14 1 1
 Tile SpikeDown 27 14 1 1
 Tile SpikeDown 28 14 1 1
 Tile Plat 21 15 1 1
-Tile Plat 20 15 1 1
+Tile Plat 29 15 1 1
 Tile Plat 19 15 1 1
 Tile Plat 18 15 1 1
 Tile Plat 17 15 1 1
@@ -237,7 +237,7 @@ Tile Plat 3 18 1 1
 Tile Plat 3 19 1 1
 Tile Plat 4 20 1 1
 Tile Plat 4 16 1 1
-Tile Plat 5 16 1 1
+Tile Plat 5 11 1 1
 Tile Plat 5 17 1 1
 Tile Plat 5 18 1 1
 Tile Plat 5 19 1 1
@@ -251,7 +251,7 @@ Tile Plat 7 16 1 1
 Tile Plat 7 17 1 1
 Tile Plat 7 18 1 1
 Tile Plat 7 19 1 1
-Tile Plat 7 20 1 1
+Tile Plat 7 20 0 1
 Tile Plat 8 20 1 1
 Tile Plat 8 19 1 1
 Tile Plat 8 18 1 1
@@ -292,10 +292,17 @@ Tile Plat 15 17 1 1
 Tile Plat 15 18 1 1
 Tile Plat 15 19 1 1
 Tile Plat 15 20 1 1
+
+NPC  WormIdle		16 1 Follow
+NPC  DemonWalk		20 7 Patrol 17 1 20 1
+NPC  WormIdle		23 7 Follow
+NPC  DemonWalk		27 1 Patrol 24 1 27 1
+NPC  WormIdle		30 1 Follow
+
 Tile Plat 16 20 1 1
 Tile Plat 16 19 1 1
 Tile Plat 16 18 1 1
-Tile Plat 16 17 1 1
+Tile Plat 16 17 0 1
 Tile Plat 16 16 1 1
 Tile Plat 17 16 1 1
 Tile Plat 17 17 1 1
@@ -303,7 +310,7 @@ Tile Plat 17 18 1 1
 Tile Plat 17 19 1 1
 Tile Plat 17 20 1 1
 Tile Plat 18 20 1 1
-Tile Plat 18 19 1 1
+Tile Plat 18 19 0 1
 Tile Plat 18 18 1 1
 Tile Plat 18 17 1 1
 Tile Plat 18 16 1 1
@@ -313,7 +320,7 @@ Tile Plat 19 18 1 1
 Tile Plat 19 19 1 1
 Tile Plat 19 20 1 1
 Tile Plat 20 20 1 1
-Tile Plat 20 19 1 1
+Tile Plat 20 19 0 1
 Tile Plat 21 19 1 1
 Tile Plat 21 18 1 1
 Tile Plat 20 17 1 1
@@ -354,7 +361,7 @@ Tile Plat 27 18 1 1
 Tile Plat 27 19 1 1
 Tile Plat 27 20 1 1
 Tile Plat 28 20 1 1
-Tile Plat 28 19 1 1
+Tile Plat 29 19 0 1
 Tile Plat 29 19 1 1
 Tile Plat 28 18 1 1
 Tile Plat 28 16 1 1
@@ -371,9 +378,9 @@ Tile Plat 31 16 1 1
 Tile Plat 31 17 1 1
 Tile Plat 31 18 1 1
 Tile Plat 31 19 1 1
-Tile Plat 31 20 1 1
+Tile Plat 31 20 0 1
 Tile Plat 32 20 1 1
-Tile Plat 32 19 1 1
+Tile Plat 33 19 1 1
 Tile Plat 33 19 1 1
 Tile Plat 33 18 1 1
 Tile Plat 33 17 1 1
@@ -386,15 +393,15 @@ Tile Plat 33 20 1 1
 Tile Plat 34 20 1 1
 Tile Plat 34 19 1 1
 Tile Plat 35 18 1 1
-Tile Plat 35 17 1 1
-Tile Plat 34 16 1 1
+Tile Plat 36 17 1 1
+Tile Plat 34 16 0 1
 Tile Plat 34 18 1 1
 Tile Plat 35 19 1 1
 Tile Plat 36 19 1 1
 Tile Plat 36 20 1 1
 Tile Plat 35 20 1 1
 Tile Plat 36 18 1 1
-Tile Plat 36 17 1 1
+Tile Plat 36 17 0 1
 Tile Plat 36 16 1 1
 Tile Plat 35 16 1 1
 Tile Plat 37 16 1 1
@@ -403,7 +410,7 @@ Tile Plat 37 18 1 1
 Tile Plat 37 19 1 1
 Tile Plat 37 20 1 1
 Tile Plat 38 20 1 1
-Tile Plat 38 19 1 1
+Tile Plat 39 19 1 1
 Tile Plat 38 18 1 1
 Tile Plat 38 17 1 1
 Tile Plat 38 16 1 1
@@ -427,21 +434,21 @@ Tile Plat 41 9 1 1
 Tile Plat 42 9 1 1
 Tile Plat 43 9 1 1
 Tile Plat 44 9 1 1
-Tile Plat 45 9 1 1
+Tile Plat 45 0 1 1
 Tile Plat 45 10 1 1
 Tile Plat 44 10 1 1
 Tile Plat 43 10 1 1
 Tile Plat 42 10 1 1
 Tile Plat 41 10 1 1
 Tile Plat 40 10 1 1
-Tile Plat 39 10 1 1
+Tile Plat 39 10 0 1
 Tile Plat 39 11 1 1
 Tile Plat 40 11 1 1
 Tile Plat 41 11 1 1
 Tile Plat 42 11 1 1
 Tile Plat 43 11 1 1
 Tile Plat 44 11 1 1
-Tile Plat 45 12 1 1
+Tile Plat 45 12 0 1
 Tile Plat 44 12 1 1
 Tile Plat 43 12 1 1
 Tile Plat 42 12 1 1
@@ -449,14 +456,14 @@ Tile Plat 41 12 1 1
 Tile Plat 40 12 1 1
 Tile Plat 39 12 1 1
 Tile Plat 45 11 1 1
-Tile Plat 45 13 1 1
+Tile Plat 45 13 0 1
 Tile Plat 44 13 1 1
 Tile Plat 43 13 1 1
 Tile Plat 42 13 1 1
 Tile Plat 41 13 1 1
 Tile Plat 40 13 1 1
 Tile Plat 39 13 1 1
-Tile Plat 39 14 1 1
+Tile Plat 39 14 0 1
 Tile Plat 40 14 1 1
 Tile Plat 41 14 1 1
 Tile Plat 42 14 1 1

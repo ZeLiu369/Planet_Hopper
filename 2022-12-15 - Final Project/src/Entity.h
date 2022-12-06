@@ -35,7 +35,11 @@ typedef std::tuple<
     CDraggable,
     CWeapon,
     CDamage,
-    CButton
+    CButton,
+    CHealth,
+    CPatrol,
+    CFollowPlayer,
+    CInvincibility
 > ComponentTuple;
 
 class Entity
