@@ -24,6 +24,8 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <math.h>
+#include <cmath>
 
 Scene_Editor::Scene_Editor(GameEngine* gameEngine)
     : Scene(gameEngine)
@@ -110,14 +112,16 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
     Vec2& ePos = entity->getComponent<CTransform>().pos;
     Vec2 snap = gridToMidPixel(floor(ePos.x / m_gridSize.x), (m_BOUNDARYPOS.y - 1) - floor(ePos.y / m_gridSize.y), entity);
     ePos = snap;
+
     for (auto& e : m_entityManager.getEntities())
     {
-        if (e == entity || e->tag() == "dec" || e->tag() == "camera") continue;
+        if (e == entity || e->tag() == "camera") continue;
+
+        if (entity->tag() == "dec" && e->tag() == "dec" && ePos == e->getComponent<CTransform>().pos) return false;
+
         Vec2 o = Physics::GetOverlap(entity, e);
-        if (o.x > 0 && o.y > 0)
-        {
-            return false;
-        }
+        if (o.x > 0 && o.y > 0) return false;
+
     }
     
 
@@ -251,7 +255,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
             fin >> m_levelConfig.MUSIC;
         }
 
-        else if (temp == "Dec" || temp == "Tile" || temp == "Hazard")
+        else if (temp == "Dec" || temp == "Tile")
         {
             // tile and decs
             std::string type = temp;
@@ -316,6 +320,53 @@ void Scene_Editor::saveLevel()
     std::ofstream fout("customLevels/" + lc.NAME);
     std::string saveLine = "";
 
+    // World Properties
+    // Lighting
+    saveLine = "Lighting " + std::string(lc.DARK ? "Night" : "Day");
+    fout << saveLine << std::endl;
+
+    // Music
+    saveLine = "Music " + lc.MUSIC;
+    fout << saveLine << std::endl;
+
+    // Background
+    saveLine = "BackgroundType " + lc.BACKGROUND;
+    fout << saveLine << std::endl;
+
+    if (lc.BACKGROUND == m_levelAssetList["Background"][0])
+    {
+        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
+            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
+            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
+            "Background Craters 1 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+    else if (lc.BACKGROUND == m_levelAssetList["Background"][1])
+    {
+        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
+            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
+            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
+            "Background Craters 1 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+    else if (lc.BACKGROUND == m_levelAssetList["Background"][2])
+    {
+        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
+            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
+            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
+            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
+            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
+            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
+            "Background Craters 1 1 1 1 640 717 0.01";
+        fout << saveLine << std::endl;
+    }
+
     // Player
     PlayerConfig& pc = m_playerConfig;
     Vec2 grid = midPixelToGrid(m_player);
@@ -332,58 +383,24 @@ void Scene_Editor::saveLevel()
 
     fout << saveLine << std::endl;
 
-    // World Properties
-    // Lighting
-    saveLine = "Lighting " + std::string(lc.DARK ? "Night" : "Day");
-    fout << saveLine << std::endl;
-
-    // Music
-    saveLine = "Music " + lc.MUSIC;
-    fout << saveLine << std::endl;
-
-    // Background
-    saveLine = "BackgroundType " + lc.BACKGROUND;
-    fout << saveLine << std::endl;
-
-    if (lc.BACKGROUND == m_levelAssetList["Background"][0])
-    {
-        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
-            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
-            "Background Land 0 1.25 1 640 717" + std::string("\n") +
-            "Background Craters 1 1 1 640 717 0.01";
-        fout << saveLine << std::endl;
-    }
-    else if (lc.BACKGROUND == m_levelAssetList["Background"][1])
-    {
-        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
-            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
-            "Background Land 0 1.25 1 640 717" + std::string("\n") +
-            "Background Craters 1 1 1 640 717 0.01";
-        fout << saveLine << std::endl;
-    }
-    else if (lc.BACKGROUND == m_levelAssetList["Background"][2])
-    {
-        saveLine = "Background Sky 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1.25 1 640 574 0.50" + std::string("\n") +
-            "Background Rock 1 1 1 640 574 0.10" + std::string("\n") +
-            "Background Land 0 1.25 1 640 717" + std::string("\n") +
-            "Background Craters 1 1 1 640 717 0.01";
-        fout << saveLine << std::endl;
-    }
-
     // level content
+
+    // dec first so they load behind everything
+    for (auto& d : m_entityManager.getEntities("dec"))
+    {
+        CTransform& t = d->getComponent<CTransform>();
+        CAnimation& a = d->getComponent<CAnimation>();
+
+        grid = midPixelToGrid(d);
+
+        saveLine = "Dec " + a.animation.getName() + " " + formatFloat(grid.x) + " " + formatFloat(grid.y);
+        fout << saveLine << std::endl;
+    }
+
     for (auto& e : m_entityManager.getEntities())
     {
         if (!e->hasComponent<CTransform>() || !e->hasComponent<CAnimation>() || 
-             e->tag() == "camera" || e->tag() == "button" || e->tag() == "player") continue;
+             e->tag() == "camera" || e->tag() == "button" || e->tag() == "player" || e->tag() == "dec") continue;
 
         CTransform& t = e->getComponent<CTransform>();
         CAnimation& a = e->getComponent<CAnimation>();
@@ -402,19 +419,11 @@ void Scene_Editor::saveLevel()
             saveLine = saveLine + " " + std::to_string(e->getComponent<CBoundingBox>().blockMove) +
                                   " " + std::to_string(e->getComponent<CBoundingBox>().blockVision);
         }
-        else if (e->tag() == "dec")
-        {
-
-        }
         else if (e->tag() == "item")
         {
 
         }
         else if (e->tag() == "npc")
-        {
-
-        }
-        else if (e->tag() == "hazard")
         {
 
         }
@@ -428,7 +437,7 @@ void Scene_Editor::spawnPlayer()
     PlayerConfig& pc = m_playerConfig;
 
     // here is a sample player entity which you can use to construct other entities
-    auto& player = m_entityManager.addEntity("player");
+    auto player = m_entityManager.addEntity("player");
     player->addComponent<CAnimation>(m_game->assets().getAnimation("Stand"), true);
 
     Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, player);
@@ -455,7 +464,7 @@ void Scene_Editor::spawnCamera()
 
 bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
 {
-    auto& entity = m_entityManager.addEntity(e->tag());
+    auto entity = m_entityManager.addEntity(e->tag());
     entity->addComponent<CTransform>() = e->getComponent<CTransform>();
     entity->addComponent<CDraggable>();
 

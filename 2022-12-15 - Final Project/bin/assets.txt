@@ -12,14 +12,32 @@ Texture   TexRun     images/misc/spritesheetRun.png
 Texture   TexAir     images/misc/spritesheetJump.png
 Texture   TexShoot   images/misc/shootIdle.png
 
-Texture   TexPlat      images/misc/platform.png
-Texture   TexWavy      images/misc/platformWavy.png
-Texture   TexWavyLeft  images/misc/platformWavyLeft.png 
-Texture   TexWavyMid   images/misc/platformWavyMiddle.png
-Texture   TexWavyRight images/misc/platformWavyRight.png
-Texture   TexSpikeUp   images/misc/spikeUp.png        
-Texture   TexMissile   images/misc/missileSheet.png
-Texture   TexLaser     images/misc/laser.png
+Texture   TexPlat       images/misc/platform.png
+Texture   TexWavy       images/misc/platformWavy.png
+Texture   TexWavyLeft   images/misc/platformWavyLeft.png 
+Texture   TexWavyMid    images/misc/platformWavyMiddle.png
+Texture   TexWavyRight  images/misc/platformWavyRight.png
+Texture   TexSpikeUp    images/misc/spikeUp.png
+Texture   TexSpikeDown  images/misc/spikeDown.png        
+Texture   TexMissile    images/misc/missileSheet.png
+Texture   TexLaser      images/misc/laser.png
+Texture   TexWarnCan    images/misc/warningCanister.png
+Texture   TexArrowD     images/misc/arrowDown.png
+Texture   TexArrowU     images/misc/arrowUp.png
+Texture   TexArrowL     images/misc/arrowLeft.png
+Texture   TexArrowR     images/misc/arrowRight.png
+Texture   TexAlarm      images/misc/alarm.png
+Texture   TexSaw        images/misc/saw.png
+Texture   TexSteel      images/misc/platformSteel.png
+Texture   TexSteel2     images/misc/platformSteel2.png
+Texture   TexSticker    images/misc/warningSticker.png
+Texture   TexPillBlue   images/misc/pill_blue.png
+Texture   TexPillGreen  images/misc/pill_green.png 
+Texture   TexPillRed    images/misc/pill_red.png 
+Texture   TexPillYellow images/misc/pill_yellow.png
+Texture   TexBlueBolt   images/misc/powerupBlue_bolt.png
+Texture   TexBlueShield images/misc/powerupBlue_shield.png
+Texture   TexBlueStar   images/misc/powerupBlue_star.png   
 
 Texture   TexRaygun    images/misc/raygun.png
 Texture   TexBomb      images/misc/bomb.png
@@ -86,17 +104,35 @@ Animation Run        TexRun       8    4
 Animation Air        TexAir       20   5
 Animation Shoot      TexShoot     1    0
 
-Animation Plat       TexPlat      1    0
-Animation Wavy       TexWavy      1    0
-Animation WavyLeft   TexWavyLeft  1    0
-Animation WavyMid    TexWavyMid   1    0
-Animation WavyRight  TexWavyRight 1    0   
-Animation SpikeUp    TexSpikeUp   1    0
-Animation Missile    TexMissile   4    5
-Animation Laser      TexLaser     1    0
-Animation Raygun     TexRaygun    1    0
-Animation Bomb       TexBomb      1    0
-Animation Launcher   TexLauncher  1    0 
+Animation Plat        TexPlat       1    0
+Animation Wavy        TexWavy       1    0
+Animation WavyLeft    TexWavyLeft   1    0
+Animation WavyMid     TexWavyMid    1    0
+Animation WavyRight   TexWavyRight  1    0   
+Animation SpikeUp     TexSpikeUp    1    0
+Animation SpikeDown   TexSpikeDown  1    0
+Animation Missile     TexMissile    4    5
+Animation Laser       TexLaser      1    0
+Animation Raygun      TexRaygun     1    0
+Animation Bomb        TexBomb       1    0
+Animation Launcher    TexLauncher   1    0
+Animation WarningCan  TexWarnCan    1    0
+Animation ArrowDown   TexArrowD     1    0
+Animation ArrowUp     TexArrowU     1    0
+Animation ArrowRight  TexArrowR     1    0
+Animation ArrowLeft   TexArrowL     1    0
+Animation Alarm       TexAlarm      1    0
+Animation Saw         TexSaw        1    0
+Animation Steel       TexSteel      1    0
+Animation Steel2      TexSteel2     1    0
+Animation Sticker     TexSticker    1    0
+Animation PillBlue    TexPillBlue   1    0
+Animation PillGreen   TexPillGreen  1    0
+Animation PillRed     TexPillRed    1    0
+Animation PillYellow  TexPillYellow 1    0
+Animation BlueBolt    TexBlueBolt   1    0
+Animation BlueShield  TexBlueShield 1    0
+Animation BlueStar    TexBlueStar   1    0
 
 Animation Buster     TexBuster   1    0   
 Animation Explosion  TexExplode  24   3   

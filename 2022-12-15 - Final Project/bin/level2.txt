@@ -1,11 +1,11 @@
 Lighting    Day
-Background  Sky     0 1.25 1.5  640 384 
-Background  Stars   1 1.25 1.65 640 384  0.95
-Background  SkyObj  1 1    1    640 200  0.85
-Background  Hill    1 1.25 1    640 574  0.50
-Background  Rock    1 1    1    640 574  0.10
-Background  Land    0 1.25 1    640 717
-Background  Craters 1 1    1    640 717  0.01
+Background  Sky     1 0 1.25 1.5  640 384 
+Background  Stars   2 1 1.25 1.65 640 384  0.95
+Background  SkyObj  1 1 1    1    640 200  0.85
+Background  Hill    1 1 1.25 1.75 640 544  0.55
+Background  Rock    1 1 1    1    640 584  0.10
+Background  Land    1 1 1.25 1    640 717  0.02
+Background  Craters 1 1 1    1    640 717  0.01
 Tile Plat	 0 0
 Tile Plat	 1 0
 Tile Plat	 1 0
@@ -15,21 +15,17 @@ Tile Plat	 4 0
 Tile Plat	 5 0
 Tile Plat	 6 0
 Tile Plat	 7 0
+Tile SpikeUp     7 1
 Tile Plat 	 8 0
-Tile Plat 	 9 0
 Tile Plat 	10 0
 Tile Plat	 0 11
 Tile Plat	 1 11
+Tile SpikeDown   1 10
 Tile Plat	 2 11
 Tile Plat	 3 11
 Tile Plat	 4 11
 Tile Plat	 5 11
 Tile Plat	 6 11
-Tile SpikeUp     7 1
-Tile SpikeUp     8 1
-Tile SpikeUp     9 1
-Tile SpikeUp    10 1
-Tile SpikeUp    11 1
 Tile Plat	 7 11
 Tile Plat 	 8 11
 Tile Plat 	 9 11
@@ -37,6 +33,29 @@ Tile Plat 	10 11
 Tile WavyLeft 	 8 4
 Tile WavyMid 	 9 4
 Tile WavyRight 	10 4
+Tile WavyLeft 	13 7
+Tile WavyMid 	14 7
+Tile WavyRight 	15 7
+Tile WavyLeft 	16 10
+Tile WavyMid 	17 10
+Tile WavyRight 	18 10
+Tile WavyLeft 	18 14
+Tile WavyMid 	19 14
+Tile WavyMid 	20 14
+Tile WavyMid 	21 14
+Tile WavyMid 	22 14
+Tile WavyMid 	23 14
+Tile WavyMid 	24 14
+Tile WavyMid 	25 14
+Tile WavyMid 	26 14
+Tile WavyMid 	27 14
+Tile WavyMid 	28 14
+Tile WavyMid 	29 14
+Tile WavyMid 	30 14
+Tile WavyMid 	31 14
+Tile WavyMid 	32 14
+Tile WavyMid 	33 14
+Tile WavyRight 	34 14
 Tile Plat 	11 0
 Tile Plat 	12 0
 Tile Plat 	13 0
@@ -121,4 +140,4 @@ Tile Plat 	84 0
 Tile Plat 	85 0
 Tile Plat 	86 0
 Tile Plat 	87 0
-Player 2 6 46 70 5 -20 20 0.75
+Player 2 4 46 70 5 -20 20 0.75

@@ -73,6 +73,11 @@ int Scene_Overworld::loadShaders()
         std::cerr << "Error while loading red shader" << std::endl;
         return -1;
     }
+    else
+    {
+        std::cout << "Shaders loaded successfully" << std::endl;
+        return 0;
+    }
 }
 
 void Scene_Overworld::loadMap(const int& levelAvailable)

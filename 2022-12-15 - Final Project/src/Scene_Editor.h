@@ -52,7 +52,7 @@ protected:
     // grid
     const Vec2              m_gridSize = { 64, 64 };
     const Vec2              m_BOUNDARYNEG = { 0, 0 };
-    const Vec2              m_BOUNDARYPOS = { 200, 12 };
+    const Vec2              m_BOUNDARYPOS = { 200, 30 };
 
     // text
     sf::Text                m_gridText;
