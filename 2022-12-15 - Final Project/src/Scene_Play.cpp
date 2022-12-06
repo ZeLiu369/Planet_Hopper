@@ -94,7 +94,7 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     m_inventoryEntity = m_entityManager.addEntity("inventory");
     m_inventoryEntity->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
-    m_inventoryEntity->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, 0));
+    m_inventoryEntity->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70));
     m_inventoryEntity->addComponent<CInventory>();
 
     while (fin >> temp)
@@ -1428,8 +1428,36 @@ void Scene_Play::sRender()
 
         for (auto e : m_entityManager.getEntities())
         {
+            // the health bar for the player
             auto& transform = e->getComponent<CTransform>();
-            if (e->hasComponent<CHealth>())
+            if (e->tag() == "player" && e->hasComponent<CHealth>())
+            {
+                auto &h = e->getComponent<CHealth>();
+                Vec2 size(320, 50);
+                sf::RectangleShape rect({size.x, size.y});
+                // on the top of head: 
+                // rect.setPosition(transform.pos.x - 32, transform.pos.y - 48);
+                rect.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 10, m_game->window().getView().getCenter().y - height() / 2 + 10);
+                rect.setFillColor(sf::Color(96, 96, 96));
+                rect.setOutlineColor(sf::Color::Black);
+                rect.setOutlineThickness(2);
+                m_game->window().draw(rect);
+
+                float ratio = (float)(h.current) / h.max;
+                size.x *= ratio;
+                rect.setSize({size.x, size.y});
+                rect.setFillColor(sf::Color(255, 0, 0));
+                rect.setOutlineThickness(0);
+                m_game->window().draw(rect);
+
+                for (int i = 0; i < h.max; i++)
+                {
+                    tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
+                    m_game->window().draw(tick);
+                }
+            }
+            // the health bar for the npc
+            if (e->tag()=="npc" && e->hasComponent<CHealth>())
             {
                 auto& h = e->getComponent<CHealth>();
                 Vec2 size(64, 6);
@@ -1605,7 +1633,7 @@ void Scene_Play::sRender()
         for (auto e : m_entityManager.getEntities("inventory"))
         {
             auto& transform = e->getComponent<CTransform>();
-            transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, 0);
+            transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70);
 
             auto& animation = e->getComponent<CAnimation>().animation;
             animation.getSprite().setRotation(transform.angle);
