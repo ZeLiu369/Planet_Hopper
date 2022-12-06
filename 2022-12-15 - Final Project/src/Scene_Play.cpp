@@ -286,6 +286,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
             auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+            m_game->playSound("se_bullet_leaser");
         }
     }
 }

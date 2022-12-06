@@ -121,3 +121,5 @@ Font      Megaman    fonts/megaman.ttf
 Sound     MusicTitle sounds/menu.ogg
 Sound     Play       sounds/play.ogg
 Sound     OverWorld  sounds/Overworld_bgm.ogg
+
+Sound  se_bullet_leaser  sounds/se_bullet_leaser.wav
