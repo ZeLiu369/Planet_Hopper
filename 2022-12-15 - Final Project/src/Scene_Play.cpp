@@ -116,10 +116,10 @@ void Scene_Play::loadLevel(const std::string& filename)
         }
         else if (temp == "Background")
         {
-            int directionality, scroll;
+            int scroll;
             float scaleX, scaleY, x, y, scrollFactor;
             std::string texture;
-            fin >> texture >> directionality >> scroll >> scaleX >> scaleY >> x >> y;
+            fin >> texture >> scroll >> scaleX >> scaleY >> x >> y;
             if (scroll == 1)
             {
                 fin >> scrollFactor;
@@ -134,15 +134,6 @@ void Scene_Play::loadLevel(const std::string& filename)
 
                 m_backgroundsMap[texture].push_back(backgroundScroll);
                 m_backgroundsMap[texture].push_back(backgroundScroll2);
-
-                if (directionality == 2)
-                {
-                    auto backgroundScroll3 = m_entityManager.addEntity("scrollbackground");
-                    backgroundScroll3->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
-                    scaleY = -scaleY;
-                    backgroundScroll3->addComponent<CTransform>(Vec2(x, y - m_game->window().getSize().y), Vec2(scaleX, scaleY), scrollFactor);
-                    m_backgroundsMap[texture].push_back(backgroundScroll3);
-                }
             }
             else
             {
