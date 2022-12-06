@@ -104,13 +104,17 @@ void Scene_Play::loadLevel(const std::string& filename)
             std::string type = temp;
             std::string texture;
             float x, y;
+            int bm, bv;
             fin >> texture >> x >> y;
-
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+            if (type == "Tile") 
+            {
+                fin >> bm >> bv;
+                tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+            }
         }
         else if (temp == "Background")
         {
@@ -338,34 +342,43 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
 
-                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
-            }
+            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
         }
-        else if (weap.currentWeapon == "Bomb")
+    }
+    else if (weap.currentWeapon == "Bomb")
+    {
+        if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
         {
-            if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
-            {
-                weap.lastFiredBomb = m_currentFrame;
-                Vec2 BULLET_SIZE = Vec2(24, 24);
-                int BULLET_LIFETIME = 180;
-                int DMG = 1;
-                Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
+            auto& pScale = m_player->getComponent<CTransform>().scale;
+            weap.lastFiredBomb = m_currentFrame;
+            Vec2 BULLET_SIZE = Vec2(24, 24);
+            int BULLET_LIFETIME = 180;
+            int DMG = 1;
+            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
-                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
-                bullet->addComponent<CGravity>(pc.GRAVITY);
+            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+            bullet->addComponent<CGravity>(pc.GRAVITY);
+            if (pScale.y == -1)
+            {
+                bullet->getComponent<CGravity>().flipped = true;
+            }
+            else
+            {
+                bullet->getComponent<CGravity>().flipped = false;
             }
         }
-        else if (weap.currentWeapon == "Raygun")
+    }
+    else if (weap.currentWeapon == "Raygun")
+    {
+        if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
         {
-            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
-            {
-                weap.lastFiredRaygun = m_currentFrame;
-                Vec2 BULLET_SIZE = Vec2(30, 17);
-                int BULLET_LIFETIME = 60;
-                int DMG = 1;
-                Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
-                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
+            weap.lastFiredRaygun = m_currentFrame;
+            Vec2 BULLET_SIZE = Vec2(30, 17);
+            int BULLET_LIFETIME = 60;
+            int DMG = 1;
+            Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
                 auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
             }
@@ -565,11 +578,27 @@ void Scene_Play::sMovement()
         {
             if (abs(b->getComponent<CTransform>().velocity.y) > pc.MAXSPEED)
             {
-                b->getComponent<CTransform>().velocity.y = pc.MAXSPEED;
+                if (!b->getComponent<CGravity>().flipped)
+                {
+                    b->getComponent<CTransform>().velocity.y = pc.MAXSPEED;
+                }
+                else
+                {
+                    b->getComponent<CTransform>().velocity.y = -pc.MAXSPEED;
+                }
             }
             else
             {
-                b->getComponent<CTransform>().velocity.y += b->getComponent<CGravity>().gravity;
+                // if player is right side up
+                if (!b->getComponent<CGravity>().flipped)
+                {
+                    b->getComponent<CTransform>().velocity.y += b->getComponent<CGravity>().gravity;
+                }
+                // if play is upside down
+                else
+                {
+                    b->getComponent<CTransform>().velocity.y -= b->getComponent<CGravity>().gravity;
+                }
             }
         }
         bt.pos += bt.velocity;

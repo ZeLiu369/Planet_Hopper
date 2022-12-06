@@ -164,6 +164,7 @@ class CGravity : public Component
 {
 public:
     float gravity = 0;
+    bool flipped = false;
     CGravity() {}
     CGravity(float g) : gravity(g) {}
 };
