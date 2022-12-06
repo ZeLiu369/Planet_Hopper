@@ -377,6 +377,8 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
     }
 }
 // fires a coin bullet
+} 
+
 void Scene_Play::spawnMoney(std::shared_ptr<Entity> entity)
 {
 
