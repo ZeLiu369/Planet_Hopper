@@ -352,26 +352,26 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
-            bullet->addComponent<CGravity>(pc.GRAVITY);
+                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+                bullet->addComponent<CGravity>(pc.GRAVITY);
+            }
         }
-    }
-    else if (weap.currentWeapon == "Raygun")
-    {
-        if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+        else if (weap.currentWeapon == "Raygun")
         {
-            weap.lastFiredRaygun = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(30, 17);
-            int BULLET_LIFETIME = 60;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
+            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+            {
+                weap.lastFiredRaygun = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(30, 17);
+                int BULLET_LIFETIME = 60;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+            }
         }
     }
 }
-
 // fires a coin bullet
 void Scene_Play::spawnMoney(std::shared_ptr<Entity> entity)
 {
