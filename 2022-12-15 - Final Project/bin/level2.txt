@@ -294,8 +294,8 @@ Tile Plat 15 19 1 1
 Tile Plat 15 20 1 1
 
 NPC  WormIdle		16 1 Follow
-NPC  DemonWalk		20 1 Patrol 17 1 20 1
-NPC  WormIdle		23 1 Follow
+NPC  DemonWalk		20 7 Patrol 17 1 20 1
+NPC  WormIdle		23 7 Follow
 NPC  DemonWalk		27 1 Patrol 24 1 27 1
 NPC  WormIdle		30 1 Follow
 
