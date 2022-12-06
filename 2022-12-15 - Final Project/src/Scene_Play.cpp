@@ -88,6 +88,8 @@ void Scene_Play::loadLevel(const std::string& filename)
     std::ifstream fin(filename);
     std::string temp;
     int i = 0;
+    std::vector<Vec2> pos;
+    int x1, y1;
 
     m_inventoryEntity = m_entityManager.addEntity("inventory");
     m_inventoryEntity->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
@@ -148,12 +150,44 @@ void Scene_Play::loadLevel(const std::string& filename)
                 m_night = true;
             }
         }
+        else if (temp == "NPC")
+        {
+            std::string tileName, AI;
+            int x, y;
+            fin >> tileName >> x >> y >> AI;
+
+            auto npc = m_entityManager.addEntity("npc");
+            Vec2 worldPos = gridToMidPixel(x, y, npc);
+
+            npc->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
+            npc->addComponent<CTransform>(gridToMidPixel(x, y, npc));
+            if (tileName == "DemonAttack") { npc->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize()); }
+            else                                         { npc->addComponent<CBoundingBox>(m_gridSize); }
+            npc->addComponent<CState>(tileName);
+            npc->addComponent<CHealth>(5, 5);
+            npc->addComponent<CDamage>(2);
+            if (AI == "Patrol")
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    fin >> x1 >> y1;
+                    pos.push_back(Vec2(gridToMidPixel(x1, y1, npc)));
+                }
+                npc->addComponent<CPatrol>(pos, 2);
+                pos.clear();
+            }
+            else if (AI == "Follow")
+            {
+                npc->addComponent<CFollowPlayer>(gridToMidPixel(x, y, npc), 2);
+            }
+
+        }
         else if (temp == "Item")
         {
             std::string tileName;
             float x, y;
             fin >> tileName >> x >> y;
-            Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
+            //Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
 
             auto item = m_entityManager.addEntity("item");
 
@@ -170,6 +204,7 @@ void Scene_Play::loadLevel(const std::string& filename)
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
+
         }
     }
 
@@ -200,9 +235,10 @@ void Scene_Play::spawnPlayer()
     Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, m_player);
     m_player->addComponent<CTransform>(spawnPos);
     m_player->addComponent<CBoundingBox>(Vec2(pc.CX, pc.CY));
-
     m_player->addComponent<CInput>();
     m_player->addComponent<CGravity>(pc.GRAVITY);
+    m_player->addComponent<CHealth>(10, 10);
+    m_player->addComponent<CDamage>(2);
     m_player->addComponent<CState>("air");
 
     m_player->addComponent<CCoinCounter>();
@@ -231,60 +267,97 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
 */
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
-    auto& weap = m_player->getComponent<CWeapon>();
-    // This means the player is standing idle and shooting so we set their attack state to shoot idle to play the correct animation
-    // have to keep track of the frame created so we can choose how long we play the animation
-    if (m_player->getComponent<CAnimation>().animation.getName() == "Stand" || m_player->getComponent<CAnimation>().animation.getName() == "Shoot")
+    if (entity->tag() == "npc")
     {
-        weap.attackState = "ShootIdle";
-        weap.frameCreated = m_currentFrame;
-    }
-    PlayerConfig& pc = m_playerConfig;
-    CTransform& entityT = entity->getComponent<CTransform>();
-    auto bullet = m_entityManager.addEntity("bullet");
-    // Following code sets up the bullets based on the current weapon
-    if (weap.currentWeapon == "Launcher")
-    {
-        // If enough time has passed since last firing bullet, it can be fired again
-        if (weap.lastFiredLauncher == 0 || m_currentFrame - weap.lastFiredLauncher >= 240)
+        auto& weap = entity->getComponent<CWeapon>();
+        if (entity->getComponent<CState>().state == "WormIdle")
         {
-            weap.lastFiredLauncher = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(67, 19);
-            int BULLET_LIFETIME = 240;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
+            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 70)
+            {
+                weap.lastFiredRaygun = m_currentFrame;
+                auto bullet = m_entityManager.addEntity("EnemyBullet");
+                bullet->addComponent<CAnimation>(m_game->assets().getAnimation("WormFire"), true);
+                bullet->addComponent<CTransform>(Vec2(entity->getComponent<CTransform>().pos.x,
+                    entity->getComponent<CTransform>().pos.y));
+                bullet->addComponent<CBoundingBox>(m_game->assets().getAnimation("WormFire").getSize());
+                bullet->addComponent<CLifeSpan>(50, m_currentFrame);
+                bullet->addComponent<CDamage>(entity->getComponent<CDamage>().damage);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
+                auto& scale = bullet->getComponent<CTransform>().scale.x;
+                if (m_player->getComponent<CTransform>().pos.x - entity->getComponent<CTransform>().pos.x < 0) { scale = -1.0; }
+                else if (m_player->getComponent<CTransform>().pos.x - entity->getComponent<CTransform>().pos.x > 0) { scale = 1.0; }
+                bullet->getComponent<CTransform>().velocity = Vec2(m_playerConfig.SPEED, 0) * scale;
+            }
         }
-    }
-    else if (weap.currentWeapon == "Bomb")
-    {
-        if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
-        {
-            weap.lastFiredBomb = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(24, 24);
-            int BULLET_LIFETIME = 180;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
-            bullet->addComponent<CGravity>(pc.GRAVITY);
+        if (entity->getComponent<CState>().state == "DemonWalk")
+        {
+            if (weap.frameCreated == 0 || m_currentFrame - weap.frameCreated >= 4)
+            {
+                weap.lastFiredRaygun = m_currentFrame;
+                entity->addComponent<CAnimation>(m_game->assets().getAnimation("DemonAttack"), true);
+            }
         }
-    }
-    else if (weap.currentWeapon == "Raygun")
-    {
-        if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
-        {
-            weap.lastFiredRaygun = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(30, 17);
-            int BULLET_LIFETIME = 60;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
-            auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+    }
+
+    if (entity->tag() == "player")
+    {
+        auto& weap = m_player->getComponent<CWeapon>();
+        // This means the player is standing idle and shooting so we set their attack state to shoot idle to play the correct animation
+        // have to keep track of the frame created so we can choose how long we play the animation
+        if (m_player->getComponent<CAnimation>().animation.getName() == "Stand" || m_player->getComponent<CAnimation>().animation.getName() == "Shoot")
+        {
+            weap.attackState = "ShootIdle";
+            weap.frameCreated = m_currentFrame;
+        }
+        PlayerConfig& pc = m_playerConfig;
+        CTransform& entityT = entity->getComponent<CTransform>();
+        auto bullet = m_entityManager.addEntity("bullet");
+        // Following code sets up the bullets based on the current weapon
+        if (weap.currentWeapon == "Launcher")
+        {
+            // If enough time has passed since last firing bullet, it can be fired again
+            if (weap.lastFiredLauncher == 0 || m_currentFrame - weap.lastFiredLauncher >= 240)
+            {
+                weap.lastFiredLauncher = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(67, 19);
+                int BULLET_LIFETIME = 240;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
+
+                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
+            }
+        }
+        else if (weap.currentWeapon == "Bomb")
+        {
+            if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
+            {
+                weap.lastFiredBomb = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(24, 24);
+                int BULLET_LIFETIME = 180;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
+
+                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+                bullet->addComponent<CGravity>(pc.GRAVITY);
+            }
+        }
+        else if (weap.currentWeapon == "Raygun")
+        {
+            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+            {
+                weap.lastFiredRaygun = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(30, 17);
+                int BULLET_LIFETIME = 60;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
+
+                auto& bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+            }
         }
     }
 }
@@ -500,10 +573,130 @@ void Scene_Play::sMovement()
             ct.pos.x += ct.velocity.x;
         }
     }
+
+    
+    for (auto e : m_entityManager.getEntities("npc"))
+    {
+        // Implementing Patrol AI behaviour
+        if (e->tag() == "npc" && e->hasComponent<CPatrol>())
+        {
+            auto& pos = e->getComponent<CTransform>().pos;
+            auto& vec = e->getComponent<CPatrol>().positions;
+            auto& i = e->getComponent<CPatrol>().currentPosition;
+            auto& speed = e->getComponent<CPatrol>().speed;
+            //e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonWalk"), true);
+
+            if (pos.dist(vec[i]) <= 5)                              // if at next patrol position, change index to next patrol position
+            {
+                i = (i + 1) % vec.size();
+            }
+
+            else if (vec[0].x <= m_player->getComponent<CTransform>().pos.x && m_player->getComponent<CTransform>().pos.x <= vec[1].x)
+            {
+                auto a = m_player->getComponent<CTransform>().pos;              // player position
+                auto b = e->getComponent<CTransform>().pos;                     // npc position
+                auto target = a + m_player->getComponent<CTransform>().velocity;
+
+                auto dist = target.dist(b);
+                auto x = speed * (target.x - b.x) / dist;
+                auto y = speed * (target.y - b.y) / dist;
+                e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                if (e->getComponent<CAnimation>().animation.getName() != "DemonAttack")
+                {
+                    e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonAttack"), true);
+                }
+                
+            }
+
+            else if (pos.dist(vec[i]) > 5)                                                 // if not at next patrol position, calc vector and move towards pos
+            {
+                auto dist = vec[i].dist(pos);
+                auto x = speed * (vec[i].x - pos.x) / dist;
+                auto y = speed * (vec[i].y - pos.y) / dist;
+                e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonWalk"), true);
+            }
+
+            else                                                                 // if at desired posiiton stop moving
+            {
+                e->getComponent<CTransform>().velocity = Vec2(0, 0);
+                //spawnBullet(e);
+            }
+
+            if (e->getComponent<CTransform>().velocity.x < 0) { e->getComponent<CTransform>().scale.x = 1.0; }
+            else { e->getComponent<CTransform>().scale.x = -1.0; }
+        }
+
+        // Implementing Follow AI behaviour
+        if (e->tag() == "npc" && e->hasComponent<CFollowPlayer>())
+        {
+            auto a = m_player->getComponent<CTransform>().pos;              // player position
+            auto b = e->getComponent<CTransform>().pos;                     // npc position
+            auto home = e->getComponent<CFollowPlayer>().home;              // npc home position
+            auto speed = e->getComponent<CFollowPlayer>().speed;            // npc follow speed
+            bool intersect = false;                                          // bool to check if there is any intersection between ab
+
+
+            if (b.dist(a) > 500)
+            {
+                intersect = true;
+            }
+
+            if (!intersect)                                     // if no intersection, move towards player
+            {
+                if (b.dist(a) > 300)                              // if not at player position, calc vector and move towards player
+                {
+                    auto a = m_player->getComponent<CTransform>().pos;              // player position
+                    auto b = e->getComponent<CTransform>().pos;                     // npc position
+                    auto target = a + m_player->getComponent<CTransform>().velocity;
+
+                    auto dist = target.dist(b);
+                    auto x = speed * (target.x - b.x) / dist;
+                    auto y = speed * (target.y - b.y) / dist;
+                    e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                }
+                else                                                                 // if at desired posiiton stop moving
+                {
+                    e->getComponent<CTransform>().velocity = Vec2(0, 0);
+                    spawnBullet(e);
+                }
+            }
+
+            else                                                // if there is intersection, move towards home
+            {
+                if (b.dist(home) > 5)                           // if not at player position, calc vector and move towards home
+                {
+                    auto home = e->getComponent<CFollowPlayer>().home;               // npc home position
+                    auto& b = e->getComponent<CTransform>().pos;                     // npc position
+                    auto hdist = home.dist(b);
+                    auto x = speed * (home.x - b.x) / hdist;
+                    auto y = speed * (home.y - b.y) / hdist;
+                    e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                }
+                else                                                                 // if at desired posiiton stop moving
+                {
+                    e->getComponent<CTransform>().velocity = Vec2(0, 0);
+                }
+            }
+            if      (m_player->getComponent<CTransform>().pos.x - e->getComponent<CTransform>().pos.x < 0) { e->getComponent<CTransform>().scale.x = -1.0; }
+            else if (m_player->getComponent<CTransform>().pos.x - e->getComponent<CTransform>().pos.x > 0) { e->getComponent<CTransform>().scale.x = 1.0; }
+        }
+
+
+        // add velocity for movement
+        e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
+        e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
+    }
+    for (auto e : m_entityManager.getEntities("EnemyBullet"))
+    {
+        e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
+        e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
+    }
 }
 
 void Scene_Play::sLifespan()
 {
+    // implemented lifespan
     for (auto& e : m_entityManager.getEntities())
     {
         if (e->hasComponent<CLifeSpan>())
@@ -513,6 +706,22 @@ void Scene_Play::sLifespan()
             {
                 e->destroy();
             }
+        }
+    }
+
+    // implemented invincibility
+    if (m_player->hasComponent<CInvincibility>())
+    {
+        auto& invincible = m_player->getComponent<CInvincibility>();
+        invincible.iframes -= 1;
+
+        if (invincible.iframes > 0)
+        {
+            m_player->getComponent<CAnimation>().animation.getSprite().setColor(sf::Color::Transparent);
+        }
+        if (invincible.iframes <= 0)
+        {
+            m_player->removeComponent<CInvincibility>();
         }
     }
 
@@ -721,6 +930,68 @@ void Scene_Play::sCollision()
             m_player->getComponent<CCoinCounter>().coins++;
             e->destroy();
         }
+    }
+
+    auto& tp = m_player->getComponent<CTransform>();    // player transform
+    auto& bp = m_player->getComponent<CBoundingBox>();  // player bounding box
+    for (auto& e : m_entityManager.getEntities("npc"))
+    {
+        if (e->getComponent<CState>().state == "DemonWalk")      // check if the entity is a demon npc entity
+        {
+            auto& tt = e->getComponent<CTransform>();               // npc entity transfom
+            auto& bt = e->getComponent<CBoundingBox>();             // npc entity bounding box
+
+            auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and npc entity
+
+            if (overlap.x >= 0 && overlap.y >= 0)
+            {
+                if (m_player->hasComponent<CInvincibility>()) { break; }
+                m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
+                m_player->addComponent<CInvincibility>(60);
+                //m_game->playSound("LinkHurt");
+
+                // destroy dead player and spawn new player
+                if (m_player->getComponent<CHealth>().current <= 0)
+                {
+                    //m_game->playSound("LinkDie");
+                    m_player->destroy();
+                    spawnPlayer();
+                }
+            }
+        }
+    }
+
+    for (auto& f : m_entityManager.getEntities("EnemyBullet"))
+    {
+        auto& tt = f->getComponent<CTransform>();               // fireball entity transfom
+        auto& bt = f->getComponent<CBoundingBox>();             // fireball entity bounding box
+
+        for (auto& e : m_entityManager.getEntities())
+        {
+            if (e->tag() == "player" || e->tag() == "tile")
+            {
+                auto overlap = Physics::GetOverlap(e, f);        // get the overlap between player and fireball
+
+                if(Physics::IsInside(tt.pos, e))
+                {
+                    f->addComponent<CAnimation>(m_game->assets().getAnimation("WormExplode"), false);
+                    if (e->tag() == "player")
+                    {
+                        m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
+                    }
+                    f->destroy();
+
+                    // destroy dead player and spawn new player
+                    if (m_player->getComponent<CHealth>().current <= 0)
+                    {
+                        //m_game->playSound("LinkDie");
+                        m_player->destroy();
+                        spawnPlayer();
+                    }
+                }
+            }
+        }
+        
     }
 
     if (goal)
@@ -1090,7 +1361,8 @@ void Scene_Play::sRender()
     //else { m_game->window().clear(sf::Color(50, 50, 150)); }
     m_game->window().clear();
 
-
+    sf::RectangleShape tick({ 1.0f, 6.0f });
+    tick.setFillColor(sf::Color::Black);
 
     // draw all Entity textures / animations
     if (m_drawTextures)
@@ -1098,6 +1370,7 @@ void Scene_Play::sRender()
         for (auto e : m_entityManager.getEntities())
         {
             auto& transform = e->getComponent<CTransform>();
+            sf::Color c = sf::Color::White;
 
             if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items" && e->tag() != "weapon")
             {
@@ -1105,7 +1378,42 @@ void Scene_Play::sRender()
                 animation.getSprite().setRotation(transform.angle);
                 animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
                 animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+
+                if (e->hasComponent<CInvincibility>())
+                {
+                    c = sf::Color(255, 255, 255, 128);
+                    animation.getSprite().setColor(c);
+                }
                 m_game->window().draw(animation.getSprite());
+            }
+        }
+
+        for (auto e : m_entityManager.getEntities())
+        {
+            auto& transform = e->getComponent<CTransform>();
+            if (e->hasComponent<CHealth>())
+            {
+                auto& h = e->getComponent<CHealth>();
+                Vec2 size(64, 6);
+                sf::RectangleShape rect({ size.x, size.y });
+                rect.setPosition(transform.pos.x - 32, transform.pos.y - 48);
+                rect.setFillColor(sf::Color(96, 96, 96));
+                rect.setOutlineColor(sf::Color::Black);
+                rect.setOutlineThickness(2);
+                m_game->window().draw(rect);
+
+                float ratio = (float)(h.current) / h.max;
+                size.x *= ratio;
+                rect.setSize({ size.x, size.y });
+                rect.setFillColor(sf::Color(255, 0, 0));
+                rect.setOutlineThickness(0);
+                m_game->window().draw(rect);
+
+                for (int i = 0; i < h.max; i++)
+                {
+                    tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
+                    m_game->window().draw(tick);
+                }
             }
         }
     }
@@ -1170,6 +1478,8 @@ void Scene_Play::sRender()
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
     {
+        sf::CircleShape dot(4);
+        dot.setFillColor(sf::Color::Black);
         for (auto e : m_entityManager.getEntities())
         {
             if (e->hasComponent<CBoundingBox>())
@@ -1184,6 +1494,30 @@ void Scene_Play::sRender()
                 rect.setOutlineColor(sf::Color(255, 255, 255, 255));
                 rect.setOutlineThickness(1);
                 m_game->window().draw(rect);
+            }
+
+            if (e->hasComponent<CPatrol>())
+            {
+                auto& patrol = e->getComponent<CPatrol>().positions;
+                for (size_t p = 0; p < patrol.size(); p++)
+                {
+                    dot.setPosition(patrol[p].x, patrol[p].y);
+                    m_game->window().draw(dot);
+                }
+            }
+
+            if (e->hasComponent<CFollowPlayer>())
+            {
+                sf::VertexArray lines(sf::LinesStrip, 2);
+                lines[0].position.x = e->getComponent<CTransform>().pos.x;
+                lines[0].position.y = e->getComponent<CTransform>().pos.y;
+                lines[0].color = sf::Color::Black;
+                lines[1].position.x = m_player->getComponent<CTransform>().pos.x;
+                lines[1].position.y = m_player->getComponent<CTransform>().pos.y;
+                lines[1].color = sf::Color::Black;
+                m_game->window().draw(lines);
+                dot.setPosition(e->getComponent<CFollowPlayer>().home.x, e->getComponent<CFollowPlayer>().home.y);
+                m_game->window().draw(dot);
             }
         }
     }

@@ -55,6 +55,22 @@ Texture   TexMana    images/new/ManaPotion.png
 Texture   TexPoi     images/new/PoisonPotion.png
 Texture   TexShip    images/new/spaceship.png
 
+Texture   TexWormIdle	images/new/Worm/Idle.png
+Texture   TexWormWalk	images/new/Worm/Walk.png
+Texture   TexWormAttack	images/new/Worm/Attack.png
+Texture   TexWormHit	images/new/Worm/Hit.png
+Texture   TexWormDeath	images/new/Worm/Death.png
+Texture   TexWormFire	images/new/Worm/Fireball.png
+Texture   TexWormEx	images/new/Worm/Explosion.png
+
+
+Texture   TexDemonIdle	images/new/Demon/idle0.png
+Texture   TexDemonWalk	images/new/Demon/walk.png
+Texture   TexDemonAtk	images/new/Demon/attack.png
+Texture   TexDemonHit	images/new/Demon/hit.png
+Texture   TexDemonDie	images/new/Demon/death.png
+
+
 Animation Sky        TexSky      1    0
 Animation Stars      TexStars    1    0
 Animation Hill	     TexHill     1    0
@@ -110,6 +126,21 @@ Animation HealPotion TexHeal     1    0
 Animation InvPotion  TexIn       1    0
 Animation ManaPotion TexMana     1    0
 Animation PoiPotion  TexPoi      1    0
+
+Animation WormIdle	TexWormIdle     9    3
+Animation WormWalk	TexWormWalk     9    3
+Animation WormAttack	TexWormAttack  16    3
+Animation WormHit	TexWormHit      3    6
+Animation WormDeath	TexWormDeath    8    6
+Animation WormFire	TexWormFire     6    2
+Animation WormExplode	TexWormEx       7    2
+
+
+Animation DemonIdle	TexDemonIdle    6    5
+Animation DemonWalk	TexDemonWalk   12    24
+Animation DemonAttack	TexDemonAtk    15    4
+Animation DemonHit	TexDemonHit     5    10
+Animation DemonDeath	TexDemonDie    19    9
 
 
 Font      Tech       fonts/tech.ttf

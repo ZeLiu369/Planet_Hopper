@@ -1,39 +1,24 @@
-﻿  GameEngine.cpp
-  Scene_Editor.cpp
-  Scene_Menu.cpp
-  Scene_Overworld.cpp
-  Scene_Play.cpp
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(854,57): warning C4305: 'argument': truncation from 'double' to 'T'
+﻿  Scene_Play.cpp
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(277,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(297,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(312,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(323,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(337,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(352,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(1425,57): warning C4305: 'argument': truncation from 'double' to 'T'
           with
           [
               T=float
           ]
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(66,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(215): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(259): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xutility(238,56): error C2665: 'Scene_Overworld::Scene_Overworld': none of the 2 overloads could convert all the argument types (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Overworld.h(47,1): message : could be 'Scene_Overworld::Scene_Overworld(const Scene_Overworld &)' (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xutility(238,56): message : 'Scene_Overworld::Scene_Overworld(const Scene_Overworld &)': cannot convert argument 1 from 'GameEngine *' to 'const Scene_Overworld &' (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xutility(231,49): message : Reason: cannot convert from 'GameEngine *' to 'const Scene_Overworld' (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xutility(231,49): message : No constructor could take the source type, or constructor overload resolution was ambiguous (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Overworld.h(47,1): message : see declaration of 'Scene_Overworld::Scene_Overworld' (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\xutility(231,49): message : while trying to match the argument list '(GameEngine *)' (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\memory(2022): message : see reference to function template instantiation 'void std::_Construct_in_place<_Ty,GameEngine*&>(_Ty &,GameEngine *&) noexcept(false)' being compiled
-          with
-          [
-              _Ty=Scene_Overworld
-          ] (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\memory(2741): message : see reference to function template instantiation 'std::_Ref_count_obj2<_Ty>::_Ref_count_obj2<GameEngine*&>(GameEngine *&)' being compiled
-          with
-          [
-              _Ty=Scene_Overworld
-          ] (compiling source file ..\src\Scene_Play.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\memory(2742): message : see reference to function template instantiation 'std::_Ref_count_obj2<_Ty>::_Ref_count_obj2<GameEngine*&>(GameEngine *&)' being compiled
-          with
-          [
-              _Ty=Scene_Overworld
-          ] (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(706): message : see reference to function template instantiation 'std::shared_ptr<Scene_Overworld> std::make_shared<Scene_Overworld,GameEngine*&>(GameEngine *&)' being compiled
+  Generating code
+  1 of 2016 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    5 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\bin\SFMLGame.exe
