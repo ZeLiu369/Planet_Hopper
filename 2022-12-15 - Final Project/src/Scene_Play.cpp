@@ -261,6 +261,7 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
     bullet->addComponent<CAnimation>(m_game->assets().getAnimation(name), true);
     bullet->addComponent<CTransform>(pos);
     bullet->getComponent<CTransform>().velocity = vel;
+    if (name == "Laser") { bullet->getComponent<CTransform>().scale.x = m_player->getComponent<CTransform>().scale.x; }
     bullet->addComponent<CBoundingBox>(size);
     bullet->addComponent<CLifeSpan>(lifetime, m_currentFrame);
     bullet->addComponent<CDamage>(dmg);
@@ -376,32 +377,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         }
     }
 }
-// fires a coin bullet
-void Scene_Play::spawnMoney(std::shared_ptr<Entity> entity)
-{
-
-    Vec2 BULLET_SIZE = Vec2(45, 45);
-    int BULLET_LIFETIME = 120;
-
-    PlayerConfig& pc = m_playerConfig;
-
-    CTransform& entityT = entity->getComponent<CTransform>();
-    auto bullet = m_entityManager.addEntity("coinbullet");
-
-    bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Coin"), true);
-
-    bullet->addComponent<CTransform>
-        (
-            entityT.pos,
-            Vec2(pc.SPEED * entityT.scale.x * 3.0f, 0.0f),
-            entityT.scale,
-            0.0f
-            );
-
-    bullet->addComponent<CBoundingBox>(BULLET_SIZE);
-
-    bullet->addComponent<CLifeSpan>(BULLET_LIFETIME, m_currentFrame);
-}
 
 void Scene_Play::update()
 {
@@ -414,8 +389,6 @@ void Scene_Play::update()
         sLifespan();
         sAnimation();
     }
-    // sRender() doesn't need to be called here
-    //sRender();
     sCamera();
     
     m_currentFrame++;
@@ -604,7 +577,6 @@ void Scene_Play::sMovement()
         }
     }
 
-    
     for (auto e : m_entityManager.getEntities("npc"))
     {
         // Implementing Patrol AI behaviour
@@ -755,23 +727,6 @@ void Scene_Play::sLifespan()
         }
     }
 
-    if (m_player->getComponent<CCoinCounter>().coins > 0)
-    {
-        float x = m_game->window().getView().getCenter().x - width() / 2;
-        auto inv_t = Vec2(7 + x, 3);
-        for (float i = 0; i < 5; i++)
-        {
-            if (m_inventoryEntity->getComponent<CInventory>().in_Inventory[i]) 
-            {
-                auto item = m_entityManager.addEntity("items");
-                item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
-                auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
-                item->addComponent<CAnimation>(m_game->assets().getAnimation(s), false);
-            }
-
-        }
-    }
-
     // once duration has been exceeded change attack state so animation will be stopped playing
     // in sAnimation()
     if (m_player->getComponent<CWeapon>().attackState == "ShootIdle")
@@ -782,7 +737,6 @@ void Scene_Play::sLifespan()
             m_player->getComponent<CWeapon>().attackState = "Idle";
         }
     }
-
 
     //for (auto& i : m_entityManager.getEntities("item"))
     //{
@@ -991,6 +945,48 @@ void Scene_Play::sCollision()
         }
     }
 
+    for (auto& npc : m_entityManager.getEntities("npc"))
+    {
+        for (auto& bullet : m_entityManager.getEntities("bullet"))
+        {
+            if (Physics::GetOverlap(bullet, npc).x > 0 && Physics::GetOverlap(bullet, npc).y > 0)
+            {
+                npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
+                bullet->removeComponent<CBoundingBox>();
+                bullet->removeComponent<CLifeSpan>();
+                if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
+                bullet->removeComponent<CDamage>();
+                bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
+                bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+            }
+            if (npc->getComponent<CHealth>().current <= 0)
+            {
+                // playing death animation doesn't work
+                auto& animation = npc->getComponent<CAnimation>().animation;
+                if (animation.getName().find("Worm") != std::string::npos)
+                {
+                    if (!(animation.getName() == "WormDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false); }
+                }
+                else
+                {
+                    if (!(animation.getName() == "DemonDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false); }
+                }
+                if (npc->hasComponent<CPatrol>())
+                {
+                    npc->removeComponent<CPatrol>();
+                }
+                else if (npc->hasComponent<CFollowPlayer>())
+                {
+                    npc->removeComponent<CFollowPlayer>();
+                }
+                npc->removeComponent<CBoundingBox>();
+                npc->removeComponent<CDamage>();
+                if (npc->hasComponent<CGravity>()) { npc->removeComponent<CGravity>(); }
+                npc->getComponent<CTransform>().velocity = { 0.0, 0.0 };
+            }
+        }
+    }
+
     for (auto& f : m_entityManager.getEntities("EnemyBullet"))
     {
         auto& tt = f->getComponent<CTransform>();               // fireball entity transfom
@@ -1048,7 +1044,6 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
 
         else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
-        else if (action.name() == "MONEY") { m_player->getComponent<CInput>().money = true; }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
@@ -1097,7 +1092,6 @@ void Scene_Play::sDoAction(const Action& action)
 
 void Scene_Play::sAnimation()
 {
-
     // player animations
     CAnimation& pAni = m_player->getComponent<CAnimation>();
 
@@ -1238,13 +1232,6 @@ void Scene_Play::sCamera()
 {
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_player->getComponent<CTransform>().pos;
-
-    /*
-    float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, pPos.x);
-    sf::View view = m_game->window().getView();
-    view.setCenter(windowCenterX, m_game->window().getSize().y - view.getCenter().y);
-    m_game->window().setView(view);*/
-
     // needed to determine speed for parallax scrolling
     float viewCenterX = m_game->window().getView().getCenter().x;
     float viewCenterY = m_game->window().getView().getCenter().y;
@@ -1506,18 +1493,6 @@ void Scene_Play::sRender()
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
-
-    //// Coin Counter display
-    //if (m_player->hasComponent<CCoinCounter>())
-    //{
-    //    float leftX = m_game->window().getView().getCenter().x - width() / 2;
-    //    std::string coinAmount = std::to_string(m_player->getComponent<CCoinCounter>().coins);
-
-    //    m_coinText.setString("Coins: " + coinAmount + "\nPress 'M' to shoot money");
-    //    m_coinText.setPosition(leftX, 0);
-    //    m_game->window().draw(m_coinText);
-    //}
-
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
