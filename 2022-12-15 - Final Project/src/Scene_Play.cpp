@@ -102,13 +102,17 @@ void Scene_Play::loadLevel(const std::string& filename)
             std::string type = temp;
             std::string texture;
             float x, y;
+            int bm, bv;
             fin >> texture >> x >> y;
-
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
-            if (type == "Tile") tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+            if (type == "Tile") 
+            {
+                fin >> bm >> bv;
+                tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+            }
         }
         else if (temp == "Background")
         {
@@ -273,15 +277,24 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
     {
         if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
         {
+            auto& pScale = m_player->getComponent<CTransform>().scale;
             weap.lastFiredBomb = m_currentFrame;
             Vec2 BULLET_SIZE = Vec2(24, 24);
             int BULLET_LIFETIME = 180;
             int DMG = 1;
             Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f);
+            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
             auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
             bullet->addComponent<CGravity>(pc.GRAVITY);
+            if (pScale.y == -1)
+            {
+                bullet->getComponent<CGravity>().flipped = true;
+            }
+            else
+            {
+                bullet->getComponent<CGravity>().flipped = false;
+            }
         }
     }
     else if (weap.currentWeapon == "Raygun")
@@ -493,11 +506,27 @@ void Scene_Play::sMovement()
         {
             if (abs(b->getComponent<CTransform>().velocity.y) > pc.MAXSPEED)
             {
-                b->getComponent<CTransform>().velocity.y = pc.MAXSPEED;
+                if (!b->getComponent<CGravity>().flipped)
+                {
+                    b->getComponent<CTransform>().velocity.y = pc.MAXSPEED;
+                }
+                else
+                {
+                    b->getComponent<CTransform>().velocity.y = -pc.MAXSPEED;
+                }
             }
             else
             {
-                b->getComponent<CTransform>().velocity.y += b->getComponent<CGravity>().gravity;
+                // if player is right side up
+                if (!b->getComponent<CGravity>().flipped)
+                {
+                    b->getComponent<CTransform>().velocity.y += b->getComponent<CGravity>().gravity;
+                }
+                // if play is upside down
+                else
+                {
+                    b->getComponent<CTransform>().velocity.y -= b->getComponent<CGravity>().gravity;
+                }
             }
         }
         bt.pos += bt.velocity;
