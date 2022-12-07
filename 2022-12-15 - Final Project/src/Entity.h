@@ -29,7 +29,6 @@ typedef std::tuple<
     CAnimation,
     CGravity,
     CState,
-    CCoinCounter,
     CLevelStatus,
     CInventory,
     CDraggable,

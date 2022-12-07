@@ -66,7 +66,6 @@ protected:
     void onEnd();
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
-    void spawnMoney(std::shared_ptr<Entity> entity);
 
     sf::Sprite getLightingSprite();
 
