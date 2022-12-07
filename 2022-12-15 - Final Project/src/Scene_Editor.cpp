@@ -40,13 +40,17 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
     registerAction(sf::Keyboard::F, "TOGGLE_CAMERA");       // Toggle drawing (F)amera
-    registerAction(sf::Keyboard::Delete, "DELETE_MODE");    // Toggle (Delete) mode
+    registerAction(sf::Keyboard::BackSpace, "DELETE_MODE"); // Toggle (Delete) mode
+    registerAction(sf::Keyboard::H, "HELP");                // Toggle text
+
+    registerAction(sf::Keyboard::P, "PLACE_POINT");
+    registerAction(sf::Keyboard::O, "CLEAR_POINTS");
 
     registerAction(sf::Keyboard::Num8, "MUSIC");
     registerAction(sf::Keyboard::Num9, "BACKGROUND");
     registerAction(sf::Keyboard::Num0, "DARK");
-    registerAction(sf::Keyboard::Num1, "ENTITY_MENU");
-    registerAction(sf::Keyboard::Num2, "SAVE/LOAD_MENU");
+    registerAction(sf::Keyboard::Q, "ENTITY_MENU");
+    registerAction(sf::Keyboard::Tab, "SAVE/LOAD_MENU");
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -149,6 +153,43 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
 
     return true;
 }
+bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity, Vec2& point)
+{
+    Vec2& ePos = entity->getComponent<CTransform>().pos;
+    Vec2 pos = ePos;
+
+    Vec2 snap = gridToMidPixel(floor(point.x / m_gridSize.x), (m_BOUNDARYPOS.y - 1) - floor(point.y / m_gridSize.y), entity);
+    point = snap;
+    ePos = point;
+
+    for (auto& e : m_entityManager.getEntities())
+    {
+        if (e == entity || e->tag() == "camera" || e->tag() == "npc" || e->tag() == "item" || e->tag() == "dec") continue;
+
+        Vec2 o = Physics::GetOverlap(entity, e);
+        if (o.x > 0 && o.y > 0)
+        {
+            ePos = pos;
+            return false;
+        }
+    }
+
+
+    Vec2 absolutePos = { m_BOUNDARYPOS.x * m_gridSize.x , m_BOUNDARYPOS.y * m_gridSize.y };
+    Vec2 absoluteNeg = { m_BOUNDARYNEG.x * m_gridSize.x , m_BOUNDARYNEG.y * m_gridSize.y };
+
+    // out of bounds
+    if (snap.x < absoluteNeg.x || snap.x > absolutePos.x ||
+        snap.y < absoluteNeg.y || snap.y > absolutePos.y)
+    {
+        ePos = pos;
+        return false;
+    }
+
+    ePos = pos;
+    return true;
+}
+
 /*
 
 // dev plan for level editor here
@@ -243,12 +284,14 @@ void Scene_Editor::loadBlankLevel()
 
     spawnPlayer();
     spawnCamera();
+    m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
     m_game->playSound(m_levelConfig.MUSIC);
 }
 
 void Scene_Editor::loadLevel(const std::string& filename)
 {
     // reset the entity manager every time we load a level
+    m_selected = NULL;
     m_entityManager = EntityManager();
 
     m_levelConfig.MUSIC = "Play";
@@ -398,6 +441,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
     spawnPlayer();
     spawnCamera();
 
+    m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
     m_game->playSound(m_levelConfig.MUSIC);
 }
 
@@ -504,7 +548,8 @@ void Scene_Editor::saveLevel()
 
                 for (Vec2& p : points)
                 {
-                    saveLine = saveLine + " " + formatFloat(p.x) + " " + formatFloat(p.y);
+                    Vec2 g = midPixelToGrid(e, p);
+                    saveLine = saveLine + " " + formatFloat(g.x) + " " + formatFloat(g.y);
                 }
             }
             else
@@ -881,6 +926,7 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = (m_drawGrid + 1) % 3; }
         else if (action.name() == "TOGGLE_CAMERA") { m_drawCamera = !m_drawCamera; }
         else if (action.name() == "QUIT") { onEnd(); }
+        else if (action.name() == "HELP") { m_help = !m_help; }
 
         else if (action.name() == "UP") 
         { 
@@ -972,6 +1018,7 @@ void Scene_Editor::sDoAction(const Action& action)
                     break;
                 }
             }
+            m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
             m_game->playSound(m_levelConfig.MUSIC);
         }
         else if (action.name() == "BACKGROUND")
@@ -1021,6 +1068,26 @@ void Scene_Editor::sDoAction(const Action& action)
                 showSLMenu();
             }
         }
+        else if (action.name() == "PLACE_POINT")
+        {
+            if (m_camera->getComponent<CState>().state == "move" && m_selected != NULL && m_selected->hasComponent<CPatrol>() &&
+                m_selected->getComponent<CPatrol>().positions.size() < 20 && m_patrol)
+            {
+                m_patrol = false;
+                Vec2 point = {windowToWorld(m_mPos)};
+                if (snapToGrid(m_selected, point))
+                {
+                    m_selected->getComponent<CPatrol>().positions.push_back(point);
+                }
+            }
+        }
+        else if (action.name() == "CLEAR_POINTS")
+        {
+            if (m_selected != NULL && m_selected->hasComponent<CPatrol>() && m_selected->getComponent<CPatrol>().positions.size() > 0)
+            {
+                m_selected->getComponent<CPatrol>().positions.clear();
+            }
+        }
 
     }
     else if (action.type() == "END")
@@ -1030,18 +1097,19 @@ void Scene_Editor::sDoAction(const Action& action)
         if (action.name() == "LEFT") { m_camera->getComponent<CInput>().left = false; }
         if (action.name() == "RIGHT") { m_camera->getComponent<CInput>().right = false; }
 
-        else if (action.name() == "LEFT_CLICK") 
+        else if (action.name() == "LEFT_CLICK")
         {
-            m_camera->getComponent<CInput>().click1 = false; 
+            m_camera->getComponent<CInput>().click1 = false;
             m_drop = true;
             m_place = false;
         }
-        else if (action.name() == "RIGHT_CLICK") 
-        { 
+        else if (action.name() == "RIGHT_CLICK")
+        {
             m_camera->getComponent<CInput>().click2 = false;
-            m_texture = true;
         }
         else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = false; }
+
+        else if (action.name() == "PLACE_POINT") m_patrol = true;
 
     }
 }
@@ -1065,6 +1133,7 @@ void Scene_Editor::onEnd()
 {
     m_hasEnded = true;
     m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+    m_game->assets().getSound("MusicTitle").setLoop(true);
     m_game->playSound("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
@@ -1115,17 +1184,71 @@ void Scene_Editor::sRender()
                     animation.getSprite().setRotation(transform.angle);
                     animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
                     animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+                    if (e->tag() == "tile" && e->hasComponent<CBoundingBox>() && !e->getComponent<CBoundingBox>().blockVision)
+                    {
+                        animation.getSprite().setColor(sf::Color(255, 255, 255, 150));
+                    }
                     m_game->window().draw(animation.getSprite());
+
+                    // render indicaters for special tiles
+                    if (e->tag() == "tile" && e->hasComponent<CBoundingBox>())
+                    {
+                        Vec2& cen = e->getComponent<CTransform>().pos;
+                        CBoundingBox& b = e->getComponent<CBoundingBox>();
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (i == 0 && b.blockMove) continue;
+                            else if (i == 1 && !e->hasComponent<CDamage>()) continue;
+                            else if (i == 2 && !e->hasComponent<CPatrol>()) continue;
+
+                            sf::Color col;
+                            sf::CircleShape cir;
+                            cir.setRadius(4);
+                            cir.setOrigin(4, 4);
+                            cir.setPosition(cen.x - b.halfSize.x + 4 + i*10, cen.y + b.halfSize.y - 4);
+
+                            if (i == 0) col = sf::Color(0, 255, 0);
+                            else if (i == 1) col = sf::Color(255, 0, 0);
+                            else col = sf::Color(0, 0, 255);
+
+                            cir.setFillColor(col);
+                            m_game->window().draw(cir);
+                        }
+
+                    }
                 }
             }
         }
 
         // guide text
-        m_controlText.setString("Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ")"
-            + "\n" + (s == "delete" ? "DELETE MODE ON (Right click to delete | DEL to toggle off)" :
-                     (s == "move" ? "Menus: Entity = 1 | Save/Load = 2\nDelete Mode (DEL) | Paste Entity (Mouse2) "
-                     + (m_selected != NULL ? "Entity: " + m_selected->getComponent<CAnimation>().animation.getName() : "") : 
-                         "Place Entity (Mouse1) | Delete Mode (DEL)")));
+        std::string control = "";
+        if (m_help)
+        {
+            control = "Toggle: Texture = T | Collision Boxes = C | Camera = F | Grid = G (" + std::to_string(m_drawGrid) + ") | " +
+                "Help: H | Quit: Esc\n" +
+                // delete mode
+                (s == "delete" ? "DELETE MODE ON (Right click to delete | Backspace to toggle off)" :
+                    // move mode
+                    (s == "move" ? "Menus: Entity = Q | Save/Load = Tab\nDelete Mode (Backspace) | Paste Entity (Mouse2) " +
+                        // if m_selected has entity
+                        (m_selected != NULL ? "Entity: " + m_selected->tag() + " " +
+                            m_selected->getComponent<CAnimation>().animation.getName() : "") :
+                        "Place Entity (Mouse1) | Delete Mode (Backspace)"));
+
+            if (s == "move" && m_selected != NULL && m_selected->hasComponent<CPatrol>())
+            {
+                control = control + "\nPlace Point: P | Clear Points: O";
+            }
+        }
+        else
+        {
+            // Minimal help
+            control = "D(" + std::to_string(s == "delete") + ") | E("
+                + (m_selected != NULL ? m_selected->tag() + " " + m_selected->getComponent<CAnimation>().animation.getName() : "") + 
+                ") | Help: H";
+        }
+
+        m_controlText.setString(control);
 
         m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
         m_game->window().draw(m_controlText);
@@ -1192,6 +1315,48 @@ void Scene_Editor::sRender()
                 }
             }
         }
+        if (m_selected != NULL && m_selected->hasComponent<CPatrol>())
+        {
+            std::vector<Vec2>& points = m_selected->getComponent<CPatrol>().positions;
+            if (!points.empty())
+            {
+                Vec2 old;
+                sf::Color black(0, 0, 0);
+                for (int i = 0; i < points.size(); i++)
+                {
+                    // draw point
+                    sf::CircleShape c;
+                    c.setRadius(5);
+                    c.setFillColor(black);
+                    c.setOrigin(5, 5);
+                    c.setPosition(points[i].x, points[i].y);
+                    m_game->window().draw(c);
+
+                    // draw line
+                    if (i != 0)
+                    {
+                        sf::Vertex line[2] =
+                        {
+                            sf::Vertex(sf::Vector2f(points[i].x, points[i].y), black),
+                            sf::Vertex(sf::Vector2f(old.x, old.y), black)
+                        };
+                        m_game->window().draw(line, 2, sf::Lines);
+                    }
+
+                    // draw extra line at end
+                    if (i + 1 == points.size() && i > 1)
+                    {
+                        sf::Vertex line[2] = 
+                        { 
+                            sf::Vertex(sf::Vector2f(points[i].x, points[i].y), black), 
+                            sf::Vertex(sf::Vector2f(points[0].x, points[0].y), black)
+                        };
+                        m_game->window().draw(line, 2, sf::Lines);
+                    }
+                    else old = points[i];
+                }
+            }
+        }
     }
     // menu drawing
     else
@@ -1200,7 +1365,7 @@ void Scene_Editor::sRender()
         if (s == "entity")
         {
             // menu drawing
-            m_controlText.setString("A/D to cycle type | W/S to cycle page | 1 to return\nPage: " + std::to_string(m_pageSelection) + "/"
+            m_controlText.setString("A/D to cycle type | W/S to cycle page | Q to return\nPage: " + std::to_string(m_pageSelection) + "/"
                 + std::to_string((int)floor((m_aniAssets.size() - 1) / 112)));
 
             m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
@@ -1214,7 +1379,7 @@ void Scene_Editor::sRender()
         }
         else if (s == "sl")
         {
-            m_controlText.setString("A/D to cycle saves | 2 to return");
+            m_controlText.setString("A/D to cycle saves | Tab to return");
             m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
             m_game->window().draw(m_controlText);
 
@@ -1248,9 +1413,13 @@ void Scene_Editor::sRender()
         }
     }
     // other controls
-    m_controlText.setString("Music (8): " + m_levelConfig.MUSIC +
-        " | Background (9): " + m_levelConfig.BACKGROUND + " | Dark (0): " + std::to_string(m_levelConfig.DARK)
-    + " | Name: " + m_levelConfig.NAME);
-    m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y + height() - m_controlText.getCharacterSize() - 5);
-    m_game->window().draw(m_controlText);
+    if (m_help)
+    {
+        m_controlText.setString("Music (8): " + m_levelConfig.MUSIC +
+            " | Background (9): " + m_levelConfig.BACKGROUND + " | Dark (0): " + std::to_string(m_levelConfig.DARK) +
+            " | Name: " + m_levelConfig.NAME);
+
+        m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y + height() - m_controlText.getCharacterSize() - 5);
+        m_game->window().draw(m_controlText);
+    }
 }
