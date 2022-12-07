@@ -333,7 +333,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             {
                 weap.lastFiredRaygun = m_currentFrame;
                 entity->getComponent<CState>().state = "Demon Attack";
-                //entity->addComponent<CAnimation>(m_game->assets().getAnimation("DemonAttack"), true);
             }
         }
 
@@ -908,9 +907,7 @@ void Scene_Play::sCollision()
         }
     }
 
-    auto& tp = m_player->getComponent<CTransform>();    // player transform
-    auto& bp = m_player->getComponent<CBoundingBox>();  // player bounding box
-    for (auto& e : m_entityManager.getEntities("npc"))
+    for (auto e : m_entityManager.getEntities("npc"))
     {
         if (e->getComponent<CState>().state.find("Demon") != std::string::npos)      // check if the entity is a demon npc entity
         {
@@ -919,7 +916,7 @@ void Scene_Play::sCollision()
 
             auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and npc entity
 
-            if (overlap.x >= 0 && overlap.y >= 0)
+            if (overlap.x > 0 && overlap.y > 0)
             {
                 if (m_player->hasComponent<CInvincibility>()) { break; }
                 m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
@@ -946,31 +943,23 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
-                /*if (npc->getComponent<CState>().state.find("Worm") != std::string::npos) { npc->getComponent<CState>().state = "WormHit"; }
-                else if (npc->getComponent<CState>().state.find("Demon") != std::string::npos) { npc->getComponent<CState>().state = "DemonHit"; }*/
+
                 bullet->removeComponent<CBoundingBox>();
                 bullet->removeComponent<CLifeSpan>();
                 if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
                 bullet->removeComponent<CDamage>();
                 bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
                 bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+
             }
+
             if (npc->getComponent<CHealth>().current <= 0)
             {
                 // playing death animation doesn't work
                 auto& animation = npc->getComponent<CAnimation>().animation;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Death";
- /*               if (npc->getComponent<CState>().state.find("Worm") != std::string::npos) { npc->getComponent<CState>().state = "WormDeath"; }
-                else if (npc->getComponent<CState>().state.find("Demon") != std::string::npos) { npc->getComponent<CState>().state = "DemonDeath"; }*/
-                //if (animation.getName().find("Worm") != std::string::npos)
-                //{
-                //    if (!(animation.getName() == "WormDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false); }
-                //}
-                //else
-                //{
-                //    if (!(animation.getName() == "DemonDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false); }
-                //}
+
                 if (npc->hasComponent<CPatrol>())
                 {
                     npc->removeComponent<CPatrol>();
