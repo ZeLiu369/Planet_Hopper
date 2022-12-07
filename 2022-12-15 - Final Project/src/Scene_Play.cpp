@@ -158,6 +158,7 @@ void Scene_Play::loadLevel(const std::string& filename)
                 auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
                 backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), scrollFactor);
+                //std::cout << backgroundScroll->getComponent<CTransform>().pos.y << ", " << backgroundScroll->getComponent<CTransform>().originalPos.y << "\n";
 
                 auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
@@ -257,6 +258,13 @@ void Scene_Play::loadLevel(const std::string& filename)
     spawnPlayer();
     m_game->assets().getSound(sound).setVolume(1);
     m_game->playSound(sound);
+
+    // Load shaders
+    if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
+    {
+        std::cerr << "Error while loading electric shader" << std::endl;
+        return;
+    }
 }
 
 void Scene_Play::spawnPlayer()
@@ -858,13 +866,10 @@ void Scene_Play::sCollision()
                     }
                     else if (overlap.x != 0 && overlap.y != 0)
                     {
+                        // if bullet collides with a tile set its state to impact to play the proper animation
                         if (e->tag() == "bullet")
                         {
-                            e->removeComponent<CBoundingBox>();
-                            e->removeComponent<CLifeSpan>();
-                            e->removeComponent<CGravity>();
-                            e->getComponent<CTransform>().velocity = { 0.0, 0.0 };
-                            e->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+                            e->getComponent<CState>().state = "impact";
                         }
                         else
                         {
@@ -934,12 +939,15 @@ void Scene_Play::sCollision()
         }
     }
 
+    // handling bullet and npc collisiobs
     for (auto& npc : m_entityManager.getEntities("npc"))
     {
         for (auto& bullet : m_entityManager.getEntities("bullet"))
         {
-            if (Physics::GetOverlap(bullet, npc).x > 0 && Physics::GetOverlap(bullet, npc).y > 0)
+            // if there is a collision adjust npc health and set bullet state
+            if (Physics::GetOverlap(npc, bullet).x > 0 && Physics::GetOverlap(npc, bullet).y > 0)
             {
+                bullet->getComponent<CState>().state = "impact";
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
@@ -952,9 +960,12 @@ void Scene_Play::sCollision()
                 bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
 
             }
+            // the npc is dead
 
             if (npc->getComponent<CHealth>().current <= 0)
             {
+                if (npc->hasComponent<CPatrol>()) { npc->removeComponent<CPatrol>(); }
+                else if (npc->hasComponent<CFollowPlayer>()) { npc->removeComponent<CFollowPlayer>(); }
                 // playing death animation doesn't work
                 auto& animation = npc->getComponent<CAnimation>().animation;
                 auto& state = npc->getComponent<CState>().state;
@@ -970,9 +981,22 @@ void Scene_Play::sCollision()
                 }
                 npc->removeComponent<CBoundingBox>();
                 npc->removeComponent<CDamage>();
-                if (npc->hasComponent<CGravity>()) { npc->removeComponent<CGravity>(); }
+                npc->removeComponent<CGravity>();
                 npc->getComponent<CTransform>().velocity = { 0.0, 0.0 };
             }
+        }
+    }
+
+    // if the bullet has impacted something need to remove and adjust components
+    for (auto& bullet : m_entityManager.getEntities("bullet"))
+    {
+        if (bullet->getComponent<CState>().state == "impact")
+        {
+            bullet->removeComponent<CBoundingBox>();
+            bullet->removeComponent<CLifeSpan>();
+            if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
+            bullet->removeComponent<CDamage>();
+            bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
         }
     }
 
@@ -1006,9 +1030,9 @@ void Scene_Play::sCollision()
                 }
             }
         }
-        
     }
 
+    // if player has reached end of the level
     if (goal)
     {
         m_level++;
@@ -1077,6 +1101,37 @@ void Scene_Play::sAnimation()
 {
     // player animations
     CAnimation& pAni = m_player->getComponent<CAnimation>();
+
+    // bullet animations
+    for (auto& bullet : m_entityManager.getEntities("bullet"))
+    {
+        // play explosion animation
+        if (bullet->getComponent<CState>().state == "impact")
+        {
+            if (bullet->getComponent<CAnimation>().animation.getName() != "Explosion")
+            {
+                bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+            }
+        }
+    }
+
+    // npc animations
+    for (auto& npc : m_entityManager.getEntities("npc"))
+    {
+        // play death animation
+        if (npc->getComponent<CHealth>().current <= 0)
+        {
+            auto& animation = npc->getComponent<CAnimation>().animation;
+            if (animation.getName().find("Worm") != std::string::npos)
+            {
+                if (!(animation.getName() == "WormDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false); }
+            }
+            else
+            {
+                if (!(animation.getName() == "DemonDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false); }
+            }
+        }
+    }
 
     // animations for player on the ground
     if (m_player->getComponent<CState>().state == "ground")
@@ -1280,7 +1335,7 @@ void Scene_Play::sCamera()
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
-
+    
     // update scroll background movement based on camera movement
     for (auto e : m_entityManager.getEntities("scrollbackground"))
     {
@@ -1315,23 +1370,25 @@ sf::Sprite Scene_Play::getLightingSprite()
         sf::BlendMode::Factor::OneMinusSrcAlpha,
         sf::BlendMode::Equation::Add);
 
+    // this is needed so that the health bar isn't dark like the rest of the level
     sf::RectangleShape rect;
-
-    Vec2 size(320, 50);
     rect.setSize(sf::Vector2f(320, 50));
-    rect.setPosition(m_game->window().getView().getCenter().x - width() / 2.0f + 10, m_game->window().getView().getCenter().y - height() / 2.0f + 10);
+    rect.setPosition(10, 10);
     rect.setFillColor(sf::Color(0, 0, 0, 255));
 
+    // create the lighting sprite and set its position
     sf::Sprite light(m_lightTexture);
     light.setOrigin(light.getTexture()->getSize().x / 2.0f, light.getTexture()->getSize().y / 2.0f);
     auto& pPos = m_player->getComponent<CTransform>().pos;
     float x_pos = std::min(pPos.x, m_game->window().getSize().x / 2.0f);
     float y_pos = std::max(pPos.y, m_game->window().getSize().y / 2.0f);
     light.setPosition(x_pos, y_pos);
+    // draw the lighting sprite and a rect over the healthbar to keep it the same colour
     m_renderTexture.clear();
     m_renderTexture.draw(rect, blendMode);
     m_renderTexture.draw(light, blendMode);
     m_renderTexture.display();
+    // get the night time level sprite based off the render texture
     sf::Sprite night(m_renderTexture.getTexture());
     night.setOrigin(night.getTexture()->getSize().x / 2.0f, night.getTexture()->getSize().y / 2.0f);
     float windowCenterX = std::max(m_game->window().getSize().x / 2.0f, m_player->getComponent<CTransform>().pos.x);
@@ -1433,6 +1490,10 @@ void Scene_Play::sRender()
     sf::RectangleShape tick({ 1.0f, 6.0f });
     tick.setFillColor(sf::Color::Black);
 
+    float ran = (float)rand() / (RAND_MAX);
+    electric_shader.setUniform("rnd", ran);
+    electric_shader.setUniform("intensity", 0.99f);
+    shader = &electric_shader;
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
@@ -1453,7 +1514,8 @@ void Scene_Play::sRender()
                     c = sf::Color(255, 255, 255, 128);
                     animation.getSprite().setColor(c);
                 }
-                m_game->window().draw(animation.getSprite());
+                if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
+                else { m_game->window().draw(animation.getSprite()); }
             }
         }
 
@@ -1466,8 +1528,6 @@ void Scene_Play::sRender()
                 auto &h = e->getComponent<CHealth>();
                 Vec2 size(320, 50);
                 sf::RectangleShape rect({size.x, size.y});
-                // on the top of head: 
-                // rect.setPosition(transform.pos.x - 32, transform.pos.y - 48);
                 rect.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 10, m_game->window().getView().getCenter().y - height() / 2 + 10);
                 rect.setFillColor(sf::Color(96, 96, 96));
                 rect.setOutlineColor(sf::Color::Black);
@@ -1480,15 +1540,9 @@ void Scene_Play::sRender()
                 rect.setFillColor(sf::Color(255, 0, 0));
                 rect.setOutlineThickness(0);
                 m_game->window().draw(rect);
-
-                // for (int i = 0; i < h.max; i++)
-                // {
-                //     tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
-                //     m_game->window().draw(tick);
-                // }
             }
             // the health bar for the npc
-            if (e->tag()=="npc" && e->hasComponent<CHealth>())
+            if (e->tag() == "npc" && e->hasComponent<CHealth>())
             {
                 auto& h = e->getComponent<CHealth>();
                 Vec2 size(64, 6);
@@ -1524,33 +1578,6 @@ void Scene_Play::sRender()
     sf::RectangleShape line(sf::Vector2f(1280, 5));
     line.setPosition(0, 300);
     m_game->window().draw(line);
-
-    //gridX* m_gridSize.x) + size.x / 2,
-    for (auto e : m_entityManager.getEntities())
-    {
-        auto transform = e->getComponent<CTransform>();
-
-        if (e->hasComponent<CAnimation>() && e->tag() == "player")
-        {
-            transform.pos.y = 680;
-            Animation animation = m_game->assets().getAnimation("Stand");
-            animation.getSprite().setRotation(transform.angle);
-            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
-            animation.getSprite().setPosition(x, (transform.pos.y / 2) - 70);
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            m_game->window().draw(animation.getSprite());
-        }
-        if (e->hasComponent<CAnimation>() && (e->getComponent<CAnimation>().animation.getName() == "Pole"
-            || e->getComponent<CAnimation>().animation.getName() == "PoleTop"))
-        {
-            auto& animation = e->getComponent<CAnimation>().animation;
-            animation.getSprite().setRotation(transform.angle);
-            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
-            animation.getSprite().setPosition(x - 20, (transform.pos.y / 2) - 34);
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            m_game->window().draw(animation.getSprite());
-        }
-    }
 
     auto& pPos = m_player->getComponent<CTransform>().pos;
     float viewCenterX = m_game->window().getView().getCenter().x;

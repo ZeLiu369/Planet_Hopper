@@ -37,6 +37,7 @@ protected:
     std::vector<bool> inventoryItems;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
+    sf::Shader              *shader, electric_shader;
     std::string             m_levelPath;
     int                     m_level;
     PlayerConfig            m_playerConfig;
