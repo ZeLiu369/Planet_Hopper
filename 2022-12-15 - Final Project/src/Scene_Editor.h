@@ -48,6 +48,7 @@ protected:
     bool                    m_drawCollision = false;
     int                     m_drawGrid = 2;
     bool                    m_drawCamera = true;
+    bool                    m_help = true;
 
     // grid
     const Vec2              m_gridSize = { 64, 64 };
@@ -63,14 +64,16 @@ protected:
     // camera
     int                     m_CAMERA_SPEED = 5;
     std::string             m_CAMERA_AVATAR = "Bomb";
-    Vec2                    m_BOUND_BOX = Vec2(4, 4);
+    Vec2                    m_BOUND_BOX = Vec2(6, 6);
 
     // mouse
     Vec2                    m_mPos = { 0, 0 };
     bool                    m_drop = false;
     bool                    m_place = false;
-    bool                    m_texture = true;
     std::shared_ptr<Entity> m_selected = NULL;
+
+    // Patrol point
+    bool                    m_patrol;
 
     // animation list
     std::vector<std::string> m_aniAssets = {};
@@ -118,6 +121,7 @@ protected:
     Vec2 midPixelToGrid(std::shared_ptr<Entity> entity, Vec2& pos);
 
     bool snapToGrid(std::shared_ptr<Entity> entity);
+    bool snapToGrid(std::shared_ptr<Entity> entity, Vec2& point);
 
     void showEntityPage(int page);
     void clearMenu();
