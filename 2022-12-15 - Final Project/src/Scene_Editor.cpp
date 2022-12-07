@@ -177,7 +177,8 @@ void Scene_Editor::fillAssetList()
 {
     std::vector<std::string> BLACK_LIST =
     {
-        "Inventory", "Sky", "Stars", "Hill", "Land", "Craters", "SkyObj", "Rock", "Space"
+        "Inventory", "Sky", "Stars", "Hill", "Land", "Craters", "SkyObj", "Rock", "Space",
+        "Hill2", "Land2", "Craters2", "Sky2", "SkyObj2", "Rock2"
     };
 
     std::string ASSET_FILE = "assets.txt";
@@ -421,35 +422,35 @@ void Scene_Editor::saveLevel()
 
     if (lc.BACKGROUND == m_levelAssetList["Background"][0])
     {
-        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
-            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
-            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
-            "Background Craters 1 1 1 1 640 717 0.01";
+        saveLine = "Background Sky     0 1.25 1.5  640 384" + std::string("\n") +
+            "Background Stars   0 1.25 1.65 640 384" + std::string("\n") +
+            "Background SkyObj  1 1    1    640 200 0.85" + std::string("\n") +
+            "Background Hill    1 1.25 1.75 640 554 0.50" + std::string("\n") +
+            "Background Rock    1 1    1    640 584 0.10" + std::string("\n") +
+            "Background Land    1 1.25 1    640 717 0.02" + std::string("\n") +
+            "Background Craters 1 1    1    640 717 0.01";
         fout << saveLine << std::endl;
     }
     else if (lc.BACKGROUND == m_levelAssetList["Background"][1])
     {
-        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
-            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
-            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
-            "Background Craters 1 1 1 1 640 717 0.01";
+        saveLine = "Background Sky2     0 1.25 1.5  640 384" + std::string("\n") +
+            "Background Stars   0 1.25 1.65 640 384" + std::string("\n") +
+            "Background SkyObj2  1 1    1    640 200 0.85" + std::string("\n") +
+            "Background Hill2    1 1.25 1.75 640 554 0.50" + std::string("\n") +
+            "Background Rock2    1 1    1    640 584 0.10" + std::string("\n") +
+            "Background Land2    1 1.25 1    640 717 0.02" + std::string("\n") +
+            "Background Craters2 1 1    1    640 717 0.01";
         fout << saveLine << std::endl;
     }
     else if (lc.BACKGROUND == m_levelAssetList["Background"][2])
     {
-        saveLine = "Background Sky 1 0 1.25 1.5 640 384" + std::string("\n") +
-            "Background Stars 2 1 1.25 1.65 640 384 0.95" + std::string("\n") +
-            "Background SkyObj 1 1 1 1 640 200 0.85" + std::string("\n") +
-            "Background Hill 1 1 1.25 1.75 640 544 0.55" + std::string("\n") +
-            "Background Rock 1 1 1 1 640 584 0.10" + std::string("\n") +
-            "Background Land 1 1 1.25 1 640 717 0.02" + std::string("\n") +
-            "Background Craters 1 1 1 1 640 717 0.01";
+        saveLine = "Background Sky     0 1.25 1.5  640 384" + std::string("\n") +
+            "Background Stars   0 1.25 1.65 640 384" + std::string("\n") +
+            "Background SkyObj2  1 1    1    640 200 0.85" + std::string("\n") +
+            "Background Hill2    1 1.25 1.75 640 554 0.50" + std::string("\n") +
+            "Background Rock    1 1    1    640 584 0.10" + std::string("\n") +
+            "Background Land2    1 1.25 1    640 717 0.02" + std::string("\n") +
+            "Background Craters2 1 1    1    640 717 0.01";
         fout << saveLine << std::endl;
     }
 
@@ -569,6 +570,8 @@ void Scene_Editor::spawnPlayer()
     Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, player);
     player->addComponent<CTransform>(spawnPos);
     player->addComponent<CBoundingBox>(Vec2(pc.CX, pc.CY));
+    player->addComponent<CGravity>(pc.GRAVITY);
+
     player->addComponent<CDraggable>();
     m_player = player;
 }
