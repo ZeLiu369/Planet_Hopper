@@ -346,12 +346,9 @@ void Scene_Overworld::sRender()
     m_game->window().draw(background);
     m_game->window().draw(background2);
 
-    
-
     // Set shader parameters
     fade_shader.setUniform("time", time.getElapsedTime().asSeconds());
     shake_shader.setUniform("time", time.getElapsedTime().asSeconds());
-    
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
