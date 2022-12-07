@@ -471,18 +471,6 @@ void Scene_Editor::saveLevel()
 
     // level content
 
-    // dec first so they load behind everything
-    for (auto& d : m_entityManager.getEntities("dec"))
-    {
-        CTransform& t = d->getComponent<CTransform>();
-        CAnimation& a = d->getComponent<CAnimation>();
-
-        grid = midPixelToGrid(d);
-
-        saveLine = "Dec " + a.animation.getName() + " " + formatFloat(grid.x) + " " + formatFloat(grid.y);
-        fout << saveLine << std::endl;
-    }
-
     for (auto& e : m_entityManager.getEntities())
     {
         if (!e->hasComponent<CTransform>() || !e->hasComponent<CAnimation>() || 
@@ -554,6 +542,19 @@ void Scene_Editor::saveLevel()
         }
         fout << saveLine << std::endl;
     }
+
+    // dec is saved last so they load in front of tiles
+    for (auto& d : m_entityManager.getEntities("dec"))
+    {
+        CTransform& t = d->getComponent<CTransform>();
+        CAnimation& a = d->getComponent<CAnimation>();
+
+        grid = midPixelToGrid(d);
+
+        saveLine = "Dec " + a.animation.getName() + " " + formatFloat(grid.x) + " " + formatFloat(grid.y);
+        fout << saveLine << std::endl;
+    }
+
     fout.close();
 }
 
