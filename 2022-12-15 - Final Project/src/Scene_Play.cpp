@@ -298,7 +298,7 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
     bullet->addComponent<CTransform>(pos);
     bullet->getComponent<CTransform>().velocity = vel;
     if (name == "Laser") { bullet->getComponent<CTransform>().scale.x = m_player->getComponent<CTransform>().scale.x; }
-    bullet->addComponent<CBoundingBox>(size);
+    if (!(name == "Missile")) { bullet->addComponent<CBoundingBox>(size); };
     bullet->addComponent<CLifeSpan>(lifetime, m_currentFrame);
     bullet->addComponent<CDamage>(dmg);
 
@@ -423,7 +423,7 @@ void Scene_Play::update()
 
     if (!m_paused)
     {
-        
+
         sMovement();
         sCollision();
         sLifespan();
@@ -553,6 +553,7 @@ void Scene_Play::sMovement()
             float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
             normalizeVec *= dist2;
 
+            // if within 5 pixel of target (mouse) blow up
             if (abs(dist) <= 5)
             {
                 b->removeComponent<CBoundingBox>();
@@ -567,7 +568,11 @@ void Scene_Play::sMovement()
             steering *= scale;
             Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
 
+            Vec2 SIZE = Vec2(67, 19);
             bt.angle = (atan2(actual.y, actual.x) * 180 / 3.14159265);
+            // change bounding box of missile based on rotation
+            if (abs(bt.angle) >= 60 && abs(bt.angle) <= 120) { b->addComponent<CBoundingBox>(Vec2(SIZE.y, SIZE.x)); }
+            else { b->addComponent<CBoundingBox>(SIZE); }
             bt.velocity = { actual.x, actual.y};
         }
         // The bomb will have gravity
