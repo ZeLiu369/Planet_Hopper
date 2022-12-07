@@ -197,6 +197,7 @@ void Scene_Play::loadLevel(const std::string& filename)
             npc->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             npc->addComponent<CTransform>(gridToMidPixel(x, y, npc));
             npc->addComponent<CDamage>(dmg);
+            npc->addComponent<CGravity>(gravity);
             npc->addComponent<CHealth>(health, health);
             npc->addComponent<CBoundingBox>(Vec2(64, 64));
             npc->addComponent<CState>(texture);
@@ -732,6 +733,18 @@ void Scene_Play::sAI()
         auto state = e->getComponent<CState>().state;
         if (e->getComponent<CTransform>().velocity.x < 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? 1.0 : -1.0; }
         else if (e->getComponent<CTransform>().velocity.x > 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? -1.0 : 1.0; }
+        
+        // gravity stuff
+        e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
+
+        if (e->getComponent<CGravity>().gravity >= 0)
+        {
+            if (e->getComponent<CTransform>().velocity.y < 0) e->getComponent<CTransform>().velocity.y = 0;
+        }
+        else
+        {
+            if (e->getComponent<CTransform>().velocity.y > 0) e->getComponent<CTransform>().velocity.y = 0;
+        }
         
         // add velocity for movement
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
