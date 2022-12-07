@@ -777,20 +777,23 @@ void Scene_Play::sLifespan()
 
 void Scene_Play::sInventory()
 {
-    //for (auto& i : m_entityManager.getEntities("item"))
-    //{
-    //    if (inventoryItems[i->getComponent<CInventory>().index])
-    //    {
-    //        float x = m_game->window().getView().getCenter().x - width() / 2;
-    //        auto inv_t = Vec2(7 + x, 3);
-    //        auto& item = m_entityManager.addEntity("items");
-    //        item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
-    //        auto s = i->getComponent<CAnimation>().animation.getName();
-    //        std::cout << s << "; " << i->getComponent<CInventory>().index << ";  ";
-    //        std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
-    //        item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
-    //    }
-    //}
+    for (auto& i : m_entityManager.getEntities("item"))
+    {
+        if (inventoryItems[i->getComponent<CInventory>().index])
+        {
+            float x = m_game->window().getView().getCenter().x - width() / 2;
+            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+            auto w = windowToWorld(Vec2(30, 90));
+            //auto inv_t = Vec2(30 + x, 20 + y);
+            auto inv_t = w;
+            auto& item = m_entityManager.addEntity("items");
+            item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
+            auto s = i->getComponent<CAnimation>().animation.getName();
+            std::cout << s << "; " << i->getComponent<CInventory>().index << ";  ";
+            std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
+            item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
+        }
+    }
 }
 
 void Scene_Play::sCollision()
@@ -1678,11 +1681,12 @@ void Scene_Play::sRender()
 
         for (auto e : m_entityManager.getEntities("items"))
         {
-            auto& transform = e->getComponent<CTransform>();
+            auto transform = e->getComponent<CTransform>();
             //float x = m_game->window().getView().getCenter().x - width() / 2;
-            //auto inv_t = Vec2(7 + x, 3);
-            //transform.pos = Vec2(inv_t.x + (73 * i), inv_t.y);
-            //std::cout << "Render stuff: " << " ";
+            //float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+            //auto inv_t = Vec2(30 + x, 20 + y);
+            //transform.pos = Vec2(inv_t.x + (73 * e->getComponent<CInventory>().index), inv_t.y);
+            //std::cout << "Render stuff: " << e->getComponent<CInventory>().index  << " ";
             //std::cout << transform.pos.x << ", " << transform.pos.y << "\n";
             auto& animation = e->getComponent<CAnimation>().animation;
             animation.getSprite().setRotation(transform.angle);
