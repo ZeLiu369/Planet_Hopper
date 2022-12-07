@@ -238,6 +238,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
+    m_game->assets().getSound(sound).setVolume(1);
     m_game->playSound(sound);
 }
 
@@ -1224,6 +1225,13 @@ sf::Sprite Scene_Play::getLightingSprite()
         sf::BlendMode::Factor::Zero,
         sf::BlendMode::Factor::OneMinusSrcAlpha,
         sf::BlendMode::Equation::Add);
+
+    sf::RectangleShape rect;
+
+    Vec2 size(320, 50);
+    rect.setSize(sf::Vector2f(320, 50));
+    rect.setOrigin(sf::Vector2f(160, 25));
+    rect.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 10, m_game->window().getView().getCenter().y - height() / 2 + 10);
 
     sf::Sprite light(m_lightTexture);
     light.setOrigin(light.getTexture()->getSize().x / 2.0f, light.getTexture()->getSize().y / 2.0f);

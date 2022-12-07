@@ -7,7 +7,6 @@ Texture   TexSkyObj  images/misc/skyObjects.png
 Texture   TexRock    images/misc/rock.png
 
 Texture   TexSky2     images/misc/sky2.png
-Texture   TexStars2   images/misc/star2.png
 Texture   TexHill2    images/misc/hill2.png
 Texture   TexLand2    images/misc/land2.png
 Texture   TexCraters2 images/misc/crater2.png
@@ -107,7 +106,6 @@ Animation SkyObj     TexSkyObj   1    0
 Animation Rock       TexRock     1    0
 
 Animation Sky2        TexSky2      1    0
-Animation Stars2      TexStars2    1    0
 Animation Hill2	      TexHill2     1    0
 Animation Land2       TexLand2     1    0
 Animation Craters2    TexCraters2  1    0
