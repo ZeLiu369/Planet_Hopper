@@ -287,6 +287,8 @@ void Scene_Editor::loadLevel(const std::string& filename)
 
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
+            tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
+
             if (type == "Tile")
             {
                 int m, v, damage;
@@ -318,7 +320,6 @@ void Scene_Editor::loadLevel(const std::string& filename)
                 }
 
             }
-            tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
             tile->addComponent<CDraggable>();
         }
@@ -600,6 +601,11 @@ bool Scene_Editor::pasteEntity(std::shared_ptr<Entity> e)
     if (e->hasComponent<CBoundingBox>()) entity->addComponent<CBoundingBox>() = e->getComponent<CBoundingBox>();
     if (e->hasComponent<CAnimation>()) entity->addComponent<CAnimation>() = e->getComponent<CAnimation>();
     if (e->hasComponent<CGravity>()) entity->addComponent<CGravity>() = e->getComponent<CGravity>();
+    if (e->hasComponent<CPatrol>()) entity->addComponent<CPatrol>() = e->getComponent<CPatrol>();
+    if (e->hasComponent<CFollowPlayer>()) entity->addComponent<CFollowPlayer>() = e->getComponent<CFollowPlayer>();
+    if (e->hasComponent<CHealth>()) entity->addComponent<CHealth>() = e->getComponent<CHealth>();
+    if (e->hasComponent<CDamage>()) entity->addComponent<CDamage>() = e->getComponent<CDamage>();
+    if (e->hasComponent<CJump>()) entity->addComponent<CJump>() = e->getComponent<CJump>();
 
     entity->getComponent<CTransform>().pos = windowToWorld(m_mPos);
     if (snapToGrid(entity))
