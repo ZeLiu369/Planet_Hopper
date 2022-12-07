@@ -54,6 +54,8 @@ public:
     CTransform() {}
     CTransform(const Vec2 & p)
         : pos(p), prevPos(p) {}
+    CTransform(const Vec2& p, const Vec2& sc)
+        : pos(p), prevPos(p), scale(sc) {}
     CTransform(const Vec2& p, const Vec2& sc, float sf)
         : pos(p), prevPos(p), originalPos(p), scale(sc), scrollFactor(sf) {}
     CTransform(const Vec2 & p, const Vec2 & sp, const Vec2 & sc, float a)
