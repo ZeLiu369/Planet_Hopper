@@ -83,7 +83,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     //m_game->playSound("Play");
 
     std::ifstream fin(filename);
-    std::string temp;
+    std::string temp, sound;
     int i = 0;
     std::vector<Vec2> pos;
     int x1, y1;
@@ -95,12 +95,13 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     while (fin >> temp)
     {
-        if (temp == "Dec" || temp == "Tile")
+        std::string texture;
+        if (temp == "BackgroundType") { fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); }
+        else if (temp == "Music") { fin >> sound; }
+        else if (temp == "Dec" || temp == "Tile")
         {
             std::string type = temp;
-            std::string texture;
             float x, y;
-            int bm, bv;
             fin >> texture >> x >> y;
             auto tile = m_entityManager.addEntity(type == "Dec" ? "dec" : "tile");
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
@@ -108,8 +109,25 @@ void Scene_Play::loadLevel(const std::string& filename)
 
             if (type == "Tile") 
             {
-                fin >> bm >> bv;
+                float speed;
+                int bm, bv, dmg;
                 tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize());
+                fin >> bm >> bv >> dmg >> speed;
+
+                if (dmg > 0) { tile->addComponent<CDamage>(dmg); }
+                if (speed > 0)
+                {
+                    std::vector<Vec2> positions;
+                    float coordX, coordY;
+                    int numPoints;
+                    fin >> numPoints;
+                    for (int i = 0; i < numPoints; i++)
+                    {
+                        fin >> coordX >> coordY;
+                        positions.push_back(gridToMidPixel(coordX, coordY, tile));
+                    }
+                    tile->addComponent<CPatrol>(positions, speed);
+                }
             }
         }
         else if (temp == "Background")
@@ -152,37 +170,33 @@ void Scene_Play::loadLevel(const std::string& filename)
                 m_night = true;
             }
         }
-        else if (temp == "NPC")
+        else if (temp == "Npc")
         {
-            std::string tileName, AI;
-            int x, y;
-            fin >> tileName >> x >> y >> AI;
-
+            int scaleX, health, dmg;
+            float x, y, jump, gravity, speed;
+            std::string aiType;
+            fin >> texture >> x >> y >> scaleX >> health >> dmg >> jump >> gravity >> speed >> aiType;
             auto npc = m_entityManager.addEntity("npc");
-            Vec2 worldPos = gridToMidPixel(x, y, npc);
-
-            npc->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
+            npc->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             npc->addComponent<CTransform>(gridToMidPixel(x, y, npc));
-            if (tileName == "DemonAttack") { npc->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize()); }
-            else                                         { npc->addComponent<CBoundingBox>(m_gridSize); }
-            npc->addComponent<CState>(tileName);
-            npc->addComponent<CHealth>(5, 5);
-            npc->addComponent<CDamage>(2);
-            if (AI == "Patrol")
-            {
-                for (int i = 0; i < 2; i++)
-                {
-                    fin >> x1 >> y1;
-                    pos.push_back(Vec2(gridToMidPixel(x1, y1, npc)));
-                }
-                npc->addComponent<CPatrol>(pos, 2);
-                pos.clear();
-            }
-            else if (AI == "Follow")
-            {
-                npc->addComponent<CFollowPlayer>(gridToMidPixel(x, y, npc), 2);
-            }
+            npc->addComponent<CDamage>(dmg);
+            npc->addComponent<CHealth>(health, health);
+            npc->addComponent<CBoundingBox>(Vec2(64, 64));
 
+            if (aiType == "Patrol")
+            {
+                std::vector<Vec2> positions;
+                float coordX, coordY;
+                int numPoints;
+                fin >> numPoints;
+                for (int i = 0; i < numPoints; i++)
+                {
+                    fin >> coordX >> coordY;
+                    positions.push_back(gridToMidPixel(coordX, coordY, npc));
+                }
+                npc->addComponent<CPatrol>(positions, speed);
+            }
+            else { npc->addComponent<CFollowPlayer>(gridToMidPixel(x, y, npc), speed); }
         }
         else if (temp == "Item")
         {
@@ -224,6 +238,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
+    m_game->playSound(sound);
 }
 
 void Scene_Play::spawnPlayer()
@@ -328,47 +343,47 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 int DMG = 1;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
-
-            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
-        }
-    }
-    else if (weap.currentWeapon == "Bomb")
-    {
-        if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
-        {
-            auto& pScale = m_player->getComponent<CTransform>().scale;
-            weap.lastFiredBomb = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(24, 24);
-            int BULLET_LIFETIME = 180;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
-
-            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
-            bullet->addComponent<CGravity>(pc.GRAVITY);
-            if (pScale.y == -1)
-            {
-                bullet->getComponent<CGravity>().flipped = true;
-            }
-            else
-            {
-                bullet->getComponent<CGravity>().flipped = false;
+                auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
             }
         }
-    }
-    else if (weap.currentWeapon == "Raygun")
-    {
-        if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+        else if (weap.currentWeapon == "Bomb")
         {
-            weap.lastFiredRaygun = m_currentFrame;
-            Vec2 BULLET_SIZE = Vec2(30, 17);
-            int BULLET_LIFETIME = 60;
-            int DMG = 1;
-            Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
-            Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
+            if (weap.lastFiredBomb == 0 || m_currentFrame - weap.lastFiredBomb >= 90)
+            {
+                auto& pScale = m_player->getComponent<CTransform>().scale;
+                weap.lastFiredBomb = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(24, 24);
+                int BULLET_LIFETIME = 180;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
-            auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
-            m_game->playSound("se_bullet_leaser");
+                auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
+                bullet->addComponent<CGravity>(pc.GRAVITY);
+                if (pScale.y == -1)
+                {
+                    bullet->getComponent<CGravity>().flipped = true;
+                }
+                else
+                {
+                    bullet->getComponent<CGravity>().flipped = false;
+                }
+            }
+        }
+        else if (weap.currentWeapon == "Raygun")
+        {
+            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 15)
+            {
+                weap.lastFiredRaygun = m_currentFrame;
+                Vec2 BULLET_SIZE = Vec2(30, 17);
+                int BULLET_LIFETIME = 60;
+                int DMG = 1;
+                Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
+                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
+
+                auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Laser");
+                m_game->playSound("se_bullet_leaser");
+            }
         }
     }
 }
@@ -755,11 +770,8 @@ void Scene_Play::sCollision()
     {
         for (auto& e : m_entityManager.getEntities())
         {
-            if (e->tag() == "player" || e->tag() == "bullet" || e->tag() == "coinbullet")
+            if (e->tag() == "player" || e->tag() == "bullet")
             {
-                bool destroyBrick = false;
-                bool robbery = false;
-
                 Vec2 overlap = Physics::GetOverlap(e, tile);
                 if (overlap.x >= 0 && overlap.y >= 0)
                 {
@@ -769,9 +781,6 @@ void Scene_Play::sCollision()
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
                         Vec2 prev = Physics::GetPreviousOverlap(e, tile);
-
-                        if (tile->getComponent<CAnimation>().animation.getName() == "Pole" ||
-                            tile->getComponent<CAnimation>().animation.getName() == "PoleTop") goal = true;
 
                         // collison correction for player
                         if (prev.y > 0)
@@ -785,8 +794,6 @@ void Scene_Play::sCollision()
                             {
                                 if (m_player->getComponent<CGravity>().gravity >= 0)
                                 {
-                                    destroyBrick = (tile->getComponent<CAnimation>().animation.getName() == "Brick");
-                                    robbery = (tile->getComponent<CAnimation>().animation.getName() == "Question");
                                     et.velocity.y = 0;
                                 }
                                 else
@@ -804,28 +811,14 @@ void Scene_Play::sCollision()
                                 }
                                 else
                                 {
-                                    destroyBrick = (tile->getComponent<CAnimation>().animation.getName() == "Brick");
-                                    robbery = (tile->getComponent<CAnimation>().animation.getName() == "Question");
                                     et.velocity.y = 0;
                                 }
                                 et.pos.y -= overlap.y;
                             }
                         }
-
                     }
                     else if (overlap.x != 0 && overlap.y != 0)
                     {
-                        // bullet collsion resolution
-                        if (tile->getComponent<CAnimation>().animation.getName() == "Brick")
-                        {
-                            destroyBrick = true;
-                        }
-                        if (e->tag() == "coinbullet")
-                        {
-                            e->removeComponent<CBoundingBox>();
-                            e->removeComponent<CLifeSpan>();
-                            e->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
-                        }
                         if (e->tag() == "bullet")
                         {
                             e->removeComponent<CBoundingBox>();
@@ -839,32 +832,6 @@ void Scene_Play::sCollision()
                             e->destroy();
                         }
                     }
-
-                }
-
-                // for when tile brick is marked for explosion
-                if (destroyBrick)
-                {
-                    tile->removeComponent<CBoundingBox>();
-                    tile->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
-                    continue;
-                }
-                else if (robbery)
-                {
-                    // creates coin from question block
-                    tile->addComponent<CAnimation>(
-                        m_game->assets().getAnimation("Question2"), true);
-
-                    CTransform& qt = tile->getComponent<CTransform>();
-                    int sizeY = m_game->assets().getAnimation("Question2").getSize().y;
-
-                    auto coin = m_entityManager.addEntity("coin");
-                    coin->addComponent<CTransform>(Vec2(qt.pos.x, qt.pos.y - sizeY));
-                    coin->addComponent<CAnimation>(
-                        m_game->assets().getAnimation("Coin"), false);
-
-                    // ? block adds one coin
-                    //m_player->getComponent<CCoinCounter>().coins++;
                 }
             }
         }
