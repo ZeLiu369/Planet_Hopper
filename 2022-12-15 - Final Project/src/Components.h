@@ -40,7 +40,7 @@ public:
     CClickable() {}
 };
                                                      
-class CTransform : public Component
+class CTransform : public Component 
 {
 public:
     Vec2 originalPos  = { 0.0, 0.0 };
@@ -48,13 +48,13 @@ public:
     Vec2 prevPos      = { 0.0, 0.0 };
     Vec2 scale        = { 1.0, 1.0 };
     Vec2 velocity     = { 0.0, 0.0 };
-    Vec2 scrollFactor = { 0.0, 0.0 };
+    float scrollFactor = 0;
     float angle     = 0;
                                                      
     CTransform() {}
     CTransform(const Vec2 & p)
         : pos(p), prevPos(p) {}
-    CTransform(const Vec2& p, const Vec2& sc, const Vec2& sf)
+    CTransform(const Vec2& p, const Vec2& sc, float sf)
         : pos(p), prevPos(p), originalPos(p), scale(sc), scrollFactor(sf) {}
     CTransform(const Vec2 & p, const Vec2 & sp, const Vec2 & sc, float a)
         : pos(p), prevPos(p), velocity(sp), scale(sc), angle(a) {}
@@ -126,8 +126,6 @@ public:
     bool shoot      = false;
     bool canShoot   = true;
     bool canJump    = true;
-    // new input
-    bool money      = false;
     // mouse inputs
     bool click1 = false;
     bool click2 = false;
@@ -164,6 +162,7 @@ class CGravity : public Component
 {
 public:
     float gravity = 0;
+    bool flipped = false;
     CGravity() {}
     CGravity(float g) : gravity(g) {}
 };
@@ -197,14 +196,6 @@ public:
     CPatrol(std::vector<Vec2>& pos, float s) : positions(pos), speed(s) {}
 };
 
-// new component
-class CCoinCounter : public Component
-{
-public:
-    int coins = 0;
-    CCoinCounter() {}
-};
-
 class CLevelStatus : public Component
 {
 public:
@@ -233,6 +224,15 @@ public:
 
     CButton() {}
     CButton(const std::string & s) : value(s) {}
+};
+
+class CJump : public Component
+{
+public:
+    float jump = 0;
+    CJump() {}
+    CJump(float j)
+        : jump(j) {}
 };
 
 // Copyright (C) David Churchill - All Rights Reserved

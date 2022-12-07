@@ -29,13 +29,17 @@ typedef std::tuple<
     CAnimation,
     CGravity,
     CState,
-    CCoinCounter,
     CLevelStatus,
     CInventory,
     CDraggable,
     CWeapon,
     CDamage,
-    CButton
+    CButton,
+    CHealth,
+    CPatrol,
+    CFollowPlayer,
+    CInvincibility,
+    CJump
 > ComponentTuple;
 
 class Entity

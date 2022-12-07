@@ -52,7 +52,7 @@ protected:
     // grid
     const Vec2              m_gridSize = { 64, 64 };
     const Vec2              m_BOUNDARYNEG = { 0, 0 };
-    const Vec2              m_BOUNDARYPOS = { 200, 12 };
+    const Vec2              m_BOUNDARYPOS = { 200, 30 };
 
     // text
     sf::Text                m_gridText;
@@ -78,7 +78,7 @@ protected:
     // entity types for menu
     std::vector<std::string> m_entityTypes
     {
-        "tile", "dec", "item"
+        "tile", "dec", "item", "npc"
     };
 
     // menus
@@ -115,6 +115,7 @@ protected:
 
     Vec2 gridToMidPixel(float x, float y, std::shared_ptr<Entity> entity);
     Vec2 midPixelToGrid(std::shared_ptr<Entity> entity);
+    Vec2 midPixelToGrid(std::shared_ptr<Entity> entity, Vec2& pos);
 
     bool snapToGrid(std::shared_ptr<Entity> entity);
 

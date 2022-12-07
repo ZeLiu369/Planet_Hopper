@@ -40,7 +40,7 @@ protected:
     std::string             m_levelPath;
     int                     m_level;
     PlayerConfig            m_playerConfig;
-    float                   m_prevCameraPosX;
+    Vec2                    m_prevCameraPos;
     bool                    m_drawTextures = true;
     bool                    m_drawCollision = false;
     bool                    m_inventory = false;
@@ -48,7 +48,6 @@ protected:
     bool                    m_night = false;
     const Vec2              m_gridSize = { 64, 64 };
     sf::Text                m_gridText;
-    sf::Text                m_coinText;
     sf::Text                m_weaponUIText;
 
     Vec2                    m_mPos;
@@ -67,7 +66,6 @@ protected:
     void onEnd();
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
-    void spawnMoney(std::shared_ptr<Entity> entity);
 
     sf::Sprite getLightingSprite();
 

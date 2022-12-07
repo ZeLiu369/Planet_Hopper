@@ -1,114 +1,66 @@
-Lighting    Day
-Background  Sky     0 1.25 1.5  640 384 
-Background  Stars   1 1.25 1.65 640 384  0.95
-Background  SkyObj  1 1    1    640 200  0.85
-Background  Hill    1 1.25 1    640 574  0.50
-Background  Rock    1 1    1    640 574  0.10
-Background  Land    0 1.25 1    640 717
-Background  Craters 1 1    1    640 717  0.01
-Tile Plat	 0 0
-Tile Plat	 1 0
-Tile Plat	 1 0
-Tile Plat	 2 0
-Tile Plat	 3 0
-Tile Plat	 4 0
-Tile Plat	 5 0
-Tile Plat	 6 0
-Tile Plat	 7 0
-Tile SpikeUp     7 1
-Tile Plat 	 8 0
-Tile Plat 	 9 0
-Tile Plat 	10 0
-Tile Plat	 0 11
-Tile Plat	 1 11
-Tile SpikeDown   1 10
-Tile Plat	 2 11
-Tile Plat	 3 11
-Tile Plat	 4 11
-Tile Plat	 5 11
-Tile Plat	 6 11
-Tile Plat	 7 11
-Tile Plat 	 8 11
-Tile Plat 	 9 11
-Tile Plat 	10 11
-Tile WavyLeft 	 8 4
-Tile WavyMid 	 9 4
-Tile WavyRight 	10 4
-Tile Plat 	11 0
-Tile Plat 	12 0
-Tile Plat 	13 0
-Tile Plat 	14 0
-Tile Plat 	15 0
-Tile Plat 	16 0
-Tile Plat 	17 0
-Tile Plat 	18 0
-Tile Plat 	19 0
-Tile Plat 	20 0
-Tile Plat 	21 0
-Tile Plat 	22 0
-Tile Plat 	23 0
-Tile Plat 	24 0
-Tile Plat 	25 0
-Tile Plat 	26 0
-Tile Plat 	27 0
-Tile Plat 	28 0
-Tile Plat 	29 0
-Tile Plat 	30 0
-Tile Plat 	31 0
-Tile Plat 	32 0
-Tile Plat 	33 0
-Tile Plat 	34 0
-Tile Plat 	35 0
-Tile Plat 	36 0
-Tile Plat 	37 0
-Tile Plat 	38 0
-Tile Plat 	39 0
-Tile Plat 	40 0
-Tile Plat 	41 0
-Tile Plat 	42 0
-Tile Plat 	43 0
-Tile Plat 	44 0
-Tile Plat 	45 0
-Tile Plat 	46 0
-Tile Plat 	47 0
-Tile Plat 	48 0
-Tile Plat 	49 0
-Tile Plat 	50 0
-Tile Plat 	51 0
-Tile Plat 	52 0
-Tile Plat 	53 0
-Tile Plat 	54 0
-Tile Plat 	55 0
-Tile Plat 	56 0
-Tile Plat 	57 0
-Tile Plat 	58 0
-Tile Plat 	59 0
-Tile Plat 	60 0
-Tile Plat 	61 0
-Tile Plat 	62 0
-Tile Plat 	63 0
-Tile Plat 	64 0
-Tile Plat 	65 0
-Tile Plat 	66 0
-Tile Plat 	67 0
-Tile Plat 	68 0
-Tile Plat 	69 0
-Tile Plat 	70 0
-Tile Plat 	71 0
-Tile Plat 	72 0
-Tile Plat 	73 0
-Tile Plat 	74 0
-Tile Plat 	75 0
-Tile Plat       76 0
-Tile Plat 	77 0
-Tile Plat 	78 0
-Tile Plat 	79 0
-Tile Plat 	80 0
-Tile Plat 	81 0
-Tile Plat 	82 0
-Tile Plat 	83 0
-Tile Plat 	84 0
-Tile Plat 	85 0
-Tile Plat 	86 0
-Tile Plat 	87 0
-Player 2 6 46 70 5 -20 20 0.75
+Lighting Day
+Music OverWorld
+BackgroundType Background1
+Background Sky     0 1.25 1.5  640 384
+Background Stars   0 1.25 1.65 640 384
+Background SkyObj  1 1 1  640 200 0.85
+Background Hill    1 1.25 1.75 640 544 0.50
+Background Rock    1 1 1 640 584 0.10
+Background Land    1 1.25 1 640 717 0.02
+Background Craters 1 1 1 640 717 0.01
+Player 2 1 46 70 5 -20 20 0.75
+Dec Alarm 1 1
+Tile Plat 2 0 1 1 0 0
+Tile Plat 1 0 1 1 0 0
+Tile Plat 0 0 1 1 0 0
+Tile Plat 3 0 1 1 0 0
+Tile Plat 4 0 1 1 0 0
+Tile Plat 5 0 1 1 0 0
+Tile Plat 6 0 1 1 0 0
+Tile Plat 7 0 1 1 0 0
+Tile Plat 8 0 1 1 0 0
+Tile WavyLeft 4 3 1 1 0 0
+Tile WavyMid 5 3 1 1 0 0
+Tile WavyRight 6 3 1 1 0 0
+Tile SpikeUp 10 1 1 1 0 0
+Tile Plat 9 0 1 1 0 0
+Tile Plat 0 1 1 1 0 0
+Tile Plat 0 2 1 1 0 0
+Tile Plat 0 3 1 1 0 0
+Tile Plat 0 4 1 1 0 0
+Tile Plat 0 5 1 1 0 0
+Tile Plat 0 6 1 1 0 0
+Tile Plat 0 7 1 1 0 0
+Tile Plat 0 8 1 1 0 0
+Tile Plat 0 9 1 1 0 0
+Tile Plat 1 9 1 1 0 0
+Tile Plat 2 9 1 1 0 0
+Tile Plat 3 9 1 1 0 0
+Tile Plat 4 9 1 1 0 0
+Tile Plat 5 9 1 1 0 0
+Tile Plat 6 9 1 1 0 0
+Tile Plat 7 9 1 1 0 0
+Tile Plat 8 9 1 1 0 0
+Tile Plat 9 9 1 1 0 0
+Tile Plat 10 9 1 1 0 0
+Tile Plat 11 9 1 1 0 0
+Tile Plat 12 9 1 1 0 0
+Tile Plat 13 9 1 1 0 0
+Tile Plat 14 9 1 1 0 0
+Tile Plat 14 8 1 1 0 0
+Tile Plat 14 7 1 1 0 0
+Tile Plat 14 6 1 1 0 0
+Tile Plat 14 5 1 1 0 0
+Tile Plat 14 4 1 1 0 0
+Tile Plat 14 3 1 1 0 0
+Tile Plat 14 2 1 1 0 0
+Tile Plat 14 1 1 1 0 0
+Tile Plat 14 0 1 1 0 0
+Tile Plat 13 0 1 1 0 0
+Tile Plat 12 0 1 1 0 0
+Tile Plat 11 0 1 1 0 0
+Tile Plat 10 0 1 1 0 0
+Tile SpikeDown 2 8 1 1 0 0
+Item PillBlue 4 4
+Npc WormIdle 5 4 -1 1 1 0 0.75 2 Follow
+Npc WormIdle 7 1 1 1 1 -4 0.75 2 Patrol 2 7 1 3 1
