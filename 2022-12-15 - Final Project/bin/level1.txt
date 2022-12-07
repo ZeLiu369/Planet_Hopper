@@ -8,13 +8,7 @@ Background Hill2    1 1.25 1.75 640 554 0.50
 Background Rock2    1 1    1    640 584 0.10
 Background Land2    1 1.25 1    640 717 0.02
 Background Craters2 1 1    1    640 717 0.01
-Player 4 12 46 70 5 -20 20 0.75
-Tile Plat 3 11 1 1 0 0
-Tile Plat 4 11 1 1 0 0
-Tile Plat 5 11 1 1 0 0
-Tile Plat 3 10 1 1 0 0
-Tile Plat 4 10 1 1 0 0
-Tile Plat 5 10 1 1 0 0
+Player 4 2 46 70 5 -20 20 0.75
 Tile Plat 6 10 1 1 0 0
 Tile Plat 7 10 1 1 0 0
 Tile Plat 2 10 1 1 0 0
@@ -586,13 +580,13 @@ Tile Steel2 33 17 1 1 0 1 2 33 17 36 17
 Tile SpikeUp 59 24 1 1 2 0
 Tile SpikeUp 60 24 1 1 2 0
 Tile SpikeUp 61 24 1 1 2 0
-Npc WormIdle 48 5 -1 1 1 -4 0.75 3 Patrol 2 48 5 41 5
+Npc WormIdle 48 5 -1 1 1 0 0.75 3 Patrol 2 48 5 41 5
 Item BlueBolt 66 5
-Npc WormIdle 63 14 1 3 1 -4 0.75 3 Patrol 2 63 14 67 14
-Npc WormIdle 55 24 1 3 1 -4 0.75 2 Follow
-Npc WormIdle 85 10 -1 3 1 -4 0.75 2 Patrol 2 85 10 79 10
+Npc WormIdle 63 14 1 3 1 0 0.75 3 Patrol 2 63 14 67 14
+Npc WormIdle 55 24 1 3 1 0 0.75 2 Follow
+Npc WormIdle 85 10 -1 3 1 0 0.75 2 Patrol 2 85 10 79 10
 Npc WormIdle 106 1 -1 3 1 0 0.75 2 Follow
-Npc DemonIdle 53 18 -1 5 3 -4 0.75 2 Follow
+Npc DemonIdle 53 18 -1 5 3 0 0.75 2 Follow
 Npc DemonIdle 67 23 1 5 3 0 0.75 2 Follow
 Npc DemonIdle 71 18 -1 5 3 0 0.75 2 Follow
 Npc DemonIdle 82 10 1 5 3 0 0.75 2 Follow
@@ -766,6 +760,32 @@ Tile Plat 64 1 1 1 0 0
 Tile Plat 70 7 1 1 0 0
 Tile Plat 70 6 1 1 0 0
 Tile Plat 71 7 1 1 0 0
+Tile Plat 6 8 1 1 0 0
+Tile Plat 6 9 1 1 0 0
+Tile Plat 2 9 1 1 0 0
+Tile Plat 2 8 1 1 0 0
+Tile Plat 2 7 1 1 0 0
+Tile Plat 2 6 1 1 0 0
+Tile Plat 2 5 1 1 0 0
+Tile Plat 2 4 1 1 0 0
+Tile Plat 2 3 1 1 0 0
+Tile Plat 2 2 1 1 0 0
+Tile Plat 2 1 1 1 0 0
+Tile Plat 2 0 1 1 0 0
+Tile Plat 6 7 1 1 0 0
+Tile Plat 6 6 1 1 0 0
+Tile Plat 6 5 1 1 0 0
+Tile Plat 6 2 1 1 0 0
+Tile Plat 6 1 1 1 0 0
+Tile Plat 6 4 1 1 0 0
+Tile Plat 6 3 1 1 0 0
+Tile Plat 6 0 1 1 0 0
+Tile Plat 5 0 1 1 0 0
+Tile Plat 4 0 1 1 0 0
+Tile Plat 3 0 1 1 0 0
+Tile Plat 4 1 1 1 0 0
+Tile Alarm 3 1 1 1 0 0
+Tile Alarm 5 1 1 1 0 0
 Dec ArrowUp 23 13
 Dec ArrowDown 37 25
 Dec Alarm 118 2
@@ -840,11 +860,6 @@ Dec Plat 10 9
 Dec Plat 9 9
 Dec Plat 8 9
 Dec Plat 7 9
-Dec Plat 6 9
-Dec Plat 5 9
-Dec Plat 4 9
-Dec Plat 3 9
-Dec Plat 2 9
 Dec Plat 1 9
 Dec Plat 0 9
 Dec Plat 30 8
@@ -984,8 +999,6 @@ Dec Plat 75 27
 Dec Plat 74 28
 Dec Plat 73 28
 Dec Plat 74 27
-Dec Alarm 3 12
-Dec Alarm 5 12
 Dec Plat 26 20
 Dec Plat 25 20
 Dec Plat 24 20
@@ -1022,3 +1035,9 @@ Dec Plat 26 26
 Dec Plat 26 27
 Dec Plat 26 28
 Dec Plat 25 21
+Dec ArrowUp 4 6
+Dec ArrowUp 4 5
+Dec ArrowUp 4 4
+Dec ArrowUp 3 6
+Dec ArrowUp 4 7
+Dec ArrowUp 5 6
