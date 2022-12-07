@@ -829,6 +829,11 @@ void Scene_Play::sCollision()
                 {
                     if (e->tag() == "player")
                     {
+                        if (tile->getComponent<CAnimation>().animation.getName() == "Spaceship")
+                        {
+                            goal = true;
+                            continue;
+                        }
                         CTransform& et = e->getComponent<CTransform>();
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
