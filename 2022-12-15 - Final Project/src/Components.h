@@ -226,6 +226,15 @@ public:
     CButton(const std::string & s) : value(s) {}
 };
 
+class CJump : public Component
+{
+public:
+    float jump = 0;
+    CJump() {}
+    CJump(float j)
+        : jump(j) {}
+};
+
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)

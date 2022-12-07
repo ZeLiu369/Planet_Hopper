@@ -105,6 +105,18 @@ Vec2 Scene_Editor::midPixelToGrid(std::shared_ptr<Entity> entity)
     );
 }
 
+Vec2 Scene_Editor::midPixelToGrid(std::shared_ptr<Entity> entity, Vec2& pos)
+{
+    Vec2 size = (entity->hasComponent<CBoundingBox>() ?
+        entity->getComponent<CBoundingBox>().size :
+        entity->getComponent<CAnimation>().animation.getSize());
+
+    return Vec2(
+        (pos.x - (size.x / 2)) / m_gridSize.x,
+        m_BOUNDARYPOS.y - ((pos.y + (size.y / 2)) / m_gridSize.y)
+    );
+}
+
 // makes sure entity is alligned to grid
 // won't place if a certain entity is overlaping another or if out of bounds
 bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
@@ -141,14 +153,23 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity)
 
 // dev plan for level editor here
 
-rotate entity?
+modify mode / modifiy entity by middle click, camera locks onto entity, enter modify menu
+list if values to change appears next to image of entity: 
+values to change
 
-modify mode / modifiy entity by middle click, camera locks onto entity, middle click entity to disengage,
-list if values to change appears next to entity: 
+tile:
+pass, see, damage, speed
+
+player:
+health, damage, speed, maxspeed, jump
+
+npc:
+health, damage, speed, maxspeed, jump, gravity, ai
+
 health, speed, ai (cycle),gravity,jump,maxspeed?,damage, etc all will be increment cycle or increment
-extra mode if ai is patrol, when right clicking on enemy, enter patrol mode, 
+
+patrol mode
 click on empty spaces to create points, then finish by clicking on enemy
-list of entities that can be changed: player, enemy, hazard, moving platform
 
 */
 
@@ -217,7 +238,7 @@ void Scene_Editor::loadBlankLevel()
     lc.NAME = "level1.txt";
 
     PlayerConfig& pc = m_playerConfig;
-    pc.X = 0; pc.Y = 0; pc.CX = 46; pc.CY = 70; pc.SPEED = 5; pc.JUMP = -20; pc.MAXSPEED = 20; pc.GRAVITY = 0.75; pc.WEAPON = "Buster";
+    pc.X = 0; pc.Y = 0; pc.CX = 46; pc.CY = 70; pc.SPEED = 5; pc.JUMP = -20; pc.MAXSPEED = 20; pc.GRAVITY = 0.75;
 
     spawnPlayer();
     spawnCamera();
@@ -267,9 +288,34 @@ void Scene_Editor::loadLevel(const std::string& filename)
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             if (type == "Tile")
             {
-                int m; int v;
-                fin >> m >> v;
+                int m, v, damage;
+                float speed;
+                fin >> m >> v >> damage >> speed;
+     
                 tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize(),m,v);
+
+                if (damage != 0)
+                {
+                    tile->addComponent<CDamage>(damage);
+                }
+
+                if (speed > 0)
+                {
+                    int points;
+                    fin >> points;
+
+                    std::vector<Vec2> pos;
+
+                    for (int i = 0; i < points; i++)
+                    {
+                        int pointX, pointY;
+                        fin >> pointX >> pointY;
+                        pos.push_back(gridToMidPixel(pointX, pointY, tile));
+                    }
+
+                    tile->addComponent<CPatrol>(pos, speed);
+                }
+
             }
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
@@ -282,7 +328,6 @@ void Scene_Editor::loadLevel(const std::string& filename)
             std::string tileName;
             float x, y;
             fin >> tileName >> x >> y;
-            Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
 
             auto item = m_entityManager.addEntity("item");
 
@@ -293,13 +338,54 @@ void Scene_Editor::loadLevel(const std::string& filename)
         }
         else if (temp == "Npc")
         {
+            std::string ani;
+            float x, y;
+            int health, damage;
+            float scale, speed, jump, gravity;
+            fin >> ani >> x >> y >> scale >> health >> damage >> jump >> gravity >> speed;
 
+            auto npc = m_entityManager.addEntity("npc");
+
+            npc->addComponent<CAnimation>(m_game->assets().getAnimation(ani), true);
+            npc->addComponent<CTransform>(gridToMidPixel(x, y, npc));
+            npc->addComponent<CBoundingBox>(m_game->assets().getAnimation(ani).getSize());
+
+            npc->getComponent<CTransform>().scale.x = scale;
+
+            npc->addComponent<CHealth>(health, health);
+            npc->addComponent<CDamage>(damage);
+            npc->addComponent<CGravity>(gravity);
+
+            fin >> temp;
+
+            if (temp == "Follow")
+            {
+                npc->addComponent<CFollowPlayer>(gridToMidPixel(x, y, npc), speed);
+            }
+            else if (temp == "Patrol")
+            {
+                int points;
+                fin >> points;
+
+                std::vector<Vec2> pos;
+
+                for (int i = 0; i < points; i++)
+                {
+                    int pointX, pointY;
+                    fin >> pointX >> pointY;
+                    pos.push_back(gridToMidPixel(pointX, pointY, npc));
+                }
+
+                npc->addComponent<CPatrol>(pos, speed);
+            }
+
+            npc->addComponent<CDraggable>();
         }
         else if (temp == "Player")
         {
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
-                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY >> pc.WEAPON;
+                >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
         }
         else
         {
@@ -379,7 +465,7 @@ void Scene_Editor::saveLevel()
     saveLine = "Player " + std::to_string((int)pc.X) + " " + std::to_string((int)pc.Y) +
         " " + formatFloat(pc.CX) + " " + formatFloat(pc.CY) + " " +
         formatFloat(pc.SPEED) + " " + formatFloat(pc.JUMP) + " " + formatFloat(pc.MAXSPEED) +
-        " " + formatFloat(pc.GRAVITY) + " " + pc.WEAPON;
+        " " + formatFloat(pc.GRAVITY);
 
     fout << saveLine << std::endl;
 
@@ -417,7 +503,24 @@ void Scene_Editor::saveLevel()
         if (e->tag() == "tile")
         {
             saveLine = saveLine + " " + std::to_string(e->getComponent<CBoundingBox>().blockMove) +
-                                  " " + std::to_string(e->getComponent<CBoundingBox>().blockVision);
+                " " + std::to_string(e->getComponent<CBoundingBox>().blockVision) +
+                " " + (e->hasComponent<CDamage>() ? std::to_string(e->getComponent<CDamage>().damage) : "0");
+
+            if (e->hasComponent<CPatrol>())
+            {
+                saveLine = saveLine + " " + formatFloat(e->getComponent<CPatrol>().speed);
+                std::vector<Vec2> points = e->getComponent<CPatrol>().positions;
+                saveLine = saveLine + " " + std::to_string(points.size());
+
+                for (Vec2& p : points)
+                {
+                    saveLine = saveLine + " " + formatFloat(p.x) + " " + formatFloat(p.y);
+                }
+            }
+            else
+            {
+                saveLine = saveLine + " 0";
+            }
         }
         else if (e->tag() == "item")
         {
@@ -425,7 +528,29 @@ void Scene_Editor::saveLevel()
         }
         else if (e->tag() == "npc")
         {
+            saveLine = saveLine + " " + formatFloat(t.scale.x);
 
+            saveLine = saveLine + " " + std::to_string(e->getComponent<CHealth>().max) +
+                                  " " + std::to_string(e->getComponent<CDamage>().damage);
+
+            saveLine = saveLine + " " + formatFloat(e->getComponent<CJump>().jump) +
+                                  " " + formatFloat(e->getComponent<CGravity>().gravity);
+
+            if (e->hasComponent<CFollowPlayer>())
+            {
+                saveLine = saveLine + " " + formatFloat(e->getComponent<CFollowPlayer>().speed) + " Follow";
+            }
+            else if (e->hasComponent<CPatrol>())
+            {
+                std::vector<Vec2> points = e->getComponent<CPatrol>().positions;
+                saveLine = saveLine + " " + formatFloat(e->getComponent<CPatrol>().speed) + " Patrol " +
+                                            std::to_string(points.size());
+                for (Vec2& p : points)
+                {
+                    Vec2 g = midPixelToGrid(e,p);
+                    saveLine = saveLine + " " + formatFloat(g.x) + " " + formatFloat(g.y);
+                }
+            }
         }
         fout << saveLine << std::endl;
     }
@@ -551,6 +676,15 @@ std::shared_ptr<Entity> Scene_Editor::createEntity(std::string animation)
     else if (e->tag() == "item")
     {
         e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize());
+    }
+    else if (e->tag() == "npc")
+    {
+        e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize());
+        e->addComponent<CDamage>(1);
+        e->addComponent<CHealth>(1,1);
+        e->addComponent<CJump>(-4);
+        e->addComponent<CGravity>(0.75);
+        e->addComponent<CFollowPlayer>(Vec2(0, 0),2);
     }
 
     return e;
@@ -786,7 +920,14 @@ void Scene_Editor::sDoAction(const Action& action)
         }
 
         else if (action.name() == "LEFT_CLICK") { m_camera->getComponent<CInput>().click1 = true; }
-        else if (action.name() == "RIGHT_CLICK") { m_camera->getComponent<CInput>().click2 = true; }
+        else if (action.name() == "RIGHT_CLICK") 
+        { 
+            m_camera->getComponent<CInput>().click2 = true; 
+            if (m_camera->getComponent<CState>().state == "drag" && m_selected->tag() == "npc")
+            {
+                m_selected->getComponent<CTransform>().scale.x = -m_selected->getComponent<CTransform>().scale.x;
+            }
+        }
         else if (action.name() == "MIDDLE_CLICK") { m_camera->getComponent<CInput>().click3 = true; }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
