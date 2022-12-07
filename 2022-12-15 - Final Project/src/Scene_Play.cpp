@@ -324,7 +324,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 bullet->addComponent<CTransform>(Vec2(entity->getComponent<CTransform>().pos.x,
                     entity->getComponent<CTransform>().pos.y));
                 bullet->addComponent<CBoundingBox>(m_game->assets().getAnimation("WormFire").getSize());
-                bullet->addComponent<CLifeSpan>(70, m_currentFrame);
+                bullet->addComponent<CLifeSpan>(80, m_currentFrame);
                 bullet->addComponent<CDamage>(entity->getComponent<CDamage>().damage);
                 entity->getComponent<CState>().state = "Worm Attack";
 
@@ -680,7 +680,7 @@ void Scene_Play::sAI()
             {
                 if (p->getComponent<CBoundingBox>().blockVision)
                 {
-                    if (Physics::EntityIntersect(a, b, p))// || b.dist(a) > 500)
+                    if (Physics::EntityIntersect(a, b, p) || b.dist(a) > 500)
                     {
                         intersect = true;
                     }
@@ -997,6 +997,51 @@ void Scene_Play::sCollision()
             if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
             bullet->removeComponent<CDamage>();
             bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
+        }
+    }
+
+    for (auto& e : m_entityManager.getEntities("npc"))
+    {
+        auto& nt = e->getComponent<CTransform>();                       // npc transform
+        auto& nb = e->getComponent<CBoundingBox>();                     // npc bounding box
+
+        for (auto& t : m_entityManager.getEntities("tile"))
+        {
+            auto& tt = t->getComponent<CTransform>();               // tile transfom
+            auto overlap = Physics::GetOverlap(e, t);               // get the overlap between npc and tile
+
+            if (t->getComponent<CBoundingBox>().blockMove && overlap.x >= 0 && overlap.y >= 0)
+            {
+
+                auto prev = Physics::GetPreviousOverlap(e, t);
+                if (prev.y > 0)                                     // horizontal collision
+                {
+                    if (nt.pos.x < tt.pos.x)                        // collision from right side of tile
+                    {
+                        nt.velocity.x = 0;
+                        nt.pos.x -= overlap.x;
+                    }
+                    if (nt.pos.x > tt.pos.x)                        // collision from left side of tile
+                    {
+                        nt.velocity.x = 0;
+                        nt.pos.x += overlap.x;
+                    }
+                }
+
+                if (prev.x > 0)                                     // vertical collision 
+                {
+                    if (nt.pos.y < tt.pos.y)                        // collision from top of tile
+                    {
+                        nt.velocity.y = 0;
+                        nt.pos.y -= overlap.y;
+                    }
+                    if (nt.pos.y > tt.pos.y)                        // collision from bottom of tile
+                    {
+                        nt.velocity.y = 0;
+                        nt.pos.y += overlap.y;
+                    }
+                }
+            }
         }
     }
 
