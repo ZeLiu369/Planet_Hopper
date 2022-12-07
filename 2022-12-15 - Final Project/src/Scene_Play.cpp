@@ -1623,6 +1623,9 @@ void Scene_Play::sRender()
     // draw the current weapon
     drawWeapon();
 
+    /*
+    * Setup the minimap view 
+    */
     sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
     miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
     m_game->window().setView(miniView);
@@ -1631,12 +1634,41 @@ void Scene_Play::sRender()
     line.setPosition(0, 300);
     m_game->window().draw(line);
 
+    /*
+    * Following code is for drawing player and spaceship to second camera view
+    */
+    for (auto e : m_entityManager.getEntities())
+    {
+        auto transform = e->getComponent<CTransform>();
+
+        if (e->hasComponent<CAnimation>() && e->tag() == "player")
+        {
+            transform.pos.y = 680;
+            Animation animation = m_game->assets().getAnimation("Stand");
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            animation.getSprite().setPosition(x, (transform.pos.y / 2) - 70);
+            animation.getSprite().setScale(transform.scale.x, 1);
+            m_game->window().draw(animation.getSprite());
+        }
+        if (e->hasComponent<CAnimation>() && (e->getComponent<CAnimation>().animation.getName() == "Spaceship"))
+        {
+            auto& animation = e->getComponent<CAnimation>().animation;
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            //animation.getSprite().setPosition(x - 20, (transform.pos.y / 2) - 34);
+            animation.getSprite().setPosition(1240, 275);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+    }
+
+    /*
+    * Adjusting camera pos
+    */
     auto& pPos = m_player->getComponent<CTransform>().pos;
-    float viewCenterX = m_game->window().getView().getCenter().x;
-    float viewCenterY = m_game->window().getView().getCenter().y;
     float windowX = m_game->window().getSize().x;
     float windowY = m_game->window().getSize().y;
-    m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
     float dist = windowY - gameView.getCenter().y;
