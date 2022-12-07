@@ -188,3 +188,4 @@ Sound     Play       sounds/play.ogg
 Sound     OverWorld  sounds/Overworld_bgm.ogg
 
 Sound  se_bullet_leaser  sounds/se_bullet_leaser.wav
+Sound  se_bullet_missile sounds/se_bullet_missile.wav
