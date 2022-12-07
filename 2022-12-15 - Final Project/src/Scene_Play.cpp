@@ -344,6 +344,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
+                m_game->playSound("se_bullet_missile");
             }
         }
         else if (weap.currentWeapon == "Bomb")
