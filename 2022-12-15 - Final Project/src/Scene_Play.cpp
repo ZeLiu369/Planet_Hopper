@@ -1383,11 +1383,11 @@ void Scene_Play::sRender()
                 rect.setOutlineThickness(0);
                 m_game->window().draw(rect);
 
-                for (int i = 0; i < h.max; i++)
-                {
-                    tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
-                    m_game->window().draw(tick);
-                }
+                // for (int i = 0; i < h.max; i++)
+                // {
+                //     tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
+                //     m_game->window().draw(tick);
+                // }
             }
             // the health bar for the npc
             if (e->tag()=="npc" && e->hasComponent<CHealth>())
