@@ -908,7 +908,7 @@ void Scene_Play::sCollision()
     for (auto& e : m_entityManager.getEntities("item"))
     {
         auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and coin
-        if (overlap.x >= 0 && overlap.y >= 0)
+        if (overlap.x > 0 && overlap.y > 0)
         {
             auto index = e->getComponent<CInventory>().index;
             inventoryItems[index] = true;
@@ -1066,6 +1066,7 @@ void Scene_Play::sCollision()
                     f->addComponent<CAnimation>(m_game->assets().getAnimation("WormExplode"), false);
                     if (e->tag() == "player")
                     {
+                        m_player->addComponent<CInvincibility>(10);
                         m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
                     }
                     f->destroy();
@@ -1564,8 +1565,9 @@ void Scene_Play::sRender()
                     c = sf::Color(255, 255, 255, 128);
                     animation.getSprite().setColor(c);
                 }
-                if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
-                else { m_game->window().draw(animation.getSprite()); }
+                // applies shader to player
+                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
+                 m_game->window().draw(animation.getSprite());
             }
         }
 
