@@ -52,13 +52,9 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
     registerAction(sf::Keyboard::Space, "SHOOT");
-    registerAction(sf::Keyboard::M, "MONEY");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("Tech"));
-
-    m_coinText.setCharacterSize(24);
-    m_coinText.setFont(m_game->assets().getFont("Tech"));
 
     m_weaponUIText.setCharacterSize(14);
     m_weaponUIText.setFont(m_game->assets().getFont("Tech"));
@@ -247,7 +243,6 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CDamage>(2);
     m_player->addComponent<CState>("air");
 
-    m_player->addComponent<CCoinCounter>();
     // raygun is default weapon
     m_player->addComponent<CWeapon>("Raygun");
 }
@@ -402,7 +397,6 @@ void Scene_Play::sMovement()
     CInput& input = m_player->getComponent<CInput>();
     CState& state = m_player->getComponent<CState>();
     CGravity& gravity = m_player->getComponent<CGravity>();
-    CCoinCounter& counter = m_player->getComponent<CCoinCounter>();
     CWeapon& weapon = m_player->getComponent<CWeapon>();
 
     // player movement
@@ -447,14 +441,6 @@ void Scene_Play::sMovement()
 
     }
     transform.scale.y = gravity.gravity >= 0 ? 1 : -1;
-
-    // if a player has a coin, fire the coin
-    if (input.money && input.canShoot && counter.coins > 0)
-    {
-        counter.coins -= 1;
-        input.canShoot = false;
-        spawnMoney(m_player);
-    }
 
     // player speed limits
     if (abs(transform.velocity.x) > pc.MAXSPEED)
@@ -911,7 +897,6 @@ void Scene_Play::sCollision()
             auto index = e->getComponent<CInventory>().index;
             inventoryItems[index] = true;
             m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
-            m_player->getComponent<CCoinCounter>().coins++;
             e->destroy();
         }
     }
@@ -1081,12 +1066,6 @@ void Scene_Play::sDoAction(const Action& action)
         {
             m_player->getComponent<CInput>().shoot = false;
         }
-        if (action.name() == "MONEY")
-        {
-            m_player->getComponent<CInput>().money = false;
-            m_player->getComponent<CInput>().canShoot = true;
-        }
-
     }
 }
 

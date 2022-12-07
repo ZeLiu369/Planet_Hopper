@@ -48,7 +48,6 @@ protected:
     bool                    m_night = false;
     const Vec2              m_gridSize = { 64, 64 };
     sf::Text                m_gridText;
-    sf::Text                m_coinText;
     sf::Text                m_weaponUIText;
 
     Vec2                    m_mPos;

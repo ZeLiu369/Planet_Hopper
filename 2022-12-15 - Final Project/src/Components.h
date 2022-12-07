@@ -126,8 +126,6 @@ public:
     bool shoot      = false;
     bool canShoot   = true;
     bool canJump    = true;
-    // new input
-    bool money      = false;
     // mouse inputs
     bool click1 = false;
     bool click2 = false;
@@ -196,14 +194,6 @@ public:
     float speed = 0;
     CPatrol() {}
     CPatrol(std::vector<Vec2>& pos, float s) : positions(pos), speed(s) {}
-};
-
-// new component
-class CCoinCounter : public Component
-{
-public:
-    int coins = 0;
-    CCoinCounter() {}
 };
 
 class CLevelStatus : public Component
