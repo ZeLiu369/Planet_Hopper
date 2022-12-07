@@ -785,7 +785,7 @@ void Scene_Play::sInventory()
             float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
             auto w = windowToWorld(Vec2(30, 90));
             //auto inv_t = Vec2(30 + x, 20 + y);
-            auto inv_t = w;
+            auto inv_t = Vec2(0, 0);
             auto& item = m_entityManager.addEntity("items");
             item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
             auto s = i->getComponent<CAnimation>().animation.getName();
@@ -1682,10 +1682,10 @@ void Scene_Play::sRender()
         for (auto e : m_entityManager.getEntities("items"))
         {
             auto transform = e->getComponent<CTransform>();
-            //float x = m_game->window().getView().getCenter().x - width() / 2;
-            //float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-            //auto inv_t = Vec2(30 + x, 20 + y);
-            //transform.pos = Vec2(inv_t.x + (73 * e->getComponent<CInventory>().index), inv_t.y);
+            float x = m_game->window().getView().getCenter().x - width() / 2;
+            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+            auto inv_t = Vec2(30 + x, 20 + y);
+            transform.pos += Vec2(inv_t.x, inv_t.y);
             //std::cout << "Render stuff: " << e->getComponent<CInventory>().index  << " ";
             //std::cout << transform.pos.x << ", " << transform.pos.y << "\n";
             auto& animation = e->getComponent<CAnimation>().animation;
