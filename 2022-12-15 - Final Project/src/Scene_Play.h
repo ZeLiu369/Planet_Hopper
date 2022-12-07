@@ -75,6 +75,8 @@ protected:
     
     void sDoAction(const Action& action);
 
+    void sAI();
+    void sInventory();
     void sCamera();
     void sClick();
     void sMovement();

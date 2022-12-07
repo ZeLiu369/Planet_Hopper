@@ -1,35 +1,26 @@
-﻿  Action.cpp
-  Entity.cpp
-  EntityManager.cpp
-  GameEngine.cpp
-  Physics.cpp
-  Scene.cpp
-  Scene_Editor.cpp
-  Scene_Menu.cpp
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Editor.cpp(767,86): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Scene_Overworld.cpp
-  Scene_Play.cpp
-  main.cpp
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(292,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+﻿  Scene_Play.cpp
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(89,13): warning C4101: 'y1': unreferenced local variable
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(89,9): warning C4101: 'x1': unreferenced local variable
 C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(312,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(327,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(338,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(353,48): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(376,50): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(1471,57): warning C4305: 'argument': truncation from 'double' to 'T'
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(334,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(349,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(360,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(375,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(398,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(1521,57): warning C4305: 'argument': truncation from 'double' to 'T'
           with
           [
               T=float
           ]
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(274): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(294): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
   Generating code
-  126 of 2018 functions ( 6.2%) were compiled, the rest were copied from previous compilation.
+  1 of 2060 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    9 functions had inline decision re-evaluated but remain unchanged
+    6 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\bin\SFMLGame.exe
