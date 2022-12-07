@@ -1,13 +1,13 @@
 Lighting Day
 Music OverWorld
-BackgroundType Background1
-Background Sky     0 1.25 1.5  640 384
-Background Stars   0 1.25 1.65 640 384
-Background SkyObj  1 1 1  640 200 0.85
-Background Hill    1 1.25 1.75 640 544 0.50
-Background Rock    1 1 1 640 584 0.10
-Background Land    1 1.25 1 640 717 0.02
-Background Craters 1 1 1 640 717 0.01
+BackgroundType Background2
+Background Sky2     0 1.25 1.5  640 384
+Background Stars2   0 1.25 1.65 640 384
+Background SkyObj2  1 1    1    640 200 0.85
+Background Hill2    1 1.25 1.75 640 554 0.50
+Background Rock2    1 1    1    640 584 0.10
+Background Land2    1 1.25 1    640 717 0.02
+Background Craters2 1 1    1    640 717 0.01
 Player 2 1 46 70 5 -20 20 0.75
 Dec Alarm 1 1
 Tile Plat 2 0 1 1 0 0
