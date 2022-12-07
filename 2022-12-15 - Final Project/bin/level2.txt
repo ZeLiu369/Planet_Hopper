@@ -2,7 +2,7 @@ Lighting Day
 Music OverWorld
 BackgroundType Background2
 Background Sky2     0 1.25 1.5  640 384
-Background Stars2   0 1.25 1.65 640 384
+Background Stars   0 1.25 1.65 640 384
 Background SkyObj2  1 1    1    640 200 0.85
 Background Hill2    1 1.25 1.75 640 554 0.50
 Background Rock2    1 1    1    640 584 0.10
