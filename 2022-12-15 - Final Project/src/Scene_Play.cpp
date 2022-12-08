@@ -654,6 +654,7 @@ void Scene_Play::sMovement()
                 }
                 tVel = { normalizeVec.x * tSpeed, normalizeVec.y * tSpeed };
             }
+            tile->getComponent<CTransform>().prevPos = tPos;
             tPos += tVel;
         }
     }
