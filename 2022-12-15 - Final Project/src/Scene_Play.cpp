@@ -107,6 +107,11 @@ void Scene_Play::loadLevel(const std::string& filename)
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
+            if (texture == "Spaceship")
+            {
+                m_levelEnd = tile->getComponent<CTransform>().pos.x;
+            }
+
             if (type == "Tile") 
             {
                 float speed;
@@ -239,9 +244,9 @@ void Scene_Play::loadLevel(const std::string& filename)
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
-
         }
     }
+
 
     // Load in the weapons
     // Hardcoded because weapons will be the same for each level
@@ -1629,13 +1634,53 @@ void Scene_Play::sRender()
     // draw the current weapon
     drawWeapon();
 
-    sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
-    miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
-    m_game->window().setView(miniView);
+    sf::Texture gaugeTexture, miniPlayerTexture;
+    gaugeTexture.loadFromFile("images/new/Gauge.png");
+    gaugeTexture.setSmooth(true);
 
-    sf::RectangleShape line(sf::Vector2f(1280, 5));
-    line.setPosition(0, 300);
-    m_game->window().draw(line);
+    miniPlayerTexture.loadFromFile("images/new/miniPlayer0.png");
+    miniPlayerTexture.setSmooth(true);
+
+    sf::Sprite gauge, miniPlayer;
+    //Vec2 TextureSize(gaugeTexture.getSize().x, gaugeTexture.getSize().y);  //Added to store texture size.
+    //Vec2 WindowSize(m_game->window().getSize().x, m_game->window().getSize().y);   //Added to store window size.
+
+    //float ScaleX = (float)WindowSize.x / TextureSize.x;
+    //float ScaleY = (float)WindowSize.y / TextureSize.y;     //Calculate scale.
+    //gauge.setScale(ScaleX, ScaleY);      //Set scale.
+
+    gauge.setScale(2, 2);
+    gauge.setTexture(gaugeTexture);
+    gauge.getGlobalBounds().width;
+
+    //miniPlayer.setScale(2, 2);
+    miniPlayer.setTexture(miniPlayerTexture);
+
+    //sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
+    //miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
+    //m_game->window().setView(miniView);
+
+    //sf::RectangleShape line(sf::Vector2f(1280, 5));
+    //line.setPosition(0, 300);
+    //m_game->window().draw(line);
+
+    gauge.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 735, m_game->window().getView().getCenter().y - height() / 2 + 10);;
+    m_game->window().draw(gauge);
+
+    for (auto e : m_entityManager.getEntities())
+    {
+        auto transform = e->getComponent<CTransform>();
+        if (e->hasComponent<CAnimation>() && e->tag() == "player")
+        {
+            transform.pos.y = 680;
+            Animation animation = m_game->assets().getAnimation("Stand");
+            animation.getSprite().setRotation(transform.angle);
+            auto x = m_game->window().getView().getCenter().x - width() / 2 + 700 + (transform.pos.x * gauge.getGlobalBounds().width / m_levelEnd);
+            miniPlayer.setPosition(x, m_game->window().getView().getCenter().y - height() / 2 + 10);
+            animation.getSprite().setScale(transform.scale.x, 1.0);
+            m_game->window().draw(miniPlayer);
+        }
+    }
 
     auto& pPos = m_player->getComponent<CTransform>().pos;
     float viewCenterX = m_game->window().getView().getCenter().x;
@@ -1643,6 +1688,7 @@ void Scene_Play::sRender()
     float windowX = m_game->window().getSize().x;
     float windowY = m_game->window().getSize().y;
     m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
+
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
     float dist = windowY - gameView.getCenter().y;
@@ -1650,6 +1696,7 @@ void Scene_Play::sRender()
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     m_game->window().setView(gameView);
+
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)

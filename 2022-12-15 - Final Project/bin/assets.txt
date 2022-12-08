@@ -80,6 +80,8 @@ Texture   TexIn      images/new/InvisibilityPotion.png
 Texture   TexMana    images/new/ManaPotion.png
 Texture   TexPoi     images/new/PoisonPotion.png
 Texture   TexShip    images/new/spaceship.png
+Texture   TexGauge   images/new/Gauge.png
+Texture   TexMplay   images/new/miniPlayer.png
 
 Texture   TexWormIdle	images/new/Worm/Idle.png
 Texture   TexWormWalk	images/new/Worm/Walk.png
@@ -112,7 +114,7 @@ Animation Craters2    TexCraters2  1    0
 Animation SkyObj2     TexSkyObj2   1    0
 Animation Rock2       TexRock2     1    0
 
-Animation Spaceship  TexShip     1    0   
+Animation Spaceship   TexShip      1    0   
 
 Animation Stand      TexStand     10   5   
 Animation Run        TexRun       8    4
@@ -166,6 +168,8 @@ Animation Block      TexBlock    1    0
 Animation Flag       TexFlag     1    0   
 Animation Pole       TexPole     1    0   
 Animation PoleTop    TexPoleTop  1    0
+Animation Gauge      TexGauge    1    0
+Animation mPlayer    TexMplay    1    0
 
 Animation Space      TexSpace    1    0
 Animation Plan1      TexPlanet1  1    0

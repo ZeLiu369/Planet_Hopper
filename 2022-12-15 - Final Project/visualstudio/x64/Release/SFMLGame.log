@@ -1,26 +1,21 @@
 ﻿  Scene_Play.cpp
 C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(89,13): warning C4101: 'y1': unreferenced local variable
 C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(89,9): warning C4101: 'x1': unreferenced local variable
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(321,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(343,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(358,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(369,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(384,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(407,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(1633,57): warning C4305: 'argument': truncation from 'double' to 'T'
-          with
-          [
-              T=float
-          ]
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(326,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(348,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(363,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(374,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(389,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(412,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(303): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(308): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
   Generating code
-  1 of 2069 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  25 of 2069 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    43 functions had inline decision re-evaluated but remain unchanged
+    16 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\Jephthah\Projects\COMP4300\2022-12-15 - Final Project\bin\SFMLGame.exe
