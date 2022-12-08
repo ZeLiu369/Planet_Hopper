@@ -890,6 +890,16 @@ void Scene_Play::sCollision()
                             goal = true;
                             continue;
                         }
+                        if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>())
+                        {
+                            e->addComponent<CInvincibility>(30);
+                            e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
+                            if (e->getComponent<CHealth>().current <= 0)
+                            {
+                                e->destroy();
+                                spawnPlayer();
+                            }
+                        }
                         CTransform& et = e->getComponent<CTransform>();
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
