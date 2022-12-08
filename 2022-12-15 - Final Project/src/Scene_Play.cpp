@@ -343,7 +343,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 entity->getComponent<CState>().state = "Demon Attack";
             }
         }
-
     }
 
     if (entity->tag() == "player")
@@ -358,7 +357,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         }
         PlayerConfig& pc = m_playerConfig;
         CTransform& entityT = entity->getComponent<CTransform>();
-        auto bullet = m_entityManager.addEntity("bullet");
+
         // Following code sets up the bullets based on the current weapon
         if (weap.currentWeapon == "Launcher")
         {
@@ -533,8 +532,9 @@ void Scene_Play::sMovement()
     }
 
     // player shooting
-    if (input.shoot)
+    if (input.shoot && input.canShoot)
     {
+        input.canShoot = false;
         spawnBullet(m_player);
     }
 
@@ -621,16 +621,40 @@ void Scene_Play::sMovement()
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
     }
 
+    // moving tiles
     for (auto tile : m_entityManager.getEntities("tile"))
     {
         if (tile->hasComponent<CPatrol>())
         {
-            auto& tVel = tile->getComponent<CPatrol>().speed;
+            auto& tVel = tile->getComponent<CTransform>().velocity;
+            auto& tSpeed = tile->getComponent<CPatrol>().speed;
             auto& tPos = tile->getComponent<CTransform>().pos;
             auto& positions = tile->getComponent<CPatrol>().positions;
-            auto& currentPosition = tile->getComponent<CPatrol>().currentPosition;
-
-
+            auto& index = tile->getComponent<CPatrol>().currentPosition;
+            Vec2 currentPosition = positions[index];
+            if (abs(currentPosition.x - tPos.x) <= 5 && abs(currentPosition.y - tPos.y) <= 5)
+            {
+                index = (index + 1) % positions.size();
+            }
+            else
+            {
+                Vec2 distVec = Vec2(currentPosition.x, currentPosition.y) - Vec2(tPos.x, tPos.y);
+                int dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+                Vec2 normalizeVec = distVec / dist;
+                // make sure if the tile is within 5 pixels in x direction that they do not move
+                // in the x direction
+                if (abs(currentPosition.x - tPos.x) <= 5)
+                {
+                    normalizeVec.x = 0;
+                }
+                // do the same thing for y direction
+                else if (abs(currentPosition.y - tPos.y) <= 5)
+                {
+                    normalizeVec.y = 0;
+                }
+                tVel = { normalizeVec.x * tSpeed, normalizeVec.y * tSpeed };
+            }
+            tPos += tVel;
         }
     }
 }
@@ -1008,7 +1032,7 @@ void Scene_Play::sCollision()
         if (bullet->getComponent<CState>().state == "impact")
         {
             bullet->removeComponent<CBoundingBox>();
-            //bullet->removeComponent<CLifeSpan>();
+            bullet->removeComponent<CLifeSpan>();
             if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
             bullet->removeComponent<CDamage>();
             bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
@@ -1117,7 +1141,10 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
         else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
 
-        else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
+        else if (action.name() == "SHOOT") 
+        { 
+            m_player->getComponent<CInput>().shoot = true; 
+        }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
@@ -1154,6 +1181,7 @@ void Scene_Play::sDoAction(const Action& action)
         if (action.name() == "SHOOT")
         {
             m_player->getComponent<CInput>().shoot = false;
+            m_player->getComponent<CInput>().canShoot = true;
         }
     }
 }
