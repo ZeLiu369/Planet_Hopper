@@ -620,6 +620,19 @@ void Scene_Play::sMovement()
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
     }
+
+    for (auto tile : m_entityManager.getEntities("tile"))
+    {
+        if (tile->hasComponent<CPatrol>())
+        {
+            auto& tVel = tile->getComponent<CPatrol>().speed;
+            auto& tPos = tile->getComponent<CTransform>().pos;
+            auto& positions = tile->getComponent<CPatrol>().positions;
+            auto& currentPosition = tile->getComponent<CPatrol>().currentPosition;
+
+
+        }
+    }
 }
 
 void Scene_Play::sAI()
@@ -627,7 +640,7 @@ void Scene_Play::sAI()
     for (auto e : m_entityManager.getEntities("npc"))
     {
         // Implementing Patrol AI behaviour
-        if (e->tag() == "npc" && e->hasComponent<CPatrol>())
+        if ((e->tag() == "npc") && e->hasComponent<CPatrol>())
         {
             auto& pos = e->getComponent<CTransform>().pos;
             auto& vec = e->getComponent<CPatrol>().positions;
@@ -961,14 +974,6 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
-
-                bullet->removeComponent<CBoundingBox>();
-                bullet->removeComponent<CLifeSpan>();
-                if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
-                bullet->removeComponent<CDamage>();
-                bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
-                bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
-
             }
             // the npc is dead
 
@@ -1003,7 +1008,7 @@ void Scene_Play::sCollision()
         if (bullet->getComponent<CState>().state == "impact")
         {
             bullet->removeComponent<CBoundingBox>();
-            bullet->removeComponent<CLifeSpan>();
+            //bullet->removeComponent<CLifeSpan>();
             if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
             bullet->removeComponent<CDamage>();
             bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
