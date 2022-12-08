@@ -1,0 +1,1043 @@
+Lighting Day
+Music Play
+BackgroundType Background2
+Background Sky2     0 1.25 1.5  640 384
+Background Stars   0 1.25 1.65 640 384
+Background SkyObj2  1 1    1    640 200 0.85
+Background Hill2    1 1.25 1.75 640 554 0.50
+Background Rock2    1 1    1    640 584 0.10
+Background Land2    1 1.25 1    640 717 0.02
+Background Craters2 1 1    1    640 717 0.01
+Player 4 2 46 70 5 -20 20 0.75
+Tile Plat 6 10 1 1 0 0
+Tile Plat 7 10 1 1 0 0
+Tile Plat 2 10 1 1 0 0
+Tile Plat 1 10 1 1 0 0
+Tile Plat 1 11 1 1 0 0
+Tile Plat 1 12 1 1 0 0
+Tile Plat 1 13 1 1 0 0
+Tile Plat 1 14 1 1 0 0
+Tile Plat 1 15 1 1 0 0
+Tile Plat 1 16 1 1 0 0
+Tile Plat 1 17 1 1 0 0
+Tile Plat 1 18 1 1 0 0
+Tile Plat 8 10 1 1 0 0
+Tile Plat 9 10 1 1 0 0
+Tile Plat 10 10 1 1 0 0
+Tile Plat 11 10 1 1 0 0
+Tile Plat 12 10 1 1 0 0
+Tile Plat 13 10 1 1 0 0
+Tile Plat 1 19 1 1 0 0
+Tile Plat 2 19 1 1 0 0
+Tile Plat 3 19 1 1 0 0
+Tile Plat 4 19 1 1 0 0
+Tile Plat 5 19 1 1 0 0
+Tile Plat 6 19 1 1 0 0
+Tile Plat 7 19 1 1 0 0
+Tile Plat 8 19 1 1 0 0
+Tile Plat 9 19 1 1 0 0
+Tile Plat 10 19 1 1 0 0
+Tile Plat 11 19 1 1 0 0
+Tile Plat 12 19 1 1 0 0
+Tile Plat 13 19 1 1 0 0
+Tile Plat 14 10 1 1 0 0
+Tile Plat 15 10 1 1 0 0
+Tile Plat 16 10 1 1 0 0
+Tile Plat 14 19 1 1 0 0
+Tile Plat 15 19 1 1 0 0
+Tile Plat 16 19 1 1 0 0
+Tile Plat 10 11 1 1 0 0
+Tile Plat 11 11 1 1 0 0
+Tile Plat 12 11 1 1 0 0
+Tile Plat 17 10 1 1 0 0
+Tile Plat 18 10 1 1 0 0
+Tile Plat 19 10 1 1 0 0
+Tile Plat 20 10 1 1 0 0
+Tile Plat 21 10 1 1 0 0
+Tile Plat 17 19 1 1 0 0
+Tile Plat 18 19 1 1 0 0
+Tile Plat 19 19 1 1 0 0
+Tile Plat 20 19 1 1 0 0
+Tile Plat 21 19 1 1 0 0
+Tile Plat 11 12 1 1 0 0
+Tile Plat 12 12 1 1 0 0
+Tile Plat 22 10 1 1 0 0
+Tile Plat 23 10 1 1 0 0
+Tile Plat 22 19 1 1 0 0
+Tile Plat 23 19 1 1 0 0
+Tile Plat 23 11 1 1 0 0
+Tile Plat 23 12 1 1 0 0
+Tile Plat 23 13 1 1 0 0
+Tile Plat 23 14 1 1 0 0
+Tile Plat 23 15 1 1 0 0
+Tile Plat 24 15 1 1 0 0
+Tile Plat 25 15 1 1 0 0
+Tile Plat 26 15 1 1 0 0
+Tile Plat 27 15 1 1 0 0
+Tile Plat 24 19 1 1 0 0
+Tile Plat 25 19 1 1 0 0
+Tile Plat 26 19 1 1 0 0
+Tile Plat 27 19 1 1 0 0
+Tile Plat 27 20 1 1 0 0
+Tile Plat 27 21 1 1 0 0
+Tile Plat 27 22 1 1 0 0
+Tile Plat 27 23 1 1 0 0
+Tile Plat 27 24 1 1 0 0
+Tile Plat 27 25 1 1 0 0
+Tile Plat 27 26 1 1 0 0
+Tile Plat 27 27 1 1 0 0
+Tile Plat 27 14 1 1 0 0
+Tile Plat 27 13 1 1 0 0
+Tile Plat 27 12 1 1 0 0
+Tile Plat 28 12 1 1 0 0
+Tile Plat 29 12 1 1 0 0
+Tile Plat 30 12 1 1 0 0
+Tile Plat 31 12 1 1 0 0
+Tile Plat 32 12 1 1 0 0
+Tile Plat 32 13 1 1 0 0
+Tile Plat 32 14 1 1 0 0
+Tile Plat 32 15 1 1 0 0
+Tile Plat 32 16 1 1 0 0
+Tile Plat 32 17 1 1 0 0
+Tile Plat 32 18 1 1 0 0
+Tile Plat 32 19 1 1 0 0
+Tile Plat 32 20 1 1 0 0
+Tile Plat 32 21 1 1 0 0
+Tile Plat 32 22 1 1 0 0
+Tile Plat 27 28 1 1 0 0
+Tile Plat 28 28 1 1 0 0
+Tile Plat 29 28 1 1 0 0
+Tile Plat 30 28 1 1 0 0
+Tile Plat 31 28 1 1 0 0
+Tile Plat 32 28 1 1 0 0
+Tile Plat 33 28 1 1 0 0
+Tile Plat 34 28 1 1 0 0
+Tile Plat 35 28 1 1 0 0
+Tile Plat 36 28 1 1 0 0
+Tile Plat 37 28 1 1 0 0
+Tile Plat 37 27 1 1 0 0
+Tile Plat 37 26 1 1 0 0
+Tile Plat 37 25 1 1 0 0
+Tile Plat 37 24 1 1 0 0
+Tile Plat 37 23 1 1 0 0
+Tile Plat 37 22 1 1 0 0
+Tile Plat 37 21 1 1 0 0
+Tile Plat 37 20 1 1 0 0
+Tile Plat 37 19 1 1 0 0
+Tile Plat 37 18 1 1 0 0
+Tile Plat 37 17 1 1 0 0
+Tile Plat 37 16 1 1 0 0
+Tile Plat 37 15 1 1 0 0
+Tile Plat 37 14 1 1 0 0
+Tile Plat 37 13 1 1 0 0
+Tile Plat 37 12 1 1 0 0
+Tile Plat 37 11 1 1 0 0
+Tile Plat 37 10 1 1 0 0
+Tile Plat 37 9 1 1 0 0
+Tile Plat 32 11 1 1 0 0
+Tile Plat 32 10 1 1 0 0
+Tile Plat 32 9 1 1 0 0
+Tile Plat 32 8 1 1 0 0
+Tile Plat 31 8 1 1 0 0
+Tile Plat 31 7 1 1 0 0
+Tile Plat 31 6 1 1 0 0
+Tile Plat 31 5 1 1 0 0
+Tile Plat 31 4 1 1 0 0
+Tile Plat 32 4 1 1 0 0
+Tile Plat 33 4 1 1 0 0
+Tile Plat 34 4 1 1 0 0
+Tile Plat 35 4 1 1 0 0
+Tile Plat 36 4 1 1 0 0
+Tile Plat 37 4 1 1 0 0
+Tile Plat 38 4 1 1 0 0
+Tile Plat 38 9 1 1 0 0
+Tile Plat 39 9 1 1 0 0
+Tile Plat 40 9 1 1 0 0
+Tile Plat 41 9 1 1 0 0
+Tile Plat 39 4 1 1 0 0
+Tile Plat 40 4 1 1 0 0
+Tile Plat 41 4 1 1 0 0
+Tile Plat 42 10 1 1 0 0
+Tile Plat 43 10 1 1 0 0
+Tile Plat 44 10 1 1 0 0
+Tile Plat 45 10 1 1 0 0
+Tile Plat 46 11 1 1 0 0
+Tile Plat 47 11 1 1 0 0
+Tile Plat 48 11 1 1 0 0
+Tile Plat 49 11 1 1 0 0
+Tile Plat 42 4 1 1 0 0
+Tile Plat 43 4 1 1 0 0
+Tile Plat 44 4 1 1 0 0
+Tile Plat 45 4 1 1 0 0
+Tile Plat 46 4 1 1 0 0
+Tile Plat 47 4 1 1 0 0
+Tile Plat 48 4 1 1 0 0
+Tile Plat 49 4 1 1 0 0
+Tile Plat 41 10 1 1 0 0
+Tile Plat 45 11 1 1 0 0
+Tile Plat 49 3 1 1 0 0
+Tile Plat 49 2 1 1 0 0
+Tile Plat 49 1 1 1 0 0
+Tile Plat 49 0 1 1 0 0
+Tile Plat 50 0 1 1 0 0
+Tile Plat 51 0 1 1 0 0
+Tile Plat 52 0 1 1 0 0
+Tile Plat 53 0 1 1 0 0
+Tile Plat 54 0 1 1 0 0
+Tile Plat 55 0 1 1 0 0
+Tile Plat 56 0 1 1 0 0
+Tile Plat 57 0 1 1 0 0
+Tile Plat 58 0 1 1 0 0
+Tile Plat 59 0 1 1 0 0
+Tile Plat 60 0 1 1 0 0
+Tile Plat 61 0 1 1 0 0
+Tile Plat 61 1 1 1 0 0
+Tile Plat 61 2 1 1 0 0
+Tile Plat 61 3 1 1 0 0
+Tile Plat 61 4 1 1 0 0
+Tile Plat 62 4 1 1 0 0
+Tile Plat 63 4 1 1 0 0
+Tile Plat 64 4 1 1 0 0
+Tile Plat 50 10 1 1 0 0
+Tile Plat 51 9 1 1 0 0
+Tile Plat 52 9 1 1 0 0
+Tile Plat 53 9 1 1 0 0
+Tile Plat 54 9 1 1 0 0
+Tile Plat 55 9 1 1 0 0
+Tile Plat 56 9 1 1 0 0
+Tile Plat 57 9 1 1 0 0
+Tile Plat 58 9 1 1 0 0
+Tile Plat 59 9 1 1 0 0
+Tile Plat 60 9 1 1 0 0
+Tile Plat 60 10 1 1 0 0
+Tile Plat 60 11 1 1 0 0
+Tile Plat 60 12 1 1 0 0
+Tile Plat 60 13 1 1 0 0
+Tile Plat 63 13 1 1 0 0
+Tile Plat 64 13 1 1 0 0
+Tile Plat 65 13 1 1 0 0
+Tile Plat 66 13 1 1 0 0
+Tile Plat 67 13 1 1 0 0
+Tile Plat 50 11 1 1 0 0
+Tile Plat 51 10 1 1 0 0
+Tile Plat 65 4 1 1 0 0
+Tile Plat 66 4 1 1 0 0
+Tile Plat 67 4 1 1 0 0
+Tile Plat 68 4 1 1 0 0
+Tile Plat 68 5 1 1 0 0
+Tile Plat 68 6 1 1 0 0
+Tile Plat 68 7 1 1 0 0
+Tile Plat 68 8 1 1 0 0
+Tile Plat 68 9 1 1 0 0
+Tile Plat 68 10 1 1 0 0
+Tile Plat 68 11 1 1 0 0
+Tile Plat 68 12 1 1 0 0
+Tile Plat 68 13 1 1 0 0
+Tile Plat 60 14 1 1 0 0
+Tile Plat 60 15 1 1 0 0
+Tile Plat 60 16 1 1 0 0
+Tile Plat 60 17 1 1 0 0
+Tile Plat 61 17 1 1 0 0
+Tile Plat 62 17 1 1 0 0
+Tile Plat 63 17 1 1 0 0
+Tile Plat 64 17 1 1 0 0
+Tile Plat 65 17 1 1 0 0
+Tile Plat 68 17 1 1 0 0
+Tile Plat 68 16 1 1 0 0
+Tile Plat 68 15 1 1 0 0
+Tile Plat 68 14 1 1 0 0
+Tile Plat 68 18 1 1 0 0
+Tile Plat 68 19 1 1 0 0
+Tile Plat 68 20 1 1 0 0
+Tile Plat 68 21 1 1 0 0
+Tile Plat 68 22 1 1 0 0
+Tile Plat 67 22 1 1 0 0
+Tile Plat 66 22 1 1 0 0
+Tile Plat 65 22 1 1 0 0
+Tile Plat 64 22 1 1 0 0
+Tile Plat 63 22 1 1 0 0
+Tile Plat 62 22 1 1 0 0
+Tile Plat 61 22 1 1 0 0
+Tile Plat 60 22 1 1 0 0
+Tile Plat 59 22 1 1 0 0
+Tile Plat 58 22 1 1 0 0
+Tile Plat 57 22 1 1 0 0
+Tile Plat 59 17 1 1 0 0
+Tile Plat 58 17 1 1 0 0
+Tile Plat 57 17 1 1 0 0
+Tile Plat 56 17 1 1 0 0
+Tile Plat 55 17 1 1 0 0
+Tile Plat 54 17 1 1 0 0
+Tile Plat 53 17 1 1 0 0
+Tile Plat 52 17 1 1 0 0
+Tile Plat 51 17 1 1 0 0
+Tile Plat 50 17 1 1 0 0
+Tile Plat 49 17 1 1 0 0
+Tile Plat 48 17 1 1 0 0
+Tile Plat 47 17 1 1 0 0
+Tile Plat 46 17 1 1 0 0
+Tile Plat 45 17 1 1 0 0
+Tile Plat 45 18 1 1 0 0
+Tile Plat 45 19 1 1 0 0
+Tile Plat 45 20 1 1 0 0
+Tile Plat 45 21 1 1 0 0
+Tile Plat 45 22 1 1 0 0
+Tile Plat 45 23 1 1 0 0
+Tile Plat 45 24 1 1 0 0
+Tile Plat 45 25 1 1 0 0
+Tile Plat 45 26 1 1 0 0
+Tile Plat 45 27 1 1 0 0
+Tile Plat 45 28 1 1 0 0
+Tile Plat 45 29 1 1 0 0
+Tile Plat 56 22 1 1 0 0
+Tile Plat 55 22 1 1 0 0
+Tile Plat 54 22 1 1 0 0
+Tile Plat 53 22 1 1 0 0
+Tile Plat 53 23 1 1 0 0
+Tile Plat 53 24 1 1 0 0
+Tile Plat 53 25 1 1 0 0
+Tile Plat 53 29 1 1 0 0
+Tile Plat 52 29 1 1 0 0
+Tile Plat 51 29 1 1 0 0
+Tile Plat 50 29 1 1 0 0
+Tile Plat 49 29 1 1 0 0
+Tile Plat 48 29 1 1 0 0
+Tile Plat 47 29 1 1 0 0
+Tile Plat 46 29 1 1 0 0
+Tile Plat 52 22 1 1 0 0
+Tile Plat 51 22 1 1 0 0
+Tile Plat 50 22 1 1 0 0
+Tile Plat 49 22 1 1 0 0
+Tile Plat 46 26 1 1 0 0
+Tile Plat 47 26 1 1 0 0
+Tile Plat 48 26 1 1 0 0
+Tile Plat 49 26 1 1 0 0
+Tile Plat 54 29 1 1 0 0
+Tile Plat 55 29 1 1 0 0
+Tile Plat 56 29 1 1 0 0
+Tile Plat 57 29 1 1 0 0
+Tile Plat 58 29 1 1 0 0
+Tile Plat 59 29 1 1 0 0
+Tile Plat 60 29 1 1 0 0
+Tile Plat 61 29 1 1 0 0
+Tile Plat 62 29 1 1 0 0
+Tile Plat 63 29 1 1 0 0
+Tile Plat 63 28 1 1 0 0
+Tile Plat 64 28 1 1 0 0
+Tile Plat 65 28 1 1 0 0
+Tile Plat 66 28 1 1 0 0
+Tile Plat 67 28 1 1 0 0
+Tile Plat 68 28 1 1 0 0
+Tile Plat 68 27 1 1 0 0
+Tile Plat 68 26 1 1 0 0
+Tile Plat 54 23 1 1 0 0
+Tile Plat 55 23 1 1 0 0
+Tile Plat 56 23 1 1 0 0
+Tile Plat 57 23 1 1 0 0
+Tile Plat 58 23 1 1 0 0
+Tile Plat 59 23 1 1 0 0
+Tile Plat 60 23 1 1 0 0
+Tile Plat 61 23 1 1 0 0
+Tile Plat 62 23 1 1 0 0
+Tile Plat 63 23 1 1 0 0
+Tile SpikeUp 50 1 1 1 2 0
+Tile SpikeUp 51 1 1 1 2 0
+Tile SpikeUp 52 1 1 1 2 0
+Tile SpikeUp 53 1 1 1 2 0
+Tile SpikeUp 54 1 1 1 2 0
+Tile SpikeUp 55 1 1 1 2 0
+Tile SpikeUp 56 1 1 1 2 0
+Tile SpikeUp 57 1 1 1 2 0
+Tile SpikeUp 58 1 1 1 2 0
+Tile SpikeUp 59 1 1 1 2 0
+Tile SpikeUp 60 1 1 1 2 0
+Tile SpikeUp 39 5 1 1 2 0
+Tile SpikeDown 44 9 1 1 2 0
+Tile SpikeDown 63 12 1 1 2 0
+Tile SpikeDown 64 12 1 1 2 0
+Tile SpikeDown 65 12 1 1 2 0
+Tile SpikeDown 66 12 1 1 2 0
+Tile SpikeDown 67 12 1 1 2 0
+Tile SpikeDown 56 21 1 1 2 0
+Tile SpikeDown 46 25 1 1 2 0
+Tile Plat 36 20 1 1 0 0
+Tile Plat 33 14 1 1 0 0
+Item BlueShield 47 10
+Item BlueStar 62 18
+Tile Plat 69 26 1 1 0 0
+Tile Plat 70 26 1 1 0 0
+Tile Plat 71 26 1 1 0 0
+Tile Plat 72 26 1 1 0 0
+Tile Plat 73 26 1 1 0 0
+Tile Plat 74 26 1 1 0 0
+Tile Plat 72 28 1 1 0 0
+Tile Plat 76 26 1 1 0 0
+Tile Plat 77 26 1 1 0 0
+Tile Plat 78 26 1 1 0 0
+Tile Plat 79 25 1 1 0 0
+Tile Plat 80 24 1 1 0 0
+Tile Plat 81 23 1 1 0 0
+Tile Plat 80 25 1 1 0 0
+Tile Plat 79 26 1 1 0 0
+Tile Plat 81 24 1 1 0 0
+Tile Plat 82 23 1 1 0 0
+Tile Plat 82 22 1 1 0 0
+Tile Plat 82 21 1 1 0 0
+Tile Plat 82 20 1 1 0 0
+Tile Plat 82 19 1 1 0 0
+Tile Plat 82 18 1 1 0 0
+Tile Plat 82 17 1 1 0 0
+Tile Plat 69 17 1 1 0 0
+Tile Plat 70 17 1 1 0 0
+Tile Plat 71 17 1 1 0 0
+Tile Plat 72 17 1 1 0 0
+Tile Plat 73 17 1 1 0 0
+Tile Plat 74 17 1 1 0 0
+Tile Plat 75 17 1 1 0 0
+Tile Plat 76 17 1 1 0 0
+Tile Plat 69 22 1 1 0 0
+Tile Plat 69 21 1 1 0 0
+Tile Plat 69 20 1 1 0 0
+Tile Plat 69 19 1 1 0 0
+Tile Plat 69 18 1 1 0 0
+Tile Plat 73 16 1 1 0 0
+Tile Plat 73 15 1 1 0 0
+Tile Plat 73 14 1 1 0 0
+Tile Plat 73 13 1 1 0 0
+Tile Plat 73 12 1 1 0 0
+Tile Plat 73 11 1 1 0 0
+Tile Plat 73 10 1 1 0 0
+Tile Plat 73 9 1 1 0 0
+Tile Plat 74 9 1 1 0 0
+Tile Plat 75 9 1 1 0 0
+Tile Plat 76 9 1 1 0 0
+Tile Plat 77 9 1 1 0 0
+Tile Plat 78 9 1 1 0 0
+Tile Plat 79 9 1 1 0 0
+Tile Plat 80 9 1 1 0 0
+Tile Plat 81 9 1 1 0 0
+Tile Plat 82 9 1 1 0 0
+Tile Plat 83 9 1 1 0 0
+Tile Plat 84 9 1 1 0 0
+Tile Plat 85 9 1 1 0 0
+Tile Plat 86 9 1 1 0 0
+Tile Plat 87 9 1 1 0 0
+Tile Plat 88 9 1 1 0 0
+Tile Plat 89 9 1 1 0 0
+Tile Plat 90 9 1 1 0 0
+Tile Plat 91 9 1 1 0 0
+Tile Plat 83 17 1 1 0 0
+Tile Plat 84 17 1 1 0 0
+Tile Plat 85 17 1 1 0 0
+Tile Plat 86 17 1 1 0 0
+Tile Plat 87 17 1 1 0 0
+Tile Plat 88 17 1 1 0 0
+Tile Plat 89 17 1 1 0 0
+Tile Plat 90 17 1 1 0 0
+Tile Plat 91 17 1 1 0 0
+Tile Plat 92 17 1 1 0 0
+Tile Plat 84 16 1 1 0 0
+Tile Plat 87 10 1 1 0 0
+Tile Plat 77 10 1 1 0 0
+Tile Plat 92 9 1 1 0 0
+Tile Plat 93 9 1 1 0 0
+Tile Plat 94 9 1 1 0 0
+Tile Plat 95 9 1 1 0 0
+Tile Plat 93 17 1 1 0 0
+Tile Plat 94 17 1 1 0 0
+Tile Plat 95 17 1 1 0 0
+Tile Plat 96 17 1 1 0 0
+Tile Plat 96 9 1 1 0 0
+Tile Plat 93 16 1 1 0 0
+Tile Plat 97 17 1 1 0 0
+Tile Plat 98 17 1 1 0 0
+Tile Plat 99 17 1 1 0 0
+Tile Plat 100 17 1 1 0 0
+Tile Plat 101 17 1 1 0 0
+Tile Plat 102 17 1 1 0 0
+Tile Plat 103 17 1 1 0 0
+Tile Plat 103 16 1 1 0 0
+Tile Plat 103 15 1 1 0 0
+Tile Plat 103 14 1 1 0 0
+Tile Plat 103 13 1 1 0 0
+Tile Plat 103 12 1 1 0 0
+Tile Plat 103 11 1 1 0 0
+Tile Plat 103 10 1 1 0 0
+Tile Plat 103 9 1 1 0 0
+Tile Plat 103 8 1 1 0 0
+Tile Plat 103 7 1 1 0 0
+Tile Plat 96 8 1 1 0 0
+Tile Plat 96 7 1 1 0 0
+Tile Plat 96 6 1 1 0 0
+Tile Plat 96 5 1 1 0 0
+Tile Plat 96 4 1 1 0 0
+Tile Plat 96 3 1 1 0 0
+Tile Plat 96 2 1 1 0 0
+Tile Plat 96 1 1 1 0 0
+Tile Plat 96 0 1 1 0 0
+Tile Plat 97 0 1 1 0 0
+Tile Plat 98 0 1 1 0 0
+Tile Plat 99 0 1 1 0 0
+Tile Plat 100 0 1 1 0 0
+Tile Plat 101 0 1 1 0 0
+Tile Plat 102 0 1 1 0 0
+Tile Plat 103 0 1 1 0 0
+Tile Plat 103 5 1 1 0 0
+Tile Plat 103 6 1 1 0 0
+Tile Plat 104 5 1 1 0 0
+Tile Plat 105 5 1 1 0 0
+Tile Plat 106 5 1 1 0 0
+Tile Plat 104 0 1 1 0 0
+Tile Plat 105 0 1 1 0 0
+Tile Plat 106 0 1 1 0 0
+Tile Plat 107 0 1 1 0 0
+Tile Plat 108 0 1 1 0 0
+Tile Plat 109 0 1 1 0 0
+Tile Plat 110 0 1 1 0 0
+Tile Plat 111 0 1 1 0 0
+Tile Plat 112 0 1 1 0 0
+Tile Plat 113 0 1 1 0 0
+Tile Plat 114 0 1 1 0 0
+Tile Plat 115 0 1 1 0 0
+Tile Plat 116 0 1 1 0 0
+Tile Plat 117 0 1 1 0 0
+Tile Plat 118 0 1 1 0 0
+Tile Plat 119 0 1 1 0 0
+Tile Plat 120 0 1 1 0 0
+Tile Plat 121 0 1 1 0 0
+Tile Plat 122 0 1 1 0 0
+Tile Plat 123 0 1 1 0 0
+Tile Plat 124 0 1 1 0 0
+Tile Plat 124 1 1 1 0 0
+Tile Plat 124 2 1 1 0 0
+Tile Plat 124 3 1 1 0 0
+Tile Plat 124 4 1 1 0 0
+Tile Plat 124 5 1 1 0 0
+Tile Plat 124 6 1 1 0 0
+Tile Plat 106 6 1 1 0 0
+Tile Plat 106 7 1 1 0 0
+Tile Plat 106 8 1 1 0 0
+Tile Plat 106 9 1 1 0 0
+Tile Plat 106 10 1 1 0 0
+Tile Plat 106 11 1 1 0 0
+Tile Plat 106 12 1 1 0 0
+Tile Plat 106 13 1 1 0 0
+Tile Plat 106 14 1 1 0 0
+Tile Plat 106 15 1 1 0 0
+Tile Plat 106 16 1 1 0 0
+Tile Plat 106 17 1 1 0 0
+Tile Plat 107 17 1 1 0 0
+Tile Plat 108 17 1 1 0 0
+Tile Plat 109 17 1 1 0 0
+Tile Plat 110 17 1 1 0 0
+Tile Plat 111 17 1 1 0 0
+Tile Plat 112 17 1 1 0 0
+Tile Plat 113 17 1 1 0 0
+Tile Plat 114 17 1 1 0 0
+Tile Plat 115 17 1 1 0 0
+Tile Plat 116 17 1 1 0 0
+Tile Plat 117 17 1 1 0 0
+Tile Plat 118 17 1 1 0 0
+Tile Plat 119 17 1 1 0 0
+Tile Plat 120 17 1 1 0 0
+Tile Plat 121 17 1 1 0 0
+Tile Plat 124 7 1 1 0 0
+Tile Plat 124 8 1 1 0 0
+Tile Plat 124 9 1 1 0 0
+Tile Plat 124 10 1 1 0 0
+Tile Plat 124 11 1 1 0 0
+Tile Plat 124 12 1 1 0 0
+Tile Plat 124 13 1 1 0 0
+Tile Plat 124 14 1 1 0 0
+Tile Plat 124 15 1 1 0 0
+Tile Plat 124 16 1 1 0 0
+Tile Plat 124 17 1 1 0 0
+Tile Plat 123 17 1 1 0 0
+Tile Plat 122 17 1 1 0 0
+Tile Spaceship 119 2 1 1 0 0
+Tile Plat 118 1 1 1 0 0
+Tile Plat 119 1 1 1 0 0
+Tile Plat 120 1 1 1 0 0
+Tile Plat 121 1 1 1 0 0
+Tile SpikeDown 73 25 1 1 2 0
+Tile SpikeUp 89 10 1 1 2 0
+Tile SpikeUp 88 10 1 1 2 0
+Tile SpikeUp 90 10 1 1 2 0
+Tile SpikeUp 91 10 1 1 2 0
+Tile SpikeUp 92 10 1 1 2 0
+Tile SpikeUp 93 10 1 1 2 0
+Tile SpikeUp 94 10 1 1 2 0
+Tile SpikeUp 95 10 1 1 2 0
+Tile SpikeUp 96 10 1 1 2 0
+Tile WavyLeft 78 14 1 1 0 0
+Tile WavyMid 79 14 1 1 0 0
+Tile WavyRight 80 14 1 1 0 0
+Tile BlueBolt 79 15 1 1 0 0
+Tile Steel2 72 23 1 1 0 2 2 72 23 72 19
+Tile Steel2 77 19 1 1 0 2 2 77 19 72 23
+Tile Steel2 32 7 1 1 0 1 2 32 7 32 5
+Tile Steel2 33 17 1 1 0 1 2 33 17 36 17
+Tile SpikeUp 59 24 1 1 2 0
+Tile SpikeUp 60 24 1 1 2 0
+Tile SpikeUp 61 24 1 1 2 0
+Npc WormIdle 48 5 -1 1 1 0 0.75 3 Patrol 2 48 5 41 5
+Item BlueBolt 66 5
+Npc WormIdle 63 14 1 3 1 0 0.75 3 Patrol 2 63 14 67 14
+Npc WormIdle 55 24 1 3 1 0 0.75 2 Follow
+Npc WormIdle 85 10 -1 3 1 0 0.75 2 Patrol 2 85 10 79 10
+Npc WormIdle 106 1 -1 3 1 0 0.75 2 Follow
+Npc DemonIdle 53 18 -1 5 3 0 0.75 2 Follow
+Npc DemonIdle 67 23 1 5 3 0 0.75 2 Follow
+Npc DemonIdle 71 18 -1 5 3 0 0.75 2 Follow
+Npc DemonIdle 82 10 1 5 3 0 0.75 2 Follow
+Npc DemonIdle 113 1 1 12 6 0 0.75 4 Follow
+Tile Plat 71 28 1 1 0 0
+Tile Plat 70 28 1 1 0 0
+Tile Plat 69 28 1 1 0 0
+Tile Plat 69 29 1 1 0 0
+Tile Plat 70 29 1 1 0 0
+Tile Plat 71 29 1 1 0 0
+Tile Plat 72 29 1 1 0 0
+Tile Plat 73 29 1 1 0 0
+Tile Plat 74 29 1 1 0 0
+Tile Plat 75 28 1 1 0 0
+Tile Plat 76 28 1 1 0 0
+Tile Plat 77 28 1 1 0 0
+Tile Plat 78 28 1 1 0 0
+Tile Plat 83 18 1 1 0 0
+Tile Plat 84 18 1 1 0 0
+Tile Plat 85 18 1 1 0 0
+Tile Plat 86 18 1 1 0 0
+Tile Plat 87 18 1 1 0 0
+Tile Plat 88 18 1 1 0 0
+Tile Plat 89 18 1 1 0 0
+Tile Plat 90 18 1 1 0 0
+Tile Plat 91 18 1 1 0 0
+Tile Plat 92 18 1 1 0 0
+Tile Plat 93 18 1 1 0 0
+Tile Plat 94 18 1 1 0 0
+Tile Plat 95 18 1 1 0 0
+Tile Plat 96 18 1 1 0 0
+Tile Plat 97 18 1 1 0 0
+Tile Plat 98 18 1 1 0 0
+Tile Plat 99 18 1 1 0 0
+Tile Plat 100 18 1 1 0 0
+Tile Plat 101 18 1 1 0 0
+Tile Plat 102 18 1 1 0 0
+Tile Plat 103 18 1 1 0 0
+Tile Plat 104 18 1 1 0 0
+Tile Plat 105 18 1 1 0 0
+Tile Plat 105 17 1 1 0 0
+Tile Plat 104 17 1 1 0 0
+Tile Plat 104 16 1 1 0 0
+Tile Plat 104 15 1 1 0 0
+Tile Plat 104 14 1 1 0 0
+Tile Plat 104 13 1 1 0 0
+Tile Plat 104 12 1 1 0 0
+Tile Plat 104 11 1 1 0 0
+Tile Plat 104 10 1 1 0 0
+Tile Plat 104 9 1 1 0 0
+Tile Plat 104 8 1 1 0 0
+Tile Plat 104 7 1 1 0 0
+Tile Plat 104 6 1 1 0 0
+Tile Plat 105 6 1 1 0 0
+Tile Plat 105 7 1 1 0 0
+Tile Plat 105 8 1 1 0 0
+Tile Plat 105 9 1 1 0 0
+Tile Plat 105 10 1 1 0 0
+Tile Plat 105 11 1 1 0 0
+Tile Plat 105 12 1 1 0 0
+Tile Plat 105 13 1 1 0 0
+Tile Plat 105 14 1 1 0 0
+Tile Plat 105 15 1 1 0 0
+Tile Plat 105 16 1 1 0 0
+Tile Plat 106 18 1 1 0 0
+Tile Plat 107 18 1 1 0 0
+Tile Plat 108 18 1 1 0 0
+Tile Plat 95 8 1 1 0 0
+Tile Plat 95 7 1 1 0 0
+Tile Plat 95 6 1 1 0 0
+Tile Plat 95 5 1 1 0 0
+Tile Plat 95 4 1 1 0 0
+Tile Plat 95 3 1 1 0 0
+Tile Plat 95 2 1 1 0 0
+Tile Plat 95 1 1 1 0 0
+Tile Plat 95 0 1 1 0 0
+Tile Plat 94 8 1 1 0 0
+Tile Plat 93 8 1 1 0 0
+Tile Plat 92 8 1 1 0 0
+Tile Plat 91 8 1 1 0 0
+Tile Plat 90 8 1 1 0 0
+Tile Plat 89 8 1 1 0 0
+Tile Plat 88 8 1 1 0 0
+Tile Plat 87 8 1 1 0 0
+Tile Plat 86 8 1 1 0 0
+Tile Plat 85 8 1 1 0 0
+Tile Plat 84 8 1 1 0 0
+Tile Plat 83 8 1 1 0 0
+Tile Plat 82 8 1 1 0 0
+Tile Plat 81 8 1 1 0 0
+Tile Plat 80 8 1 1 0 0
+Tile Plat 79 8 1 1 0 0
+Tile Plat 78 8 1 1 0 0
+Tile Plat 77 8 1 1 0 0
+Tile Plat 76 8 1 1 0 0
+Tile Plat 75 8 1 1 0 0
+Tile Plat 74 8 1 1 0 0
+Tile Plat 73 8 1 1 0 0
+Tile Plat 69 16 1 1 0 0
+Tile Plat 70 16 1 1 0 0
+Tile Plat 71 16 1 1 0 0
+Tile Plat 72 16 1 1 0 0
+Tile Plat 72 15 1 1 0 0
+Tile Plat 72 14 1 1 0 0
+Tile Plat 72 13 1 1 0 0
+Tile Plat 72 12 1 1 0 0
+Tile Plat 72 11 1 1 0 0
+Tile Plat 72 10 1 1 0 0
+Tile Plat 72 9 1 1 0 0
+Tile Plat 72 8 1 1 0 0
+Tile Plat 69 15 1 1 0 0
+Tile Plat 69 14 1 1 0 0
+Tile Plat 69 13 1 1 0 0
+Tile Plat 69 12 1 1 0 0
+Tile Plat 69 11 1 1 0 0
+Tile Plat 70 11 1 1 0 0
+Tile Plat 70 10 1 1 0 0
+Tile Plat 70 9 1 1 0 0
+Tile Plat 69 9 1 1 0 0
+Tile Plat 69 8 1 1 0 0
+Tile Plat 69 7 1 1 0 0
+Tile Plat 69 6 1 1 0 0
+Tile Plat 69 5 1 1 0 0
+Tile Plat 69 4 1 1 0 0
+Tile Plat 69 10 1 1 0 0
+Tile Plat 70 8 1 1 0 0
+Tile Plat 71 8 1 1 0 0
+Tile Plat 71 9 1 1 0 0
+Tile Plat 71 10 1 1 0 0
+Tile Plat 71 11 1 1 0 0
+Tile Plat 71 12 1 1 0 0
+Tile Plat 71 13 1 1 0 0
+Tile Plat 71 14 1 1 0 0
+Tile Plat 71 15 1 1 0 0
+Tile Plat 70 15 1 1 0 0
+Tile Plat 70 14 1 1 0 0
+Tile Plat 70 13 1 1 0 0
+Tile Plat 70 12 1 1 0 0
+Tile Plat 62 3 1 1 0 0
+Tile Plat 63 3 1 1 0 0
+Tile Plat 64 3 1 1 0 0
+Tile Plat 65 3 1 1 0 0
+Tile Plat 68 3 1 1 0 0
+Tile Plat 69 3 1 1 0 0
+Tile Plat 67 3 1 1 0 0
+Tile Plat 66 3 1 1 0 0
+Tile Plat 62 2 1 1 0 0
+Tile Plat 62 1 1 1 0 0
+Tile Plat 62 0 1 1 0 0
+Tile Plat 63 2 1 1 0 0
+Tile Plat 64 2 1 1 0 0
+Tile Plat 65 2 1 1 0 0
+Tile Plat 66 2 1 1 0 0
+Tile Plat 67 2 1 1 0 0
+Tile Plat 68 2 1 1 0 0
+Tile Plat 69 2 1 1 0 0
+Tile Plat 63 1 1 1 0 0
+Tile Plat 63 0 1 1 0 0
+Tile Plat 64 0 1 1 0 0
+Tile Plat 65 0 1 1 0 0
+Tile Plat 66 0 1 1 0 0
+Tile Plat 67 0 1 1 0 0
+Tile Plat 68 0 1 1 0 0
+Tile Plat 69 0 1 1 0 0
+Tile Plat 69 1 1 1 0 0
+Tile Plat 68 1 1 1 0 0
+Tile Plat 67 1 1 1 0 0
+Tile Plat 66 1 1 1 0 0
+Tile Plat 65 1 1 1 0 0
+Tile Plat 64 1 1 1 0 0
+Tile Plat 70 7 1 1 0 0
+Tile Plat 70 6 1 1 0 0
+Tile Plat 71 7 1 1 0 0
+Tile Plat 6 8 1 1 0 0
+Tile Plat 6 9 1 1 0 0
+Tile Plat 2 9 1 1 0 0
+Tile Plat 2 8 1 1 0 0
+Tile Plat 2 7 1 1 0 0
+Tile Plat 2 6 1 1 0 0
+Tile Plat 2 5 1 1 0 0
+Tile Plat 2 4 1 1 0 0
+Tile Plat 2 3 1 1 0 0
+Tile Plat 2 2 1 1 0 0
+Tile Plat 2 1 1 1 0 0
+Tile Plat 2 0 1 1 0 0
+Tile Plat 6 7 1 1 0 0
+Tile Plat 6 6 1 1 0 0
+Tile Plat 6 5 1 1 0 0
+Tile Plat 6 2 1 1 0 0
+Tile Plat 6 1 1 1 0 0
+Tile Plat 6 4 1 1 0 0
+Tile Plat 6 3 1 1 0 0
+Tile Plat 6 0 1 1 0 0
+Tile Plat 5 0 1 1 0 0
+Tile Plat 4 0 1 1 0 0
+Tile Plat 3 0 1 1 0 0
+Tile Plat 4 1 1 1 0 0
+Tile Alarm 3 1 1 1 0 0
+Tile Alarm 5 1 1 1 0 0
+Dec ArrowUp 23 13
+Dec ArrowDown 37 25
+Dec Alarm 118 2
+Dec Alarm 121 2
+Dec Steel 122 1
+Dec Steel 123 1
+Dec Steel 123 2
+Dec ArrowRight 104 5
+Dec ArrowRight 105 5
+Dec Sticker 87 10
+Dec Alarm 46 27
+Dec Alarm 47 27
+Dec Alarm 48 27
+Dec ArrowUp 60 9
+Dec Plat 24 14
+Dec Plat 25 14
+Dec Plat 26 14
+Dec Plat 26 13
+Dec Plat 25 13
+Dec Plat 24 13
+Dec Plat 24 12
+Dec Plat 25 12
+Dec Plat 26 12
+Dec Plat 0 10
+Dec Plat 0 11
+Dec Plat 0 12
+Dec Plat 0 13
+Dec Plat 0 14
+Dec Plat 0 15
+Dec Plat 0 16
+Dec Plat 0 17
+Dec Plat 0 18
+Dec Plat 0 19
+Dec Plat 24 11
+Dec Plat 24 10
+Dec Plat 25 10
+Dec Plat 26 10
+Dec Plat 27 10
+Dec Plat 28 10
+Dec Plat 29 10
+Dec Plat 30 10
+Dec Plat 31 10
+Dec Plat 31 11
+Dec Plat 30 11
+Dec Plat 29 11
+Dec Plat 28 11
+Dec Plat 27 11
+Dec Plat 26 11
+Dec Plat 25 11
+Dec Plat 31 9
+Dec Plat 30 9
+Dec Plat 29 9
+Dec Plat 28 9
+Dec Plat 27 9
+Dec Plat 26 9
+Dec Plat 25 9
+Dec Plat 24 9
+Dec Plat 23 9
+Dec Plat 22 9
+Dec Plat 21 9
+Dec Plat 20 9
+Dec Plat 19 9
+Dec Plat 18 9
+Dec Plat 17 9
+Dec Plat 16 9
+Dec Plat 15 9
+Dec Plat 14 9
+Dec Plat 13 9
+Dec Plat 12 9
+Dec Plat 11 9
+Dec Plat 10 9
+Dec Plat 9 9
+Dec Plat 8 9
+Dec Plat 7 9
+Dec Plat 1 9
+Dec Plat 0 9
+Dec Plat 30 8
+Dec Plat 30 7
+Dec Plat 30 6
+Dec Plat 30 5
+Dec Plat 30 4
+Dec Plat 31 4
+Dec Plat 30 3
+Dec Plat 31 3
+Dec Plat 32 3
+Dec Plat 33 3
+Dec Plat 34 3
+Dec Plat 35 3
+Dec Plat 36 3
+Dec Plat 37 3
+Dec Plat 38 3
+Dec Plat 39 3
+Dec Plat 40 3
+Dec Plat 41 3
+Dec Plat 42 3
+Dec Plat 43 3
+Dec Plat 44 3
+Dec Plat 45 3
+Dec Plat 46 3
+Dec Plat 47 3
+Dec Plat 48 3
+Dec Plat 48 2
+Dec Plat 48 1
+Dec Plat 48 0
+Dec Plat 38 10
+Dec Plat 39 10
+Dec Plat 40 10
+Dec Plat 41 10
+Dec Plat 38 11
+Dec Plat 38 12
+Dec Plat 38 13
+Dec Plat 38 14
+Dec Plat 38 15
+Dec Plat 38 16
+Dec Plat 38 17
+Dec Plat 38 18
+Dec Plat 38 20
+Dec Plat 38 21
+Dec Plat 38 22
+Dec Plat 38 23
+Dec Plat 38 24
+Dec Plat 38 19
+Dec Plat 38 25
+Dec Plat 38 26
+Dec Plat 38 27
+Dec Plat 38 28
+Dec Plat 38 29
+Dec Plat 37 29
+Dec Plat 36 29
+Dec Plat 35 29
+Dec Plat 34 29
+Dec Plat 33 29
+Dec Plat 32 29
+Dec Plat 31 29
+Dec Plat 30 29
+Dec Plat 29 29
+Dec Plat 28 29
+Dec Plat 27 29
+Dec Plat 44 28
+Dec Plat 44 27
+Dec Plat 44 26
+Dec Plat 44 25
+Dec Plat 44 24
+Dec Plat 44 29
+Dec Plat 44 23
+Dec Plat 44 22
+Dec Plat 44 21
+Dec Plat 44 20
+Dec Plat 44 19
+Dec Plat 44 18
+Dec Plat 44 17
+Dec Plat 44 16
+Dec Plat 45 16
+Dec Plat 46 16
+Dec Plat 47 16
+Dec Plat 48 16
+Dec Plat 49 16
+Dec Plat 50 16
+Dec Plat 51 16
+Dec Plat 52 16
+Dec Plat 53 16
+Dec Plat 54 16
+Dec Plat 55 16
+Dec Plat 56 16
+Dec Plat 57 16
+Dec Plat 58 16
+Dec Plat 59 16
+Dec Plat 59 10
+Dec Plat 58 10
+Dec Plat 57 10
+Dec Plat 56 10
+Dec Plat 55 10
+Dec Plat 54 10
+Dec Plat 53 10
+Dec Plat 52 10
+Dec Plat 51 11
+Dec Plat 51 12
+Dec Plat 50 12
+Dec Plat 49 12
+Dec Plat 48 12
+Dec Plat 47 12
+Dec Plat 46 12
+Dec Plat 45 12
+Dec Plat 43 11
+Dec Plat 42 11
+Dec Plat 41 11
+Dec Plat 40 11
+Dec Plat 39 11
+Dec Plat 44 11
+Dec Plat 59 11
+Dec Plat 64 29
+Dec Plat 65 29
+Dec Plat 66 29
+Dec Plat 67 29
+Dec Plat 68 29
+Dec Plat 69 27
+Dec Plat 70 27
+Dec Plat 71 27
+Dec Plat 72 27
+Dec Plat 73 27
+Dec Plat 74 26
+Dec Plat 75 26
+Dec Plat 76 26
+Dec Plat 77 26
+Dec Plat 78 26
+Dec Plat 79 27
+Dec Plat 78 27
+Dec Plat 77 27
+Dec Plat 76 27
+Dec Plat 75 27
+Dec Plat 74 28
+Dec Plat 73 28
+Dec Plat 74 27
+Dec Plat 26 20
+Dec Plat 25 20
+Dec Plat 24 20
+Dec Plat 23 20
+Dec Plat 22 20
+Dec Plat 21 20
+Dec Plat 20 20
+Dec Plat 19 20
+Dec Plat 18 20
+Dec Plat 17 20
+Dec Plat 16 20
+Dec Plat 15 20
+Dec Plat 14 20
+Dec Plat 13 20
+Dec Plat 12 20
+Dec Plat 11 20
+Dec Plat 10 20
+Dec Plat 9 20
+Dec Plat 8 20
+Dec Plat 7 20
+Dec Plat 6 20
+Dec Plat 5 20
+Dec Plat 4 20
+Dec Plat 3 20
+Dec Plat 2 20
+Dec Plat 1 20
+Dec Plat 0 20
+Dec Plat 26 21
+Dec Plat 26 22
+Dec Plat 26 23
+Dec Plat 26 24
+Dec Plat 26 25
+Dec Plat 26 26
+Dec Plat 26 27
+Dec Plat 26 28
+Dec Plat 25 21
+Dec ArrowUp 4 6
+Dec ArrowUp 4 5
+Dec ArrowUp 4 4
+Dec ArrowUp 3 6
+Dec ArrowUp 4 7
+Dec ArrowUp 5 6
