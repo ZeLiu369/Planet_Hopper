@@ -39,6 +39,7 @@ protected:
     sf::Texture             m_lightTexture;
     sf::Shader              *shader, electric_shader;
     std::string             m_levelPath;
+    int                     m_levelEnd;
     int                     m_level;
     PlayerConfig            m_playerConfig;
     Vec2                    m_prevCameraPos;

@@ -107,6 +107,11 @@ void Scene_Play::loadLevel(const std::string& filename)
             tile->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             tile->addComponent<CTransform>(gridToMidPixel(x, y, tile));
 
+            if (texture == "Spaceship")
+            {
+                m_levelEnd = tile->getComponent<CTransform>().pos.x;
+            }
+
             if (type == "Tile") 
             {
                 float speed;
@@ -197,6 +202,7 @@ void Scene_Play::loadLevel(const std::string& filename)
             npc->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
             npc->addComponent<CTransform>(gridToMidPixel(x, y, npc));
             npc->addComponent<CDamage>(dmg);
+            npc->addComponent<CGravity>(gravity);
             npc->addComponent<CHealth>(health, health);
             npc->addComponent<CBoundingBox>(Vec2(64, 64));
             npc->addComponent<CState>(texture);
@@ -238,9 +244,9 @@ void Scene_Play::loadLevel(const std::string& filename)
             PlayerConfig& pc = m_playerConfig;
             fin >> pc.X >> pc.Y >> pc.CX >> pc.CY >> pc.SPEED
                 >> pc.JUMP >> pc.MAXSPEED >> pc.GRAVITY;
-
         }
     }
+
 
     // Load in the weapons
     // Hardcoded because weapons will be the same for each level
@@ -775,6 +781,18 @@ void Scene_Play::sAI()
         auto state = e->getComponent<CState>().state;
         if (e->getComponent<CTransform>().velocity.x < 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? 1.0 : -1.0; }
         else if (e->getComponent<CTransform>().velocity.x > 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? -1.0 : 1.0; }
+        
+        // gravity stuff
+        e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
+
+        if (e->getComponent<CGravity>().gravity >= 0)
+        {
+            if (e->getComponent<CTransform>().velocity.y < 0) e->getComponent<CTransform>().velocity.y = 0;
+        }
+        else
+        {
+            if (e->getComponent<CTransform>().velocity.y > 0) e->getComponent<CTransform>().velocity.y = 0;
+        }
         
         // add velocity for movement
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
@@ -1413,11 +1431,13 @@ void Scene_Play::sCamera()
 {
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_player->getComponent<CTransform>().pos;
+
     // needed to determine speed for parallax scrolling
     float viewCenterX = m_game->window().getView().getCenter().x;
     float viewCenterY = m_game->window().getView().getCenter().y;
     float windowX = m_game->window().getSize().x;
     float windowY = m_game->window().getSize().y;
+
     m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
@@ -1584,6 +1604,7 @@ void Scene_Play::sRender()
     electric_shader.setUniform("rnd", ran);
     electric_shader.setUniform("intensity", 0.99f);
     shader = &electric_shader;
+
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
@@ -1663,58 +1684,38 @@ void Scene_Play::sRender()
     drawWeapon();
 
     /*
-    * Setup the minimap view 
+    * Setup the minimap view: Load mini map and mini player textures, set scale and create sprites
     */
-    sf::View miniView(sf::FloatRect(0, 0, 1280, 768));
-    miniView.setViewport(sf::FloatRect(0.8, 0, 0.2, 0.2));
-    m_game->window().setView(miniView);
 
-    sf::RectangleShape line(sf::Vector2f(1280, 5));
-    line.setPosition(0, 300);
-    m_game->window().draw(line);
+    sf::Texture gaugeTexture, miniPlayerTexture;
+    gaugeTexture.loadFromFile("images/new/Gauge.png");
+    gaugeTexture.setSmooth(true);
 
-    /*
-    * Following code is for drawing player and spaceship to second camera view
-    */
+    miniPlayerTexture.loadFromFile("images/new/miniPlayer.png");
+    miniPlayerTexture.setSmooth(true);
+
+    sf::Sprite gauge, miniPlayer;
+
+    gauge.setScale(2, 2);
+    gauge.setTexture(gaugeTexture);
+
+    miniPlayer.setTexture(miniPlayerTexture);
+
+    // set position of mini map at top left of window
+    gauge.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 735, m_game->window().getView().getCenter().y - height() / 2 + 10);;
+    m_game->window().draw(gauge);
+
+    // set posiiton and drae mini map player at top left of the window relative to the player's position in game
     for (auto e : m_entityManager.getEntities())
     {
         auto transform = e->getComponent<CTransform>();
-
         if (e->hasComponent<CAnimation>() && e->tag() == "player")
         {
-            transform.pos.y = 680;
-            Animation animation = m_game->assets().getAnimation("Stand");
-            animation.getSprite().setRotation(transform.angle);
-            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
-            animation.getSprite().setPosition(x, (transform.pos.y / 2) - 70);
-            animation.getSprite().setScale(transform.scale.x, 1);
-            m_game->window().draw(animation.getSprite());
-        }
-        if (e->hasComponent<CAnimation>() && (e->getComponent<CAnimation>().animation.getName() == "Spaceship"))
-        {
-            auto& animation = e->getComponent<CAnimation>().animation;
-            animation.getSprite().setRotation(transform.angle);
-            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
-            //animation.getSprite().setPosition(x - 20, (transform.pos.y / 2) - 34);
-            animation.getSprite().setPosition(1240, 275);
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            m_game->window().draw(animation.getSprite());
+            auto x = m_game->window().getView().getCenter().x - width() / 2 + 700 + (transform.pos.x * gauge.getGlobalBounds().width / m_levelEnd);
+            miniPlayer.setPosition(x, m_game->window().getView().getCenter().y - height() / 2 + 10);
+            m_game->window().draw(miniPlayer);
         }
     }
-
-    /*
-    * Adjusting camera pos
-    */
-    auto& pPos = m_player->getComponent<CTransform>().pos;
-    float windowX = m_game->window().getSize().x;
-    float windowY = m_game->window().getSize().y;
-    sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
-    float windowCenterX = std::max(windowX / 2.0f, pPos.x);
-    float dist = windowY - gameView.getCenter().y;
-    float windowCenterY = pPos.y < dist ? pPos.y : dist;
-    gameView.setCenter(windowCenterX, windowCenterY);
-    gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
-    m_game->window().setView(gameView);
 
     // draw all Entity collision bounding boxes with a rectangleshape
     if (m_drawCollision)
