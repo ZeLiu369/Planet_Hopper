@@ -508,6 +508,10 @@ void Scene_Play::sMovement()
     transform.prevPos = transform.pos;
     transform.pos.x += transform.velocity.x;
     transform.pos.y += transform.velocity.y;
+    for (auto& t : m_platforms)
+    {
+        transform.pos.x += t->getComponent<CTransform>().velocity.x;
+    }
 
     // weapon movement
     for (auto weapon : m_entityManager.getEntities("weapon"))
@@ -872,6 +876,7 @@ void Scene_Play::sCollision()
     //           Also, something BELOW something else will have a y value GREATER than it
     //           Also, something ABOVE something else will have a y value LESS than it
 
+    m_platforms.clear();
     m_player->getComponent<CState>().state = "air";
     bool goal = false;
     for (auto& tile : m_entityManager.getEntities("tile"))
@@ -922,6 +927,7 @@ void Scene_Play::sCollision()
                                 else
                                 {
                                     m_player->getComponent<CState>().state = "ground";
+                                    if (tile->hasComponent<CPatrol>()) m_platforms.push_back(tile);
                                 }
                                 et.pos.y += overlap.y;
 
@@ -931,6 +937,7 @@ void Scene_Play::sCollision()
                                 if (m_player->getComponent<CGravity>().gravity >= 0)
                                 {
                                     m_player->getComponent<CState>().state = "ground";
+                                    if (tile->hasComponent<CPatrol>()) m_platforms.push_back(tile);
                                 }
                                 else
                                 {

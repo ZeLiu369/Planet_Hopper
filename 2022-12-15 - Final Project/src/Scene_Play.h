@@ -52,6 +52,8 @@ protected:
     sf::Text                m_gridText;
     sf::Text                m_weaponUIText;
 
+    std::vector<std::shared_ptr<Entity>> m_platforms;
+
     Vec2                    m_mPos;
 
     void init(const std::string & levelPath);
