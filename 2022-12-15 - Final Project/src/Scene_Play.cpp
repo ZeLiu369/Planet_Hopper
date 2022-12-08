@@ -304,7 +304,7 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
     bullet->addComponent<CTransform>(pos);
     bullet->getComponent<CTransform>().velocity = vel;
     if (name == "Laser") { bullet->getComponent<CTransform>().scale.x = m_player->getComponent<CTransform>().scale.x; }
-    bullet->addComponent<CBoundingBox>(size);
+    if (!(name == "Missile")) { bullet->addComponent<CBoundingBox>(size); };
     bullet->addComponent<CLifeSpan>(lifetime, m_currentFrame);
     bullet->addComponent<CDamage>(dmg);
 
@@ -349,7 +349,6 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 entity->getComponent<CState>().state = "Demon Attack";
             }
         }
-
     }
 
     if (entity->tag() == "player")
@@ -364,7 +363,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         }
         PlayerConfig& pc = m_playerConfig;
         CTransform& entityT = entity->getComponent<CTransform>();
-        auto bullet = m_entityManager.addEntity("bullet");
+
         // Following code sets up the bullets based on the current weapon
         if (weap.currentWeapon == "Launcher")
         {
@@ -429,7 +428,7 @@ void Scene_Play::update()
 
     if (!m_paused)
     {
-        
+
         sMovement();
         sCollision();
         sLifespan();
@@ -539,8 +538,9 @@ void Scene_Play::sMovement()
     }
 
     // player shooting
-    if (input.shoot)
+    if (input.shoot && input.canShoot)
     {
+        input.canShoot = false;
         spawnBullet(m_player);
     }
 
@@ -559,6 +559,7 @@ void Scene_Play::sMovement()
             float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
             normalizeVec *= dist2;
 
+            // if within 5 pixel of target (mouse) blow up
             if (abs(dist) <= 5)
             {
                 b->removeComponent<CBoundingBox>();
@@ -573,7 +574,11 @@ void Scene_Play::sMovement()
             steering *= scale;
             Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
 
+            Vec2 SIZE = Vec2(67, 19);
             bt.angle = (atan2(actual.y, actual.x) * 180 / 3.14159265);
+            // change bounding box of missile based on rotation
+            if (abs(bt.angle) >= 60 && abs(bt.angle) <= 120) { b->addComponent<CBoundingBox>(Vec2(SIZE.y, SIZE.x)); }
+            else { b->addComponent<CBoundingBox>(SIZE); }
             bt.velocity = { actual.x, actual.y};
         }
         // The bomb will have gravity
@@ -621,6 +626,43 @@ void Scene_Play::sMovement()
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
     }
+
+    // moving tiles
+    for (auto tile : m_entityManager.getEntities("tile"))
+    {
+        if (tile->hasComponent<CPatrol>())
+        {
+            auto& tVel = tile->getComponent<CTransform>().velocity;
+            auto& tSpeed = tile->getComponent<CPatrol>().speed;
+            auto& tPos = tile->getComponent<CTransform>().pos;
+            auto& positions = tile->getComponent<CPatrol>().positions;
+            auto& index = tile->getComponent<CPatrol>().currentPosition;
+            Vec2 currentPosition = positions[index];
+            if (abs(currentPosition.x - tPos.x) <= 5 && abs(currentPosition.y - tPos.y) <= 5)
+            {
+                index = (index + 1) % positions.size();
+            }
+            else
+            {
+                Vec2 distVec = Vec2(currentPosition.x, currentPosition.y) - Vec2(tPos.x, tPos.y);
+                int dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+                Vec2 normalizeVec = distVec / dist;
+                // make sure if the tile is within 5 pixels in x direction that they do not move
+                // in the x direction
+                if (abs(currentPosition.x - tPos.x) <= 5)
+                {
+                    normalizeVec.x = 0;
+                }
+                // do the same thing for y direction
+                else if (abs(currentPosition.y - tPos.y) <= 5)
+                {
+                    normalizeVec.y = 0;
+                }
+                tVel = { normalizeVec.x * tSpeed, normalizeVec.y * tSpeed };
+            }
+            tPos += tVel;
+        }
+    }
 }
 
 void Scene_Play::sAI()
@@ -628,7 +670,7 @@ void Scene_Play::sAI()
     for (auto e : m_entityManager.getEntities("npc"))
     {
         // Implementing Patrol AI behaviour
-        if (e->tag() == "npc" && e->hasComponent<CPatrol>())
+        if ((e->tag() == "npc") && e->hasComponent<CPatrol>())
         {
             auto& pos = e->getComponent<CTransform>().pos;
             auto& vec = e->getComponent<CPatrol>().positions;
@@ -842,6 +884,11 @@ void Scene_Play::sCollision()
                 {
                     if (e->tag() == "player")
                     {
+                        if (tile->getComponent<CAnimation>().animation.getName() == "Spaceship")
+                        {
+                            goal = true;
+                            continue;
+                        }
                         CTransform& et = e->getComponent<CTransform>();
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
@@ -921,7 +968,7 @@ void Scene_Play::sCollision()
     for (auto& e : m_entityManager.getEntities("item"))
     {
         auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and coin
-        if (overlap.x >= 0 && overlap.y >= 0)
+        if (overlap.x > 0 && overlap.y > 0)
         {
             auto index = e->getComponent<CInventory>().index;
             inventoryItems[index] = true;
@@ -969,14 +1016,6 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
-
-                bullet->removeComponent<CBoundingBox>();
-                bullet->removeComponent<CLifeSpan>();
-                if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
-                bullet->removeComponent<CDamage>();
-                bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
-                bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
-
             }
             // the npc is dead
 
@@ -1079,6 +1118,7 @@ void Scene_Play::sCollision()
                     f->addComponent<CAnimation>(m_game->assets().getAnimation("WormExplode"), false);
                     if (e->tag() == "player")
                     {
+                        m_player->addComponent<CInvincibility>(10);
                         m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
                     }
                     f->destroy();
@@ -1119,7 +1159,10 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
         else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
 
-        else if (action.name() == "SHOOT") { m_player->getComponent<CInput>().shoot = true; }
+        else if (action.name() == "SHOOT") 
+        { 
+            m_player->getComponent<CInput>().shoot = true; 
+        }
         else if (action.name() == "MOUSE_MOVE") { m_mPos = action.pos(); }
 
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
@@ -1156,6 +1199,7 @@ void Scene_Play::sDoAction(const Action& action)
         if (action.name() == "SHOOT")
         {
             m_player->getComponent<CInput>().shoot = false;
+            m_player->getComponent<CInput>().canShoot = true;
         }
     }
 }
@@ -1348,7 +1392,7 @@ void Scene_Play::updateBackgrounds()
         {
             auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
             auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
-            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor))
+            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
             {
                 if (playerTransform.velocity.x > 0)
                 {
@@ -1359,7 +1403,7 @@ void Scene_Play::updateBackgrounds()
                     backgroundTwoPos.x = backgroundOnePos.x - m_game->window().getSize().x - eVelocity.x;
                 }
             }
-            if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor))
+            if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
             {
                 if (playerTransform.velocity.x > 0)
                 {
@@ -1577,8 +1621,9 @@ void Scene_Play::sRender()
                     c = sf::Color(255, 255, 255, 128);
                     animation.getSprite().setColor(c);
                 }
-                if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
-                else { m_game->window().draw(animation.getSprite()); }
+                // applies shader to player
+                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
+                 m_game->window().draw(animation.getSprite());
             }
         }
 
@@ -1634,6 +1679,9 @@ void Scene_Play::sRender()
     // draw the current weapon
     drawWeapon();
 
+    /*
+    * Setup the minimap view 
+    */
     sf::Texture gaugeTexture, miniPlayerTexture;
     gaugeTexture.loadFromFile("images/new/Gauge.png");
     gaugeTexture.setSmooth(true);
@@ -1682,13 +1730,41 @@ void Scene_Play::sRender()
         }
     }
 
+    /*
+    * Following code is for drawing player and spaceship to second camera view
+    */
+    for (auto e : m_entityManager.getEntities())
+    {
+        auto transform = e->getComponent<CTransform>();
+
+        if (e->hasComponent<CAnimation>() && e->tag() == "player")
+        {
+            transform.pos.y = 680;
+            Animation animation = m_game->assets().getAnimation("Stand");
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            animation.getSprite().setPosition(x, (transform.pos.y / 2) - 70);
+            animation.getSprite().setScale(transform.scale.x, 1);
+            m_game->window().draw(animation.getSprite());
+        }
+        if (e->hasComponent<CAnimation>() && (e->getComponent<CAnimation>().animation.getName() == "Spaceship"))
+        {
+            auto& animation = e->getComponent<CAnimation>().animation;
+            animation.getSprite().setRotation(transform.angle);
+            auto x = (animation.getSize().x / 2) + (15 * (transform.pos.x - (animation.getSize().x / 2)) / 64);
+            //animation.getSprite().setPosition(x - 20, (transform.pos.y / 2) - 34);
+            animation.getSprite().setPosition(1240, 275);
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            m_game->window().draw(animation.getSprite());
+        }
+    }
+
+    /*
+    * Adjusting camera pos
+    */
     auto& pPos = m_player->getComponent<CTransform>().pos;
-    float viewCenterX = m_game->window().getView().getCenter().x;
-    float viewCenterY = m_game->window().getView().getCenter().y;
     float windowX = m_game->window().getSize().x;
     float windowY = m_game->window().getSize().y;
-    m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
-
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
     float dist = windowY - gameView.getCenter().y;
