@@ -155,8 +155,6 @@ void Scene_Overworld::sMovement()
 
     if (direction == "right")
     {
-        //std::cout << "in right" << "\n";
-
         if (currPlanet == 1 && !planet2->getComponent<CLevelStatus>().unlocked) { return; }
         else if (currPlanet == 2 && !planet3->getComponent<CLevelStatus>().unlocked) { return; }
 
@@ -168,21 +166,18 @@ void Scene_Overworld::sMovement()
         {
             direction = "none";
             currPlanet = 1;
-            //std::cout << "in right: 1" << "\n";
         }
         else if (planet2->getComponent<CLevelStatus>().unlocked
             && transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x)
         {
             direction = "none";
             currPlanet = 2;
-            //std::cout << "in right: 2" << "\n";
         }
         else if (planet3->getComponent<CLevelStatus>().unlocked
             && transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x)
         {
             direction = "none";
             currPlanet = 3;
-            //std::cout << "in right: 3" << "\n";
         }
     }
 
@@ -199,37 +194,6 @@ void Scene_Overworld::sMovement()
 
     if (transform.pos.x < 30)   { transform.pos.x = 30; }
     if (transform.pos.x > 1255) { transform.pos.x = 1255; }
-
-    //if (input.right)
-    //{
-    //    //transform.prevPos.x = transform.pos.x;
-    //    if (planet1->getComponent<CLevelStatus>().unlocked 
-    //        && transform.pos.x + offset < planet1->getComponent<CTransform>().pos.x)  
-    //    { 
-    //        transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; 
-    //    }
-    //    else if (planet2->getComponent<CLevelStatus>().unlocked 
-    //        && transform.pos.x + offset < planet2->getComponent<CTransform>().pos.x)  
-    //    { 
-    //        transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; 
-    //    }
-    //    else if (planet3->getComponent<CLevelStatus>().unlocked 
-    //        && transform.pos.x + offset < planet3->getComponent<CTransform>().pos.x)  
-    //    { 
-    //        transform.pos.x = planet3->getComponent<CTransform>().pos.x - offset; 
-    //    }
-    //    //std::cout << "pos: " << transform.pos.x << "\n";
-    //    //std::cout << "prev pos: " << transform.prevPos.x << "\n";
-    //    input.right = false;
-    //}
-    //else if (input.left)
-    //{
-    //    //transform.pos.x = transform.prevPos.x;
-    //    if      (transform.pos.x + offset == planet3->getComponent<CTransform>().pos.x) { transform.pos.x = planet2->getComponent<CTransform>().pos.x - offset; }
-    //    else if (transform.pos.x + offset == planet2->getComponent<CTransform>().pos.x) { transform.pos.x = planet1->getComponent<CTransform>().pos.x - offset; }
-    //    else if (transform.pos.x + offset == planet1->getComponent<CTransform>().pos.x) { transform.pos.x = transform.prevPos.x; }
-    //    input.left = false;
-    //}
 }
 
 void Scene_Overworld::sCollision()
@@ -350,6 +314,7 @@ void Scene_Overworld::sRender()
     // Set shader parameters
     fade_shader.setUniform("time", time.getElapsedTime().asSeconds());
     shake_shader.setUniform("time", time.getElapsedTime().asSeconds());
+
     // draw all Entity textures / animations
     if (m_drawTextures)
     {
