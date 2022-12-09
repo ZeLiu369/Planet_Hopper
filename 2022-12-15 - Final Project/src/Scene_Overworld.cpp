@@ -304,6 +304,7 @@ void Scene_Overworld::onEnd()
 
 void Scene_Overworld::sRender()
 {
+    m_game->window().setView(m_game->window().getDefaultView());
     m_game->window().clear(sf::Color(127, 127, 127));
     sf::Texture backgroundTexture;
     backgroundTexture.loadFromFile("images/new/stars.png");

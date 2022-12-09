@@ -428,7 +428,6 @@ void Scene_Play::update()
 
     if (!m_paused)
     {
-
         sMovement();
         sCollision();
         sLifespan();
@@ -878,7 +877,7 @@ void Scene_Play::sCollision()
 
     m_platforms.clear();
     m_player->getComponent<CState>().state = "air";
-    bool goal = false;
+
     for (auto& tile : m_entityManager.getEntities("tile"))
     {
         for (auto& e : m_entityManager.getEntities())
@@ -972,7 +971,7 @@ void Scene_Play::sCollision()
     if (transform.pos.x < box.halfSize.x) transform.pos.x = box.halfSize.x;
 
     // when the player falls into a pit
-    if (transform.pos.y > height() || goal)
+    if (transform.pos.y > height()) //|| goal)
     {
         PlayerConfig& pc = m_playerConfig;
 
@@ -1156,8 +1155,10 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
-        m_level++;
-        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+        // Change scene after m_countdown number of frames has passed
+        m_countdown--; 
+        m_action = 1;
+        if (m_countdown <= 0) onEnd();
     }
 }
 
@@ -1387,10 +1388,13 @@ void Scene_Play::onEnd()
     m_game->assets().getSound("Play").stop();
     m_game->playSound("OverWorld");
 
-    sf::View gameView(sf::FloatRect(0, 0, 1280, 768));
-    gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
-    m_game->window().setView(gameView);
-    m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    else 
+    {
+        m_level++;
+        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    }
+    
 }
 
 /*
@@ -1450,6 +1454,7 @@ void Scene_Play::sCamera()
     auto& pPos = m_player->getComponent<CTransform>().pos;
 
     // needed to determine speed for parallax scrolling
+    sf::View view = m_game->window().getView();
     float viewCenterX = m_game->window().getView().getCenter().x;
     float viewCenterY = m_game->window().getView().getCenter().y;
     float windowX = m_game->window().getSize().x;
@@ -1461,6 +1466,23 @@ void Scene_Play::sCamera()
     float windowCenterY = std::min(windowY / 2.0f, pPos.y);
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
+    
+    if (goal) // if player at the end of level, zoom in on player
+    {
+        Vec2 before(m_player->getComponent<CTransform>().pos.x - view.getCenter().x - (m_game->window().getSize().x / 2),
+            m_player->getComponent<CTransform>().pos.y - view.getCenter().y - (m_game->window().getSize().y / 2));
+        
+        gameView.zoom(0.6f);
+        m_game->window().setView(gameView);
+
+        Vec2 after(m_player->getComponent<CTransform>().pos.x - view.getCenter().x - (m_game->window().getSize().x / 2),
+            m_player->getComponent<CTransform>().pos.y - view.getCenter().y - (m_game->window().getSize().y / 2));
+        
+        Vec2 offset = before - after;
+        
+        gameView.move(sf::Vector2f(offset.x, offset.y + 150));
+        m_game->window().setView(gameView);
+    }
     m_game->window().setView(gameView);
     
     // update scroll background movement based on camera movement
@@ -1855,6 +1877,17 @@ void Scene_Play::sRender()
     }
     // Draw the weapon display UI
     drawWeaponDisplay();
+
+    if (goal) // if level complete, display level complete text just above player's head
+    {
+        sf::Text gameOverText;
+        gameOverText.setString("Congratulations! Level Completed");
+        gameOverText.setFont(m_game->assets().getFont("Megaman"));
+        gameOverText.setCharacterSize(20);
+        gameOverText.setFillColor(sf::Color::White);
+        gameOverText.setPosition(sf::Vector2f(m_player->getComponent<CTransform>().pos.x - 250, m_player->getComponent<CTransform>().pos.y - 80));
+        m_game->window().draw(gameOverText);
+    }
 }
 
 
