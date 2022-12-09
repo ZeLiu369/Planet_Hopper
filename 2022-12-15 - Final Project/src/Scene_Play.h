@@ -49,8 +49,11 @@ protected:
     bool                    m_drawGrid = false;
     bool                    m_night = false;
     const Vec2              m_gridSize = { 64, 64 };
+    int                     m_countdown = 150;
+    int                     m_action = 0;
     sf::Text                m_gridText;
     sf::Text                m_weaponUIText;
+    bool goal = false;
 
     std::vector<std::shared_ptr<Entity>> m_platforms;
 
