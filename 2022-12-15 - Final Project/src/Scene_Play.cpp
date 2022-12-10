@@ -1412,7 +1412,7 @@ void Scene_Play::updateBackgrounds()
             auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
             if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
             {
-                if (playerTransform.velocity.x > 0)
+                if (playerTransform.pos.x > playerTransform.prevPos.x)
                 {
                     backgroundTwoPos.x = backgroundOnePos.x + m_game->window().getSize().x - eVelocity.x;
                 }
@@ -1423,7 +1423,7 @@ void Scene_Play::updateBackgrounds()
             }
             if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
             {
-                if (playerTransform.velocity.x > 0)
+                if (playerTransform.pos.x > playerTransform.prevPos.x)
                 {
                     backgroundOnePos.x = backgroundTwoPos.x + m_game->window().getSize().x - eVelocity.x;
                 }
