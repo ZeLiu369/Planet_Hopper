@@ -1137,8 +1137,8 @@ void Scene_Editor::sDoAction(const Action& action)
                     break;
                 }
             }
-            m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-            m_game->playSound(m_levelConfig.MUSIC);
+            //m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
+            //m_game->playSound(m_levelConfig.MUSIC);
         }
         else if (action.name() == "BACKGROUND")
         {
