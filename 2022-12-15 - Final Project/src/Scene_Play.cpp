@@ -262,6 +262,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
+    // temporarily hard coding background sound to be quiet
     m_game->assets().getSound(sound).setVolume(1);
     m_game->playSound(sound);
 
@@ -269,6 +270,21 @@ void Scene_Play::loadLevel(const std::string& filename)
     if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
     {
         std::cerr << "Error while loading electric shader" << std::endl;
+        return;
+    }
+    if (!bright_shader.loadFromFile("images/new/bright_shader.frag", sf::Shader::Fragment))
+    {
+        std::cerr << "Error while loading bright shader" << std::endl;
+        return;
+    }
+    if (!speed_shader.loadFromFile("images/new/speed_shader.frag", sf::Shader::Fragment))
+    {
+        std::cerr << "Error while loading speed shader" << std::endl;
+        return;
+    }
+    if (!rainbow_shader.loadFromFile("images/new/rainbow_shader.frag", sf::Shader::Fragment))
+    {
+        std::cerr << "Error while loading rainbow shader" << std::endl;
         return;
     }
 }
@@ -1028,6 +1044,7 @@ void Scene_Play::sCollision()
             // the npc is dead
             if (npc->getComponent<CHealth>().current <= 0)
             {
+                npc->getComponent<CHealth>().current = 0;
                 if (npc->hasComponent<CPatrol>()) { npc->removeComponent<CPatrol>(); }
                 else if (npc->hasComponent<CFollowPlayer>()) { npc->removeComponent<CFollowPlayer>(); }
                 // playing death animation doesn't work
@@ -1637,10 +1654,10 @@ void Scene_Play::sRender()
     sf::RectangleShape tick({ 1.0f, 6.0f });
     tick.setFillColor(sf::Color::Black);
 
+    // need to set parameters for electric shader
     float ran = (float)rand() / (RAND_MAX);
     electric_shader.setUniform("rnd", ran);
     electric_shader.setUniform("intensity", 0.99f);
-    shader = &electric_shader;
 
     // draw all Entity textures / animations
     if (m_drawTextures)
@@ -1667,9 +1684,8 @@ void Scene_Play::sRender()
                     c = sf::Color(255, 255, 255, 255);
                     animation.getSprite().setColor(c);
                 }
-                // applies shader to player
-                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), shader); }
-                 m_game->window().draw(animation.getSprite());
+                if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                else { m_game->window().draw(animation.getSprite()); }
             }
         }
 

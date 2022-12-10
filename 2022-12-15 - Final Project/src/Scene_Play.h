@@ -37,7 +37,8 @@ protected:
     std::vector<bool> inventoryItems;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
-    sf::Shader              *shader, electric_shader;
+    sf::Shader              electric_shader, bright_shader, speed_shader, rainbow_shader;
+    sf::Clock               time;
     std::string             m_levelPath;
     int                     m_levelEnd;
     int                     m_level;
