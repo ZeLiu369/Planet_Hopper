@@ -321,9 +321,9 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         auto& weap = entity->getComponent<CWeapon>();
         if (entity->getComponent<CState>().state.find("Worm") != std::string::npos )
         {
-            if (weap.lastFiredRaygun == 0 || m_currentFrame - weap.lastFiredRaygun >= 60)
+            if (weap.lastFiredNpc == 0 || m_currentFrame - weap.lastFiredNpc >= 60)
             {
-                weap.lastFiredRaygun = m_currentFrame;
+                weap.lastFiredNpc = m_currentFrame;
                 
                 auto bullet = m_entityManager.addEntity("EnemyBullet");
                 bullet->addComponent<CAnimation>(m_game->assets().getAnimation("WormFire"), true);
@@ -345,7 +345,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         {
             if (weap.frameCreated == 0 || m_currentFrame - weap.frameCreated >= 10)
             {
-                weap.lastFiredRaygun = m_currentFrame;
+                weap.lastFiredNpc = m_currentFrame;
                 entity->getComponent<CState>().state = "Demon Attack";
             }
         }
@@ -370,12 +370,25 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             // If enough time has passed since last firing bullet, it can be fired again
             if (weap.lastFiredLauncher == 0 || m_currentFrame - weap.lastFiredLauncher >= 240)
             {
+                weap.target = windowToWorld(m_mPos);
                 weap.lastFiredLauncher = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
                 int DMG = 1;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-                Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
+                Vec2 velocity;
+                if (weap.target.x < entityT.pos.x && entityT.scale.x == 1)
+                {
+                    velocity = Vec2(-pc.SPEED * 1.25f, 0.0f);
+                }
+                else if (weap.target.x > entityT.pos.x && entityT.scale.x == -1)
+                {
+                    velocity = Vec2(pc.SPEED * 1.25f, 0.0f);
+                }
+                else
+                {
+                    velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
+                } 
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
                 m_game->playSound("se_bullet_missile");
             }
@@ -551,19 +564,20 @@ void Scene_Play::sMovement()
     for (auto& b : m_entityManager.getEntities("bullet"))
     {
         CTransform& bt = b->getComponent<CTransform>();
+        auto& weap = m_player->getComponent<CWeapon>();
         // Right now steering is not implemented as scale is set to 1, missile will just follow mouse currently
         // TODO: figure out best way to do steering for missile
         if (b->getComponent<CAnimation>().animation.getName() == "Missile")
         {
-            Vec2 worldPos = windowToWorld(m_mPos);
-            Vec2 distVec = worldPos - Vec2(bt.pos.x, bt.pos.y);
+            float maxSpeed = m_playerConfig.SPEED * 1.25f;
+            Vec2 distVec = weap.target - Vec2(bt.pos.x, bt.pos.y);
             float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);         
             Vec2 normalizeVec = distVec / dist;
             float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
             normalizeVec *= dist2;
 
-            // if within 5 pixel of target (mouse) blow up
-            if (abs(dist) <= 5)
+            // if within 20 pixels of target blow up
+            if (abs(dist) <= 20)
             {
                 b->removeComponent<CBoundingBox>();
                 b->removeComponent<CLifeSpan>();
@@ -572,12 +586,13 @@ void Scene_Play::sMovement()
                 continue;
             }
 
-            float scale = 1;
+            float scale = 0.06;
             Vec2 steering = normalizeVec - Vec2(bt.velocity.x, bt.velocity.y);
             steering *= scale;
             Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
 
             Vec2 SIZE = Vec2(67, 19);
+            bt.prevAngle = bt.angle;
             bt.angle = (atan2(actual.y, actual.x) * 180 / 3.14159265);
             // change bounding box of missile based on rotation
             if (abs(bt.angle) >= 60 && abs(bt.angle) <= 120) { b->addComponent<CBoundingBox>(Vec2(SIZE.y, SIZE.x)); }
@@ -824,12 +839,8 @@ void Scene_Play::sLifespan()
     if (m_player->hasComponent<CInvincibility>())
     {
         auto& invincible = m_player->getComponent<CInvincibility>();
+        auto& animation = m_player->getComponent<CAnimation>().animation;
         invincible.iframes -= 1;
-
-        if (invincible.iframes > 0)
-        {
-            m_player->getComponent<CAnimation>().animation.getSprite().setColor(sf::Color::Transparent);
-        }
         if (invincible.iframes <= 0)
         {
             m_player->removeComponent<CInvincibility>();
@@ -986,7 +997,7 @@ void Scene_Play::sCollision()
     // item collisions
     for (auto& e : m_entityManager.getEntities("item"))
     {
-        auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and coin
+        auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and item
         if (overlap.x > 0 && overlap.y > 0)
         {
             auto index = e->getComponent<CInventory>().index;
@@ -1036,8 +1047,8 @@ void Scene_Play::sCollision()
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
             }
-            // the npc is dead
 
+            // the npc is dead
             if (npc->getComponent<CHealth>().current <= 0)
             {
                 if (npc->hasComponent<CPatrol>()) { npc->removeComponent<CPatrol>(); }
@@ -1452,20 +1463,20 @@ void Scene_Play::updateBackgrounds()
 
 void Scene_Play::sCamera()
 {
-    // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = m_player->getComponent<CTransform>().pos;
 
-    // needed to determine speed for parallax scrolling
     sf::View view = m_game->window().getView();
     float viewCenterX = m_game->window().getView().getCenter().x;
     float viewCenterY = m_game->window().getView().getCenter().y;
     float windowX = m_game->window().getSize().x;
     float windowY = m_game->window().getSize().y;
 
+    // needed to determine speed for parallax scrolling
     m_prevCameraPos = Vec2(viewCenterX - windowX / 2.0f, viewCenterY - windowY / 2.0f);
     sf::View gameView(sf::FloatRect(0, 0, windowX, windowY));
     float windowCenterX = std::max(windowX / 2.0f, pPos.x);
     float windowCenterY = std::min(windowY / 2.0f, pPos.y);
+    // set the viewport of the window to be centered on the player if it's far enough right and far enough up
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     
@@ -1483,7 +1494,6 @@ void Scene_Play::sCamera()
         Vec2 offset = before - after;
         
         gameView.move(sf::Vector2f(offset.x, offset.y + 150));
-        m_game->window().setView(gameView);
     }
     m_game->window().setView(gameView);
     
@@ -1508,9 +1518,11 @@ void Scene_Play::sCamera()
 }
 
 /*
-* Get the lighting sprite to be drawn on the screen around player for illumination
+* Get the entire night time sprite to be drawn on the window
+* 
+* Passing in sprite for gauge so it is drawn over the dark texture
 */
-sf::Sprite Scene_Play::getLightingSprite()
+sf::Sprite Scene_Play::getLightingSprite(sf::Sprite gaugeSprite)
 {
     // this is for lighting
     sf::BlendMode blendMode(
@@ -1521,11 +1533,14 @@ sf::Sprite Scene_Play::getLightingSprite()
         sf::BlendMode::Factor::OneMinusSrcAlpha,
         sf::BlendMode::Equation::Add);
 
+    // keep the sprite at it's original position
+    gaugeSprite.setPosition(735, 10);
+
     // this is needed so that the health bar isn't dark like the rest of the level
-    sf::RectangleShape rect;
-    rect.setSize(sf::Vector2f(320, 50));
-    rect.setPosition(10, 10);
-    rect.setFillColor(sf::Color(0, 0, 0, 255));
+    sf::RectangleShape healthBarRect;
+    healthBarRect.setSize(sf::Vector2f(320, 50));
+    healthBarRect.setPosition(10, 10);
+    healthBarRect.setFillColor(sf::Color(0, 0, 0, 255));
 
     // create the lighting sprite and set its position
     sf::Sprite light(m_lightTexture);
@@ -1536,7 +1551,8 @@ sf::Sprite Scene_Play::getLightingSprite()
     light.setPosition(x_pos, y_pos);
     // draw the lighting sprite and a rect over the healthbar to keep it the same colour
     m_renderTexture.clear();
-    m_renderTexture.draw(rect, blendMode);
+    m_renderTexture.draw(healthBarRect, blendMode);
+    m_renderTexture.draw(gaugeSprite, blendMode);
     m_renderTexture.draw(light, blendMode);
     m_renderTexture.display();
     // get the night time level sprite based off the render texture
@@ -1594,17 +1610,17 @@ void Scene_Play::drawWeaponDisplay()
 
     sf::Sprite raygunDisplay(m_game->assets().getTexture("TexRaygun"));
     raygunDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    raygunDisplay.setPosition(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2 - 4);
+    raygunDisplay.setPosition(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2);
     m_game->window().draw(raygunDisplay);
 
     sf::Sprite bombDisplay(m_game->assets().getTexture("TexBomb"));
     bombDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    bombDisplay.setPosition(viewCenterX, viewCenterY + windowSizeYHalf - size / 2 - 4);
+    bombDisplay.setPosition(viewCenterX, viewCenterY + windowSizeYHalf - size / 2);
     m_game->window().draw(bombDisplay);
 
     sf::Sprite launcherDisplay(m_game->assets().getTexture("TexLauncher"));
     launcherDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    launcherDisplay.setPosition(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2 - 4);
+    launcherDisplay.setPosition(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2);
     m_game->window().draw(launcherDisplay);
 
     m_game->window().draw(displayRect(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
@@ -1664,6 +1680,11 @@ void Scene_Play::sRender()
                 if (e->hasComponent<CInvincibility>())
                 {
                     c = sf::Color(255, 255, 255, 128);
+                    animation.getSprite().setColor(c);
+                }
+                else
+                {
+                    c = sf::Color(255, 255, 255, 255);
                     animation.getSprite().setColor(c);
                 }
                 // applies shader to player
@@ -1743,8 +1764,8 @@ void Scene_Play::sRender()
     miniPlayer.setTexture(miniPlayerTexture);
 
     // set position of mini map at top left of window
-    gauge.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 735, m_game->window().getView().getCenter().y - height() / 2 + 10);;
-    m_game->window().draw(gauge);
+    gauge.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 735, m_game->window().getView().getCenter().y - height() / 2 + 10);
+    m_game->window().draw(gauge); 
 
     // set posiiton and drae mini map player at top left of the window relative to the player's position in game
     for (auto e : m_entityManager.getEntities())
@@ -1814,7 +1835,7 @@ void Scene_Play::sRender()
     // only do lighting for night time levels
     if (m_night)
     {
-        sf::Sprite sprite = getLightingSprite();
+        sf::Sprite sprite = getLightingSprite(gauge);
         m_game->window().draw(sprite);
     }
 

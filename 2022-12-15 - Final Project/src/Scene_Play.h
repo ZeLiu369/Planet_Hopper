@@ -74,7 +74,7 @@ protected:
     void spawnPlayer();
     void spawnBullet(std::shared_ptr<Entity> entity);
 
-    sf::Sprite getLightingSprite();
+    sf::Sprite getLightingSprite(sf::Sprite gaugeSprite);
 
     Vec2 windowToWorld(const Vec2& window) const;
     Vec2 gridToMidPixel(float x, float y, std::shared_ptr<Entity> entity);
