@@ -60,11 +60,13 @@ protected:
     sf::Text                m_controlText;
     sf::Text                m_selectionText;
     sf::Text                m_buttonText;
+    sf::Text                m_modText;
 
     // camera
     int                     m_CAMERA_SPEED = 5;
     std::string             m_CAMERA_AVATAR = "Bomb";
     Vec2                    m_BOUND_BOX = Vec2(6, 6);
+    bool                    m_fast = false;
 
     // mouse
     Vec2                    m_mPos = { 0, 0 };
@@ -72,8 +74,30 @@ protected:
     bool                    m_place = false;
     std::shared_ptr<Entity> m_selected = NULL;
 
-    // Patrol point
-    bool                    m_patrol;
+    // patrol point
+    bool                    m_patrol = true;
+
+    // debounce for modifiy function
+    bool                    m_modIncrease = true;
+    bool                    m_modDecrease = true;
+
+    // modifiable types by tag
+    std::map<std::string, std::vector<std::string>> m_modTypes
+    {
+        {"tile", {"Block vision", "Block move", "Damage", "Speed"}},
+        {"npc", {"Health", "Damage", "Jump", "Gravity", "Speed", "AI"}},
+        {"player", {"Jump", "Gravity", "Speed"}}
+    };
+
+    // max and min of mod values
+    std::map<std::string, std::vector<int>> m_minMax
+    {
+        {"Health", {1, 20}},
+        {"Damage", {0, 20}},
+        {"Jump",   {-20, 0}},
+        {"Speed",  {0, 20}},
+        {"Gravity", {-1, 1}}
+    };
 
     // animation list
     std::vector<std::string> m_aniAssets = {};
@@ -127,9 +151,17 @@ protected:
     void clearMenu();
     void showSLMenu();
 
+    void changeValue(int& i, int c, int min, int max);
+    void changeValue(float& f, int c, int min, int max, float g);
+
+    void modConfig();
+
     std::shared_ptr<Entity> createEntity(std::string animation);
 
     void sDoAction(const Action& action);
+
+    void renderEntity(std::shared_ptr<Entity> e);
+    void renderTile(std::shared_ptr<Entity> e);
 
     void sState();
     void sMovement();
