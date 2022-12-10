@@ -1906,7 +1906,9 @@ void Scene_Play::sRender()
         gameOverText.setFont(m_game->assets().getFont("Megaman"));
         gameOverText.setCharacterSize(20);
         gameOverText.setFillColor(sf::Color::White);
-        gameOverText.setPosition(sf::Vector2f(m_player->getComponent<CTransform>().pos.x - 250, m_player->getComponent<CTransform>().pos.y - 80));
+        gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2 + gameOverText.getLocalBounds().left,
+            gameOverText.getLocalBounds().height / 2 + gameOverText.getLocalBounds().top);
+        gameOverText.setPosition(sf::Vector2f(m_player->getComponent<CTransform>().pos.x, m_player->getComponent<CTransform>().pos.y - 80));
         m_game->window().draw(gameOverText);
     }
 }
