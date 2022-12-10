@@ -50,6 +50,7 @@ public:
     Vec2 velocity     = { 0.0, 0.0 };
     float scrollFactor = 0;
     float angle     = 0;
+    float prevAngle = 0;
                                                      
     CTransform() {}
     CTransform(const Vec2 & p)
@@ -73,6 +74,8 @@ public:
     int lastFiredLauncher      = 0;
     int lastFiredRaygun        = 0;
     int lastFiredBomb          = 0;
+    int lastFiredNpc           = 0;
+    Vec2 target                = { 0.0, 0.0 };
     CWeapon() {}
     CWeapon(std::string weapon) 
         : currentWeapon(weapon) {}
