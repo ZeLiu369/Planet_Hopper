@@ -509,7 +509,7 @@ void Scene_Play::sMovement()
     transform.pos.y += transform.velocity.y;
     for (auto& t : m_platforms)
     {
-        transform.pos.x += t->getComponent<CTransform>().velocity.x;
+        transform.pos += t->getComponent<CTransform>().velocity;
     }
 
     // weapon movement
@@ -786,6 +786,8 @@ void Scene_Play::sAI()
         else if (e->getComponent<CTransform>().velocity.x > 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? -1.0 : 1.0; }
         
         // gravity stuff
+        if (e->hasComponent<CGravity>()) e->getComponent<CTransform>().scale.y = (e->getComponent<CGravity>().gravity < 0 ? -1 : 1);
+
         e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
 
         if (e->getComponent<CGravity>().gravity >= 0)
