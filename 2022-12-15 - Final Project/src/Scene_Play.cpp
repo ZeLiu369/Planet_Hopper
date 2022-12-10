@@ -966,6 +966,8 @@ void Scene_Play::sCollision()
     // when the player falls into a pit
     if (transform.pos.y > height())
     {
+        m_game->playSound("death");
+        m_player->destroy();
         spawnPlayer();
     }
 
