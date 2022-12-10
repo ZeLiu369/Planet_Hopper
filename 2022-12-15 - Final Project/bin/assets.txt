@@ -192,7 +192,7 @@ Animation WormExplode	TexWormEx       7    2
 
 
 Animation DemonIdle	TexDemonIdle    6    5
-Animation DemonWalk	TexDemonWalk   12    24
+Animation DemonWalk	TexDemonWalk   12    12
 Animation DemonAttack	TexDemonAtk    15    4
 Animation DemonHit	TexDemonHit     5    10
 Animation DemonDeath	TexDemonDie    19    9

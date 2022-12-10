@@ -374,7 +374,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredLauncher = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
-                int DMG = 1;
+                int DMG = 4;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity;
                 if (weap.target.x < entityT.pos.x && entityT.scale.x == 1) { velocity = Vec2(-pc.SPEED * 1.25f, 0.0f); }
@@ -392,7 +392,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredBomb = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(24, 24);
                 int BULLET_LIFETIME = 180;
-                int DMG = 1;
+                int DMG = 2;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
@@ -622,15 +622,6 @@ void Scene_Play::sMovement()
         bt.pos += bt.velocity;
     }
 
-    for (auto& c : m_entityManager.getEntities("coinbullet"))
-    {
-        if (c->hasComponent<CBoundingBox>())
-        {
-            CTransform& ct = c->getComponent<CTransform>();
-            ct.pos.x += ct.velocity.x;
-        }
-    }
-
     for (auto e : m_entityManager.getEntities("EnemyBullet"))
     {
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
@@ -680,8 +671,9 @@ void Scene_Play::sAI()
 {
     for (auto e : m_entityManager.getEntities("npc"))
     {
+        Vec2 aiVelocity(0, e->getComponent<CTransform>().velocity.y);
         // Implementing Patrol AI behaviour
-        if ((e->tag() == "npc") && e->hasComponent<CPatrol>())
+        if (e->hasComponent<CPatrol>())
         {
             auto& pos = e->getComponent<CTransform>().pos;
             auto& vec = e->getComponent<CPatrol>().positions;
@@ -703,9 +695,8 @@ void Scene_Play::sAI()
 
                 auto dist = target.dist(b);
                 auto x = speed * (target.x - b.x) / dist;
-                auto y = speed * (target.y - b.y) / dist;
-                e->getComponent<CTransform>().velocity = Vec2(x, 0);
-                //state = state.substr(0, state.find(" ")) + " Walk";
+                //auto y = speed * (target.y - b.y) / dist;
+                aiVelocity.x = x;
                 spawnBullet(e);
             }
 
@@ -713,20 +704,14 @@ void Scene_Play::sAI()
             {
                 auto dist = vec[i].dist(pos);
                 auto x = speed * (vec[i].x - pos.x) / dist;
-                auto y = speed * (vec[i].y - pos.y) / dist;
-                e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                //auto y = speed * (vec[i].y - pos.y) / dist;
+                aiVelocity.x = x;
                 state = state.substr(0, state.find(" ")) + " Walk";
-            }
-
-            else                                                                 // if at desired posiiton stop moving
-            {
-                e->getComponent<CTransform>().velocity = Vec2(0, 0);
-                state = state.substr(0, state.find(" ")) + " Idle";
             }
         }
 
         // Implementing Follow AI behaviour
-        if (e->tag() == "npc" && e->hasComponent<CFollowPlayer>())
+        if (e->hasComponent<CFollowPlayer>())
         {
             auto a = m_player->getComponent<CTransform>().pos;              // player position
             auto b = e->getComponent<CTransform>().pos;                     // npc position
@@ -748,7 +733,10 @@ void Scene_Play::sAI()
 
             if (!intersect)                                     // if no intersection, move towards player
             {
-                if (b.dist(a) > 300)                              // if not at player position, calc vector and move towards player
+                float maxDistance;
+                if (state.find("Worm") != std::string::npos) { maxDistance = 500; }
+                else { maxDistance = 50; }
+                if (b.dist(a) > maxDistance)                              // if not at player position, calc vector and move towards player
                 {
                     auto a = m_player->getComponent<CTransform>().pos;              // player position
                     auto b = e->getComponent<CTransform>().pos;                     // npc position
@@ -756,14 +744,13 @@ void Scene_Play::sAI()
 
                     auto dist = target.dist(b);
                     auto x = speed * (target.x - b.x) / dist;
-                    auto y = speed * (target.y - b.y) / dist;
-                    e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                    //auto y = speed * (target.y - b.y) / dist;
+                    aiVelocity.x = x;
                     state = state.substr(0, state.find(" ")) + " Walk";
                 }
                 else                                                                 // if at desired posiiton stop moving
                 {
-                    e->getComponent<CTransform>().velocity = Vec2(0, 0);
-                    //state = state.substr(0, state.find(" ")) + " Idle";
+                    aiVelocity = Vec2(0, 0);
                     spawnBullet(e);
                 }
             }
@@ -776,35 +763,36 @@ void Scene_Play::sAI()
                     auto& b = e->getComponent<CTransform>().pos;                     // npc position
                     auto hdist = home.dist(b);
                     auto x = speed * (home.x - b.x) / hdist;
-                    auto y = speed * (home.y - b.y) / hdist;
-                    e->getComponent<CTransform>().velocity = Vec2(x, 0);
+                    //auto y = speed * (home.y - b.y) / hdist;
+                    aiVelocity.x = x;
                     state = state.substr(0, state.find(" ")) + " Walk";
                 }
                 else                                                                 // if at desired posiiton stop moving
                 {
-                    e->getComponent<CTransform>().velocity = Vec2(0, 0);
+                    aiVelocity = Vec2(0, 0);
                     state = state.substr(0, state.find(" ")) + " Idle";
                 }
             }
         }
 
         auto state = e->getComponent<CState>().state;
-        if (e->getComponent<CTransform>().velocity.x < 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? 1.0 : -1.0; }
-        else if (e->getComponent<CTransform>().velocity.x > 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? -1.0 : 1.0; }
+        if (aiVelocity.x < 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? 1.0 : -1.0; }
+        else if (aiVelocity.x > 0) { e->getComponent<CTransform>().scale.x = state.find("Demon") != std::string::npos ? -1.0 : 1.0; }
         
-        // gravity stuff
-        e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
-
-        if (e->getComponent<CGravity>().gravity >= 0)
+        e->getComponent<CTransform>().velocity = aiVelocity;
+        // gravity calculations
+        if (e->hasComponent<CGravity>())
         {
-            if (e->getComponent<CTransform>().velocity.y < 0) e->getComponent<CTransform>().velocity.y = 0;
+            if (abs(e->getComponent<CTransform>().velocity.y) > m_playerConfig.MAXSPEED)
+            {
+                e->getComponent<CTransform>().velocity.y = m_playerConfig.MAXSPEED;
+            }
+            else
+            {
+                e->getComponent<CTransform>().velocity.y += e->getComponent<CGravity>().gravity;
+            }
         }
-        else
-        {
-            if (e->getComponent<CTransform>().velocity.y > 0) e->getComponent<CTransform>().velocity.y = 0;
-        }
-        
-        // add velocity for movement
+        // Update positions based on movement
         e->getComponent<CTransform>().prevPos = e->getComponent<CTransform>().pos;
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
     }
@@ -901,7 +889,6 @@ void Scene_Play::sCollision()
                         {
                             e->addComponent<CInvincibility>(30);
                             e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
-                            m_game->assets().getSound("ow").setVolume(5);
                             m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
                             {
