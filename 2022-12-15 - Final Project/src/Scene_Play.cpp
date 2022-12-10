@@ -964,14 +964,9 @@ void Scene_Play::sCollision()
     if (transform.pos.x < box.halfSize.x) transform.pos.x = box.halfSize.x;
 
     // when the player falls into a pit
-    if (transform.pos.y > height()) //|| goal)
+    if (transform.pos.y > height())
     {
-        PlayerConfig& pc = m_playerConfig;
-
-        transform.velocity = Vec2(0, 0);
-
-        Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, m_player);
-        m_player->addComponent<CTransform>(spawnPos);
+        spawnPlayer();
     }
 
     // item collisions
