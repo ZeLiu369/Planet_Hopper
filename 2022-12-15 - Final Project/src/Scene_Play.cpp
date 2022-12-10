@@ -514,7 +514,7 @@ void Scene_Play::sMovement()
     transform.pos.y += transform.velocity.y;
     for (auto& t : m_platforms)
     {
-        transform.pos.x += t->getComponent<CTransform>().velocity.x;
+        transform.pos += t->getComponent<CTransform>().velocity;
     }
 
     // weapon movement

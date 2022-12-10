@@ -56,6 +56,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
+    registerAction(sf::Keyboard::LShift, "FAST");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("Tech"));
@@ -68,6 +69,9 @@ void Scene_Editor::init()
 
     m_buttonText.setCharacterSize(24);
     m_buttonText.setFont(m_game->assets().getFont("Tech"));
+
+    m_modText.setCharacterSize(48);
+    m_modText.setFont(m_game->assets().getFont("Tech"));
 
     fillAssetList();
     loadBlankLevel();
@@ -164,7 +168,7 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity, Vec2& point)
 
     for (auto& e : m_entityManager.getEntities())
     {
-        if (e == entity || e->tag() == "camera" || e->tag() == "npc" || e->tag() == "item" || e->tag() == "dec") continue;
+        if (e == entity || e->tag() != "tile") continue;
 
         Vec2 o = Physics::GetOverlap(entity, e);
         if (o.x > 0 && o.y > 0)
@@ -190,36 +194,12 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity, Vec2& point)
     return true;
 }
 
-/*
-
-// dev plan for level editor here
-
-modify mode / modifiy entity by middle click, camera locks onto entity, enter modify menu
-list if values to change appears next to image of entity: 
-values to change
-
-tile:
-pass, see, damage, speed
-
-player:
-health, damage, speed, maxspeed, jump
-
-npc:
-health, damage, speed, maxspeed, jump, gravity, ai
-
-health, speed, ai (cycle),gravity,jump,maxspeed?,damage, etc all will be increment cycle or increment
-
-patrol mode
-click on empty spaces to create points, then finish by clicking on enemy
-
-*/
-
 void Scene_Editor::fillAssetList()
 {
     std::vector<std::string> BLACK_LIST =
     {
         "Inventory", "Sky", "Stars", "Hill", "Land", "Craters", "SkyObj", "Rock", "Space",
-        "Hill2", "Land2", "Craters2", "Sky2", "SkyObj2", "Rock2"
+        "Hill2", "Land2", "Craters2", "Sky2", "SkyObj2", "Rock2", "Gauge"
     };
 
     std::string ASSET_FILE = "assets.txt";
@@ -340,10 +320,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
      
                 tile->addComponent<CBoundingBox>(tile->getComponent<CAnimation>().animation.getSize(),m,v);
 
-                if (damage != 0)
-                {
-                    tile->addComponent<CDamage>(damage);
-                }
+                tile->addComponent<CDamage>(damage);
 
                 if (speed > 0)
                 {
@@ -506,6 +483,7 @@ void Scene_Editor::saveLevel()
     pc.X = grid.x; pc.Y = grid.y;
     pc.CX = m_player->getComponent<CBoundingBox>().size.x; pc.CY = m_player->getComponent<CBoundingBox>().size.y;
     pc.GRAVITY = m_player->getComponent<CGravity>().gravity;
+    pc.JUMP = m_player->getComponent<CJump>().jump;
 
     // I made the player pos int because they like to scoot around when saving/loading
     saveLine = "Player " + std::to_string((int)pc.X) + " " + std::to_string((int)pc.Y) +
@@ -538,7 +516,7 @@ void Scene_Editor::saveLevel()
         {
             saveLine = saveLine + " " + std::to_string(e->getComponent<CBoundingBox>().blockMove) +
                 " " + std::to_string(e->getComponent<CBoundingBox>().blockVision) +
-                " " + (e->hasComponent<CDamage>() ? std::to_string(e->getComponent<CDamage>().damage) : "0");
+                " " + std::to_string(e->getComponent<CDamage>().damage);
 
             if (e->hasComponent<CPatrol>())
             {
@@ -617,6 +595,7 @@ void Scene_Editor::spawnPlayer()
     player->addComponent<CTransform>(spawnPos);
     player->addComponent<CBoundingBox>(Vec2(pc.CX, pc.CY));
     player->addComponent<CGravity>(pc.GRAVITY);
+    player->addComponent<CJump>(pc.JUMP);
 
     player->addComponent<CDraggable>();
     m_player = player;
@@ -727,6 +706,7 @@ std::shared_ptr<Entity> Scene_Editor::createEntity(std::string animation)
     if (e->tag() == "tile")
     {
         e->addComponent<CBoundingBox>(e->getComponent<CAnimation>().animation.getSize(),1,1);
+        e->addComponent<CDamage>(0);
     }
     else if (e->tag() == "item")
     {
@@ -745,12 +725,100 @@ std::shared_ptr<Entity> Scene_Editor::createEntity(std::string animation)
     return e;
 }
 
+void Scene_Editor::changeValue(int& i, int c, int min, int max)
+{
+    i += c;
+    if (i > max) i = min;
+    if (i < min) i = max;
+}
+
+void Scene_Editor::changeValue(float& i, int c, int min, int max, float g)
+{
+    i += c*g;
+    if (i > max*g) i = min*g;
+    if (i < min*g) i = max*g;
+}
+    
+
+void Scene_Editor::modConfig()
+{
+    std::string value = m_modTypes[m_selected->tag()][m_pageSelection];
+    int change = 0;
+    if (m_camera->getComponent<CInput>().left && m_modDecrease)
+    {
+        m_modDecrease = false;
+        change = -1;
+    }
+    else if (m_camera->getComponent<CInput>().right && m_modIncrease)
+    {
+        m_modIncrease = false;
+        change = 1;
+    }
+    
+    if (change != 0)
+    {
+        if (value == "Block vision") m_selected->getComponent<CBoundingBox>().blockVision = !m_selected->getComponent<CBoundingBox>().blockVision;
+        else if (value == "Block move") m_selected->getComponent<CBoundingBox>().blockMove = !m_selected->getComponent<CBoundingBox>().blockMove;
+
+        else if (value == "Health") changeValue(m_selected->getComponent<CHealth>().max, change, m_minMax[value][0], m_minMax[value][1]);
+        else if (value == "Damage") changeValue(m_selected->getComponent<CDamage>().damage, change, m_minMax[value][0], m_minMax[value][1]);
+
+        else if (value == "Jump") changeValue(m_selected->getComponent<CJump>().jump, -change, m_minMax[value][0], m_minMax[value][1], 1.0);
+        else if (value == "Gravity") changeValue(m_selected->getComponent<CGravity>().gravity, change, m_minMax[value][0], m_minMax[value][1],0.75);
+
+        else if (value == "Speed")
+        {
+            if (m_selected->tag() == "player") changeValue(m_playerConfig.SPEED, change, m_minMax[value][0], m_minMax[value][1], 1.0);
+            else if (m_selected->tag() == "npc")
+            {
+                if (m_selected->hasComponent<CPatrol>()) 
+                    changeValue(m_selected->getComponent<CPatrol>().speed, change, m_minMax[value][0], m_minMax[value][1], 1.0);
+                if (m_selected->hasComponent<CFollowPlayer>()) 
+                    changeValue(m_selected->getComponent<CFollowPlayer>().speed, change, m_minMax[value][0], m_minMax[value][1], 1.0);
+            }
+            else if (m_selected->tag() == "tile")
+            {
+                if (m_selected->hasComponent<CPatrol>())
+                {
+                    changeValue(m_selected->getComponent<CPatrol>().speed, change, m_minMax[value][0], m_minMax[value][1], 1.0);
+                    if (m_selected->getComponent<CPatrol>().speed == 0) m_selected->removeComponent<CPatrol>();
+                }
+                else
+                {
+                    m_selected->addComponent<CPatrol>();
+                    m_selected->getComponent<CPatrol>().positions = {};
+                    changeValue(m_selected->getComponent<CPatrol>().speed, change, m_minMax[value][0], m_minMax[value][1], 1.0);
+                }
+            }
+        }
+
+        else if (value == "AI")
+        {
+            float s;
+            if (m_selected->hasComponent<CPatrol>())
+            {
+                float s = m_selected->getComponent<CPatrol>().speed;
+                m_selected->removeComponent<CPatrol>();
+                m_selected->addComponent<CFollowPlayer>(Vec2(0, 0), s);
+            }
+            else if (m_selected->hasComponent<CFollowPlayer>())
+            {
+                float s = m_selected->getComponent<CFollowPlayer>().speed;
+                m_selected->removeComponent<CFollowPlayer>();
+                m_selected->addComponent<CPatrol>(std::vector<Vec2> {}, s);
+            }
+        }
+    }
+}
+
 void Scene_Editor::update()
 {
     m_entityManager.update();
 
+    std::string& state = m_camera->getComponent<CState>().state;
+
     sState();
-    if (m_camera->getComponent<CState>().state != "entity" && m_camera->getComponent<CState>().state != "sl") sMovement();
+    if (state != "entity" && state != "sl" && state != "mod") sMovement();
     sCollision();
     sAnimation();
     sRender();
@@ -769,24 +837,55 @@ void Scene_Editor::sState()
     {
         if (input.click1 && !m_place)
         {
-            for (auto e : m_entityManager.getEntities())
+            std::shared_ptr<Entity> target = NULL;
+
+            for (auto e : m_entityManager.getEntities("dec"))
             {
                 if (e->hasComponent<CDraggable>() && Physics::IsInside(windowToWorld(m_mPos), e))
                 {
                     if (!e->getComponent<CDraggable>().dragging)
                     {
-                        e->getComponent<CDraggable>().dragging = true;
-                        m_selected = e;
-                        state.state = "drag";
-                        m_drop = false;
-                        break;
+                        target = e; break;
                     }
                 }
+            }
+            if (target == NULL)
+            {
+                for (auto e : m_entityManager.getEntities())
+                {
+                    if (e->hasComponent<CDraggable>() && Physics::IsInside(windowToWorld(m_mPos), e))
+                    {
+                        if (!e->getComponent<CDraggable>().dragging)
+                        {
+                            target = e; break;
+                        }
+                    }
+                }
+            }
+            if (target != NULL)
+            {
+                target->getComponent<CDraggable>().dragging = true;
+                m_selected = target;
+                state.state = "drag";
+                m_drop = false;
             }
         }
         else if (input.click2 && m_selected != NULL && m_selected->tag() != "player")
         {
             pasteEntity(m_selected);
+        }
+        else if (input.click3)
+        {
+            for (auto e : m_entityManager.getEntities())
+            {
+                if (e->hasComponent<CDraggable>() && Physics::IsInside(windowToWorld(m_mPos), e) &&
+                    e->tag() != "dec" && e->tag() != "item")
+                {
+                    m_selected = e;
+                    m_pageSelection = 0;
+                    state.state = "mod";
+                }
+            }
         }
     }
     // can place and change to move during drag
@@ -871,6 +970,10 @@ void Scene_Editor::sState()
             }
         }
     }
+    else if (state.state == "mod")
+    {
+        modConfig();
+    }
 }
 
 void Scene_Editor::sMovement()
@@ -882,7 +985,9 @@ void Scene_Editor::sMovement()
 
     // horizontal movement
     Vec2 dir = Vec2((input.right - input.left), (input.down - input.up));
-    transform.velocity = dir * m_CAMERA_SPEED;
+    //transform.velocity = dir * m_CAMERA_SPEED;
+
+    transform.velocity = dir * (m_CAMERA_SPEED + m_CAMERA_SPEED*m_fast);
 
     // updates prevPos and current pos
     transform.prevPos = transform.pos;
@@ -937,6 +1042,11 @@ void Scene_Editor::sDoAction(const Action& action)
                 if (m_pageSelection < 0) m_pageSelection = floor((m_aniAssets.size() - 1) / 112);
                 showEntityPage(m_pageSelection);
             }
+            else if (m_camera->getComponent<CState>().state == "mod")
+            {
+                m_pageSelection--;
+                if (m_pageSelection < 0) m_pageSelection = (m_modTypes[m_selected->tag()].size() - 1);
+            }
         }
         else if (action.name() == "DOWN") 
         { 
@@ -946,6 +1056,11 @@ void Scene_Editor::sDoAction(const Action& action)
                 m_pageSelection++;
                 if (m_pageSelection > (int)floor((m_aniAssets.size() - 1) / 112)) m_pageSelection = 0;
                 showEntityPage(m_pageSelection);
+            }
+            else if (m_camera->getComponent<CState>().state == "mod")
+            {
+                m_pageSelection++;
+                if (m_pageSelection >= m_modTypes[m_selected->tag()].size()) m_pageSelection = 0;
             }
         }
         else if (action.name() == "LEFT") 
@@ -973,6 +1088,10 @@ void Scene_Editor::sDoAction(const Action& action)
             {
                 m_menuSelection = (m_menuSelection + 1) % (m_saveLimit);
             }
+        }
+        else if (action.name() == "FAST")
+        {
+            m_fast = true;
         }
 
         else if (action.name() == "LEFT_CLICK") { m_camera->getComponent<CInput>().click1 = true; }
@@ -1035,12 +1154,11 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "DARK")
         {
             m_levelConfig.DARK = !m_levelConfig.DARK;
-            saveLevel();
         }
 
         else if (action.name() == "ENTITY_MENU")
         {
-            if (m_camera->getComponent<CState>().state == "entity")
+            if (m_camera->getComponent<CState>().state == "entity" || m_camera->getComponent<CState>().state == "mod")
             {
                 m_menuSelection = 0;
                 m_camera->getComponent<CState>().state = "move";
@@ -1093,9 +1211,21 @@ void Scene_Editor::sDoAction(const Action& action)
     else if (action.type() == "END")
     {
         if (action.name() == "UP") { m_camera->getComponent<CInput>().up = false; }
-        if (action.name() == "DOWN") { m_camera->getComponent<CInput>().down = false; }
-        if (action.name() == "LEFT") { m_camera->getComponent<CInput>().left = false; }
-        if (action.name() == "RIGHT") { m_camera->getComponent<CInput>().right = false; }
+        else if (action.name() == "DOWN") { m_camera->getComponent<CInput>().down = false; }
+        else if (action.name() == "LEFT") 
+        { 
+            m_camera->getComponent<CInput>().left = false; 
+            m_modDecrease = true;
+        }
+        else if (action.name() == "RIGHT") 
+        { 
+            m_camera->getComponent<CInput>().right = false; 
+            m_modIncrease = true;
+        }
+        else if (action.name() == "FAST")
+        {
+            m_fast = false;
+        }
 
         else if (action.name() == "LEFT_CLICK")
         {
@@ -1138,15 +1268,83 @@ void Scene_Editor::onEnd()
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
 
+void Scene_Editor::renderEntity(std::shared_ptr<Entity> e)
+{
+    auto& transform = e->getComponent<CTransform>();
+    auto& ct = m_camera->getComponent<CTransform>();
+
+    if (abs(transform.pos.x - ct.pos.x) > (width() / 2) + m_gridSize.x * 2 ||
+        abs(transform.pos.y - ct.pos.y) > (height() / 2) + m_gridSize.y * 2) return;
+
+    if (e->hasComponent<CAnimation>())
+    {
+        auto& animation = e->getComponent<CAnimation>().animation;
+        animation.getSprite().setRotation(transform.angle);
+        animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+
+        if (e->hasComponent<CGravity>() && e->getComponent<CGravity>().gravity < 0) 
+             animation.getSprite().setScale(transform.scale.x, -transform.scale.y);
+        else animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+
+        m_game->window().draw(animation.getSprite());
+    }
+}
+
+void Scene_Editor::renderTile(std::shared_ptr<Entity> e)
+{
+    if (e->tag() != "tile") return;
+    auto& transform = e->getComponent<CTransform>();
+    auto& ct = m_camera->getComponent<CTransform>();
+
+    if (abs(transform.pos.x - ct.pos.x) > (width() / 2) + m_gridSize.x * 2 ||
+        abs(transform.pos.y - ct.pos.y) > (height() / 2) + m_gridSize.y * 2) return;
+
+    if (e->hasComponent<CAnimation>())
+    {
+        auto& animation = e->getComponent<CAnimation>().animation;
+        animation.getSprite().setRotation(transform.angle);
+        animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
+        animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+
+        if (!e->getComponent<CBoundingBox>().blockVision) animation.getSprite().setColor(sf::Color(255, 255, 255, 150));
+        else animation.getSprite().setColor(sf::Color(255, 255, 255, 255));
+
+        m_game->window().draw(animation.getSprite());
+
+        // render indicaters for special tiles
+        Vec2& cen = e->getComponent<CTransform>().pos;
+        CBoundingBox& b = e->getComponent<CBoundingBox>();
+        for (int i = 0; i < 3; i++)
+        {
+            if (i == 0 && b.blockMove) continue;
+            else if (i == 1 && e->getComponent<CDamage>().damage == 0) continue;
+            else if (i == 2 && !e->hasComponent<CPatrol>()) continue;
+
+            sf::Color col;
+            sf::CircleShape cir;
+            cir.setRadius(4);
+            cir.setOrigin(4, 4);
+            cir.setPosition(cen.x - b.halfSize.x + 4 + i * 10, cen.y + b.halfSize.y - 4);
+
+            if (i == 0) col = sf::Color(0, 255, 0);
+            else if (i == 1) col = sf::Color(255, 0, 0);
+            else col = sf::Color(0, 0, 255);
+
+            cir.setFillColor(col);
+            m_game->window().draw(cir);
+        }
+    }
+}
+
 void Scene_Editor::sRender()
 {
     std::string s = m_camera->getComponent<CState>().state;
 
     // determines colour of background
     std::tuple<int,int,int> rgb;
-    if (m_levelConfig.BACKGROUND == "Background1") rgb = { 60, 123, 232 };
-    else if (m_levelConfig.BACKGROUND == "Background2") rgb = { 158, 132, 179 };
-    else if (m_levelConfig.BACKGROUND == "Background3") rgb = { 150, 51, 64 };
+    if (m_levelConfig.BACKGROUND == "Background1") rgb = { 62, 77, 179 };
+    else if (m_levelConfig.BACKGROUND == "Background2") rgb = { 225, 102, 50 };
+    else if (m_levelConfig.BACKGROUND == "Background3") rgb = { 230, 226, 87 };
     else rgb = { 148, 148, 148 };
     if (m_levelConfig.DARK)
     {
@@ -1167,57 +1365,33 @@ void Scene_Editor::sRender()
     Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
         (m_game->window().getView().getCenter().y - height() / 2));
     // normal editor drawing
-    if (s != "entity" && s != "sl")
+    if (s != "entity" && s != "sl" && s != "mod")
     {
         // draw all Entity textures / animations
         if (m_drawTextures)
         {
-            for (auto e : m_entityManager.getEntities())
+            for (auto e : m_entityManager.getEntities("tile"))
             {
-                if (e->tag() == "camera" && !m_drawCamera) continue;
-
-                auto& transform = e->getComponent<CTransform>();
-
-                if (e->hasComponent<CAnimation>())
-                {
-                    auto& animation = e->getComponent<CAnimation>().animation;
-                    animation.getSprite().setRotation(transform.angle);
-                    animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
-                    animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-                    if (e->tag() == "tile" && e->hasComponent<CBoundingBox>() && !e->getComponent<CBoundingBox>().blockVision)
-                    {
-                        animation.getSprite().setColor(sf::Color(255, 255, 255, 150));
-                    }
-                    m_game->window().draw(animation.getSprite());
-
-                    // render indicaters for special tiles
-                    if (e->tag() == "tile" && e->hasComponent<CBoundingBox>())
-                    {
-                        Vec2& cen = e->getComponent<CTransform>().pos;
-                        CBoundingBox& b = e->getComponent<CBoundingBox>();
-                        for (int i = 0; i < 3; i++)
-                        {
-                            if (i == 0 && b.blockMove) continue;
-                            else if (i == 1 && !e->hasComponent<CDamage>()) continue;
-                            else if (i == 2 && !e->hasComponent<CPatrol>()) continue;
-
-                            sf::Color col;
-                            sf::CircleShape cir;
-                            cir.setRadius(4);
-                            cir.setOrigin(4, 4);
-                            cir.setPosition(cen.x - b.halfSize.x + 4 + i*10, cen.y + b.halfSize.y - 4);
-
-                            if (i == 0) col = sf::Color(0, 255, 0);
-                            else if (i == 1) col = sf::Color(255, 0, 0);
-                            else col = sf::Color(0, 0, 255);
-
-                            cir.setFillColor(col);
-                            m_game->window().draw(cir);
-                        }
-
-                    }
-                }
+                renderTile(e);
             }
+            // dec render
+            for (auto e : m_entityManager.getEntities("dec"))
+            {
+                renderEntity(e);
+            }
+            // item render
+            for (auto e : m_entityManager.getEntities("item"))
+            {
+                renderEntity(e);
+            }
+            // npc render
+            for (auto e : m_entityManager.getEntities("npc"))
+            {
+                renderEntity(e);
+            }
+            // player render
+            renderEntity(m_player);
+            if (m_drawCamera) renderEntity(m_camera);
         }
 
         // guide text
@@ -1229,7 +1403,7 @@ void Scene_Editor::sRender()
                 // delete mode
                 (s == "delete" ? "DELETE MODE ON (Right click to delete | Backspace to toggle off)" :
                     // move mode
-                    (s == "move" ? "Menus: Entity = Q | Save/Load = Tab\nDelete Mode (Backspace) | Paste Entity (Mouse2) " +
+                    (s == "move" ? "Menus: Entity = Q | Save/Load = Tab\nDelete Mode (Backspace) | Mod Mode (Mouse3) | Paste Entity (Mouse2) " +
                         // if m_selected has entity
                         (m_selected != NULL ? "Entity: " + m_selected->tag() + " " +
                             m_selected->getComponent<CAnimation>().animation.getName() : "") :
@@ -1262,6 +1436,11 @@ void Scene_Editor::sRender()
                 {
                     auto& box = e->getComponent<CBoundingBox>();
                     auto& transform = e->getComponent<CTransform>();
+                    auto& ct = m_camera->getComponent<CTransform>();
+
+                    if (abs(transform.pos.x - ct.pos.x) > (width() / 2) + m_gridSize.x * 2 ||
+                        abs(transform.pos.y - ct.pos.y) > (height() / 2) + m_gridSize.y * 2) continue;
+
                     sf::RectangleShape rect;
                     rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
                     rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
@@ -1388,6 +1567,74 @@ void Scene_Editor::sRender()
             textWidth = m_selectionText.getString().getSize() * m_selectionText.getCharacterSize();
             m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (textWidth / 2),upperLeftCorner.y + m_gridSize.y);
             m_game->window().draw(m_selectionText);
+        }
+        else if (s == "mod")
+        {
+            m_controlText.setString("W/S to select values | A/D to change values | Q to return");
+            m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y);
+            m_game->window().draw(m_controlText);
+
+            // image of entity
+            auto& transform = m_camera->getComponent<CTransform>();
+            auto& animation = m_selected->getComponent<CAnimation>();
+
+            Vec2 aniSize = animation.animation.getSize();
+
+            animation.animation.getSprite().setPosition(transform.pos.x - (m_gridSize.x * 5), transform.pos.y);
+            animation.animation.getSprite().setScale((m_gridSize.x * 4) / aniSize.x ,  (m_gridSize.y * 4) / aniSize.y );
+            m_game->window().draw(animation.animation.getSprite());
+
+            m_selectionText.setString("\n>");
+            m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (m_modText.getCharacterSize() + 3), 
+                                        upperLeftCorner.y + (height() / 4) + (m_pageSelection * (m_modText.getCharacterSize() + 6)));
+            m_game->window().draw(m_selectionText);
+
+            std::vector<std::string>& values = m_modTypes[m_selected->tag()];
+            std::string modValues = "";
+            for (std::string v : values)
+            {
+                if (v == "AI") continue;
+                modValues = modValues + "\n" + v;
+                if (v == "Block vision") modValues = modValues + ": " + std::to_string(m_selected->getComponent<CBoundingBox>().blockVision);
+                else if (v == "Block move") modValues = modValues + ": " + std::to_string(m_selected->getComponent<CBoundingBox>().blockMove);
+                else if (v == "Health") modValues = modValues + ": " + std::to_string(m_selected->getComponent<CHealth>().max);
+                else if (v == "Jump") modValues = modValues + ": " + 
+                    (m_selected->getComponent<CJump>().jump != 0 ? formatFloat(-m_selected->getComponent<CJump>().jump) : "0");
+                else if (v == "Gravity") modValues = modValues + ": " + formatFloat(m_selected->getComponent<CGravity>().gravity);
+                else if (v == "Damage")
+                {
+                    if (m_selected->hasComponent<CDamage>()) modValues = modValues + ": " + 
+                                 std::to_string(m_selected->getComponent<CDamage>().damage);
+                    else modValues = modValues + ": 0";
+                }
+                else if (v == "Speed")
+                {
+                    if (m_selected->tag() == "player")
+                    {
+                        modValues = modValues + ": " + formatFloat(m_playerConfig.SPEED);
+                    }
+                    else if (m_selected->tag() == "tile")
+                    {
+                        modValues = modValues + ": " + formatFloat(m_selected->getComponent<CPatrol>().speed);
+                    }
+                    else if (m_selected->tag() == "npc")
+                    {
+                        if (m_selected->hasComponent<CPatrol>())
+                        {
+                            modValues = modValues + ": " + formatFloat(m_selected->getComponent<CPatrol>().speed);
+                            modValues = modValues + "\n" + values[values.size() - 1] + ": Patrol";
+                        }
+                        else if (m_selected->hasComponent<CFollowPlayer>())
+                        {
+                            modValues = modValues + ": " + formatFloat(m_selected->getComponent<CFollowPlayer>().speed);
+                            modValues = modValues + "\n" + values[values.size() - 1] + ": Follow";
+                        }
+                    }
+                }
+            }
+            m_modText.setString(modValues);
+            m_modText.setPosition(upperLeftCorner.x + (width() / 2), upperLeftCorner.y + (height() / 4));
+            m_game->window().draw(m_modText);
         }
 
         for (auto e : m_entityManager.getEntities("button"))
