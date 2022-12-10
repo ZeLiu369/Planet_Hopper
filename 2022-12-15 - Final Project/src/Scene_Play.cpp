@@ -967,6 +967,7 @@ void Scene_Play::sCollision()
     if (transform.pos.y > height())
     {
         m_game->playSound("death");
+        m_player->destroy();
         spawnPlayer();
     }
 
