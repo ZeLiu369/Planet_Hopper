@@ -377,18 +377,9 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 int DMG = 1;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity;
-                if (weap.target.x < entityT.pos.x && entityT.scale.x == 1)
-                {
-                    velocity = Vec2(-pc.SPEED * 1.25f, 0.0f);
-                }
-                else if (weap.target.x > entityT.pos.x && entityT.scale.x == -1)
-                {
-                    velocity = Vec2(pc.SPEED * 1.25f, 0.0f);
-                }
-                else
-                {
-                    velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f);
-                } 
+                if (weap.target.x < entityT.pos.x && entityT.scale.x == 1) { velocity = Vec2(-pc.SPEED * 1.25f, 0.0f); }
+                else if (weap.target.x > entityT.pos.x && entityT.scale.x == -1) { velocity = Vec2(pc.SPEED * 1.25f, 0.0f); }
+                else { velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f); }
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
                 m_game->playSound("se_bullet_missile");
             }
@@ -415,6 +406,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 {
                     bullet->getComponent<CGravity>().flipped = false;
                 }
+                m_game->playSound("throw");
             }
         }
         else if (weap.currentWeapon == "Raygun")
@@ -582,7 +574,7 @@ void Scene_Play::sMovement()
                 b->removeComponent<CBoundingBox>();
                 b->removeComponent<CLifeSpan>();
                 b->getComponent<CTransform>().velocity = { 0.0, 0.0 };
-                b->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+                b->getComponent<CState>().state = "explosion";
                 continue;
             }
 
@@ -909,8 +901,11 @@ void Scene_Play::sCollision()
                         {
                             e->addComponent<CInvincibility>(30);
                             e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
+                            m_game->assets().getSound("ow").setVolume(5);
+                            m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
                             {
+                                m_game->playSound("death");
                                 e->destroy();
                                 spawnPlayer();
                             }
@@ -962,7 +957,7 @@ void Scene_Play::sCollision()
                         // if bullet collides with a tile set its state to impact to play the proper animation
                         if (e->tag() == "bullet")
                         {
-                            e->getComponent<CState>().state = "impact";
+                            e->getComponent<CState>().state = "explosion";
                         }
                         else
                         {
@@ -1019,12 +1014,12 @@ void Scene_Play::sCollision()
                 if (m_player->hasComponent<CInvincibility>()) { break; }
                 m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
                 m_player->addComponent<CInvincibility>(60);
-                //m_game->playSound("LinkHurt");
+                m_game->playSound("ow");
 
                 // destroy dead player and spawn new player
                 if (m_player->getComponent<CHealth>().current <= 0)
                 {
-                    //m_game->playSound("LinkDie");
+                    m_game->playSound("death");
                     m_player->destroy();
                     spawnPlayer();
                 }
@@ -1040,7 +1035,7 @@ void Scene_Play::sCollision()
             // if there is a collision adjust npc health and set bullet state
             if (Physics::GetOverlap(npc, bullet).x > 0 && Physics::GetOverlap(npc, bullet).y > 0)
             {
-                bullet->getComponent<CState>().state = "impact";
+                bullet->getComponent<CState>().state = "explosion";
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
@@ -1075,11 +1070,11 @@ void Scene_Play::sCollision()
     // if the bullet has impacted something need to remove and adjust components
     for (auto& bullet : m_entityManager.getEntities("bullet"))
     {
-        if (bullet->getComponent<CState>().state == "impact")
+        if (bullet->getComponent<CState>().state == "explosion")
         {
             bullet->removeComponent<CBoundingBox>();
             bullet->removeComponent<CLifeSpan>();
-            if (bullet->hasComponent<CGravity>()) bullet->removeComponent<CGravity>();
+            if (bullet->hasComponent<CGravity>()) { bullet->removeComponent<CGravity>(); }
             bullet->removeComponent<CDamage>();
             bullet->getComponent<CTransform>().velocity = { 0.0, 0.0 };
         }
@@ -1148,13 +1143,14 @@ void Scene_Play::sCollision()
                     {
                         m_player->addComponent<CInvincibility>(10);
                         m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
+                        m_game->playSound("ow");
                     }
                     f->destroy();
 
                     // destroy dead player and spawn new player
                     if (m_player->getComponent<CHealth>().current <= 0)
                     {
-                        //m_game->playSound("LinkDie");
+                        m_game->playSound("death");
                         m_player->destroy();
                         spawnPlayer();
                     }
@@ -1166,8 +1162,9 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
+        if (m_countdown == 150) { m_game->playSound("winSound"); }
         // Change scene after m_countdown number of frames has passed
-        m_countdown--; 
+        m_countdown--;
         m_action = 1;
         if (m_countdown <= 0) onEnd();
     }
@@ -1243,11 +1240,12 @@ void Scene_Play::sAnimation()
     for (auto& bullet : m_entityManager.getEntities("bullet"))
     {
         // play explosion animation
-        if (bullet->getComponent<CState>().state == "impact")
+        if (bullet->getComponent<CState>().state == "explosion")
         {
             if (bullet->getComponent<CAnimation>().animation.getName() != "Explosion")
             {
                 bullet->addComponent<CAnimation>(m_game->assets().getAnimation("Explosion"), false);
+                m_game->playSound("explosion");
             }
         }
     }

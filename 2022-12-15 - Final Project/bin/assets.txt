@@ -208,3 +208,8 @@ Sound     OverWorld  sounds/Overworld_bgm.ogg
 
 Sound  se_bullet_leaser  sounds/se_bullet_leaser.wav
 Sound  se_bullet_missile sounds/se_bullet_missile.wav
+Sound  ow 		 sounds/ow.wav
+Sound  throw             sounds/sfx_throw.wav
+Sound  explosion         sounds/explosion.wav
+Sound  winSound          sounds/WinFantasia.wav
+Sound  death             sounds/death.wav
