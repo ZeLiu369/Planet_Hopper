@@ -77,6 +77,9 @@ protected:
     // patrol point
     bool                    m_patrol = true;
 
+    // mute for music
+    bool                    m_mute = false;
+
     // debounce for modifiy function
     bool                    m_modIncrease = true;
     bool                    m_modDecrease = true;

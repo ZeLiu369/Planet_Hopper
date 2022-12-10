@@ -51,6 +51,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::Num0, "DARK");
     registerAction(sf::Keyboard::Q, "ENTITY_MENU");
     registerAction(sf::Keyboard::Tab, "SAVE/LOAD_MENU");
+    registerAction(sf::Keyboard::M, "MUTE");
 
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -265,6 +266,7 @@ void Scene_Editor::loadBlankLevel()
     spawnPlayer();
     spawnCamera();
     m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
+    m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
     m_game->playSound(m_levelConfig.MUSIC);
 }
 
@@ -418,8 +420,13 @@ void Scene_Editor::loadLevel(const std::string& filename)
     spawnPlayer();
     spawnCamera();
 
-    m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-    m_game->playSound(m_levelConfig.MUSIC);
+    if (!m_mute)
+    {
+        m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
+        m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
+        m_game->playSound(m_levelConfig.MUSIC);
+    }
+    std::cout << m_levelConfig.NAME + " loaded!\n";
 }
 
 void Scene_Editor::saveLevel()
@@ -581,6 +588,8 @@ void Scene_Editor::saveLevel()
     }
 
     fout.close();
+    m_game->playSound("winSound");
+    std::cout << lc.NAME + " saved!\n";
 }
 
 void Scene_Editor::spawnPlayer()
@@ -608,7 +617,7 @@ void Scene_Editor::spawnCamera()
     m_camera = m_entityManager.addEntity("camera");
     m_camera->addComponent<CAnimation>(m_game->assets().getAnimation(m_CAMERA_AVATAR), true);
 
-    Vec2 spawnPos = gridToMidPixel(0, 0, m_camera);
+    Vec2 spawnPos = gridToMidPixel(pc.X, pc.Y, m_camera);
     m_camera->addComponent<CTransform>(spawnPos);
     m_camera->addComponent<CBoundingBox>(m_BOUND_BOX);
 
@@ -864,6 +873,7 @@ void Scene_Editor::sState()
             }
             if (target != NULL)
             {
+                m_game->playSound("throw");
                 target->getComponent<CDraggable>().dragging = true;
                 m_selected = target;
                 state.state = "drag";
@@ -1110,6 +1120,7 @@ void Scene_Editor::sDoAction(const Action& action)
         {
             if (m_camera->getComponent<CState>().state == "move")
             {
+                m_game->playSound("death");
                 m_camera->getComponent<CState>().state = "delete";
             }
             else if (m_camera->getComponent<CState>().state == "delete")
@@ -1118,6 +1129,7 @@ void Scene_Editor::sDoAction(const Action& action)
             }
             else if (m_camera->getComponent<CState>().state == "drag")
             {
+                m_game->playSound("death");
                 m_camera->getComponent<CState>().state = "delete";
                 m_selected->destroy();
                 m_selected = NULL;
@@ -1137,8 +1149,18 @@ void Scene_Editor::sDoAction(const Action& action)
                     break;
                 }
             }
-            //m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-            //m_game->playSound(m_levelConfig.MUSIC);
+            m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
+            m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
+            if (!m_mute)
+            {
+                m_game->playSound(m_levelConfig.MUSIC);
+            }
+        }
+        else if (action.name() == "MUTE")
+        {
+            m_mute = !m_mute;
+            if (!m_mute) { m_game->playSound(m_levelConfig.MUSIC); }
+            else m_game->assets().getSound(m_levelConfig.MUSIC).stop();
         }
         else if (action.name() == "BACKGROUND")
         {
@@ -1264,6 +1286,7 @@ void Scene_Editor::onEnd()
     m_hasEnded = true;
     m_game->assets().getSound(m_levelConfig.MUSIC).stop();
     m_game->assets().getSound("MusicTitle").setLoop(true);
+    m_game->assets().getSound("MusicTitle").setVolume(6.0f);
     m_game->playSound("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
@@ -1663,7 +1686,8 @@ void Scene_Editor::sRender()
     if (m_help)
     {
         m_controlText.setString("Music (8): " + m_levelConfig.MUSIC +
-            " | Background (9): " + m_levelConfig.BACKGROUND + " | Dark (0): " + std::to_string(m_levelConfig.DARK) +
+            " | Mute(M) " + std::to_string(m_mute) + " | Background(9) : " + m_levelConfig.BACKGROUND + " | Dark(0) : " + 
+            std::to_string(m_levelConfig.DARK) +
             " | Name: " + m_levelConfig.NAME);
 
         m_controlText.setPosition(upperLeftCorner.x, upperLeftCorner.y + height() - m_controlText.getCharacterSize() - 5);
