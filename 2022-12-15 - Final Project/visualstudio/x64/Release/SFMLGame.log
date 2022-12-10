@@ -1,7 +1,4 @@
-﻿  GameEngine.cpp
-  Scene_Menu.cpp
-  Scene_Overworld.cpp
-  Scene_Play.cpp
+﻿  Scene_Play.cpp
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,13): warning C4101: 'y1': unreferenced local variable
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,9): warning C4101: 'x1': unreferenced local variable
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(326,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
@@ -11,15 +8,15 @@ C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scen
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(392,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(416,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(581,31): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(308): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
   Generating code
-  18 of 2238 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+  1 of 2238 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+    18 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\bin\SFMLGame.exe
