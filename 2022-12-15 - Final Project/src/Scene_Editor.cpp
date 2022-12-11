@@ -56,7 +56,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(m_game->gameControls.right, "RIGHT");
+    registerAction(sf::Keyboard::D, "RIGHT");
     registerAction(sf::Keyboard::LShift, "FAST");
 
     m_gridText.setCharacterSize(12);
