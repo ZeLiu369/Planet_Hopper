@@ -28,6 +28,7 @@
     <ClCompile Include="..\src\Scene.cpp" />
     <ClCompile Include="..\src\Scene_Editor.cpp" />
     <ClCompile Include="..\src\Scene_Menu.cpp" />
+    <ClCompile Include="..\src\Scene_OptionMenu.cpp" />
     <ClCompile Include="..\src\Scene_Overworld.cpp" />
     <ClCompile Include="..\src\Scene_Play.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -46,6 +47,7 @@
     <ClInclude Include="..\src\Scene.h" />
     <ClInclude Include="..\src\Scene_Editor.h" />
     <ClInclude Include="..\src\Scene_Menu.h" />
+    <ClInclude Include="..\src\Scene_OptionMenu.h" />
     <ClInclude Include="..\src\Scene_Overworld.h" />
     <ClInclude Include="..\src\Scene_Play.h" />
     <ClInclude Include="..\src\Physics.h" />
