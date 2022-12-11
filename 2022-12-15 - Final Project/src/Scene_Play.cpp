@@ -815,6 +815,7 @@ void Scene_Play::sAI()
         // gravity calculations
         if (e->hasComponent<CGravity>())
         {
+            e->getComponent<CTransform>().scale.y = (e->getComponent<CGravity>().gravity < 0 ? -1 : 1);
             if (abs(e->getComponent<CTransform>().velocity.y) > m_playerConfig.MAXSPEED)
             {
                 e->getComponent<CTransform>().velocity.y = m_playerConfig.MAXSPEED;
