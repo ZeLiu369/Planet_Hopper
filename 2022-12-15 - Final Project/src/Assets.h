@@ -42,6 +42,7 @@ public:
     const sf::Font &    getFont(const std::string & fontName) const;
     sf::Sound&          getSound(const std::string& soundName);
     void                changeVolume(const float& vol);
+    float               getTheVolume();
 };
 
 // Copyright (C) David Churchill - All Rights Reserved

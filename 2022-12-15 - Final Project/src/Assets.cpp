@@ -139,12 +139,18 @@ sf::Sound& Assets::getSound(const std::string& soundName)
     return m_soundMap.at(soundName);
 }
 
+// for each sound, change the volume to the new volume
 void Assets::changeVolume(const float& vol)
 {
     for (auto &sound : m_soundMap)
     {
         sound.second.setVolume(vol);
     }
+}
+
+float Assets::getTheVolume()
+{   
+    return m_soundMap.begin()->second.getVolume();
 }
 
 // Copyright (C) David Churchill - All Rights Reserved
