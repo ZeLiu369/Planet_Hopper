@@ -60,19 +60,19 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::LShift, "FAST");
 
     m_gridText.setCharacterSize(12);
-    m_gridText.setFont(m_game->assets().getFont("Tech"));
+    m_gridText.setFont(m_game->assets().getFont("ChunkFive"));
 
     m_controlText.setCharacterSize(24);
-    m_controlText.setFont(m_game->assets().getFont("Tech"));
+    m_controlText.setFont(m_game->assets().getFont("ChunkFive"));
 
     m_selectionText.setCharacterSize(48);
-    m_selectionText.setFont(m_game->assets().getFont("Tech"));
+    m_selectionText.setFont(m_game->assets().getFont("ChunkFive"));
 
     m_buttonText.setCharacterSize(24);
-    m_buttonText.setFont(m_game->assets().getFont("Tech"));
+    m_buttonText.setFont(m_game->assets().getFont("ChunkFive"));
 
     m_modText.setCharacterSize(48);
-    m_modText.setFont(m_game->assets().getFont("Tech"));
+    m_modText.setFont(m_game->assets().getFont("ChunkFive"));
 
     setUpSounds();
 
