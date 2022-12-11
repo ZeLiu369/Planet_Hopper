@@ -65,7 +65,7 @@ protected:
     void loadLevel(const std::string & filename);
 
     sf::Text displayText(std::string, float x, float y);
-    sf::RectangleShape displayRect(float x, float y, const int size);
+    sf::Sprite displayBox(float x, float y);
     std::shared_ptr<Entity> setupBullet(Vec2 size, Vec2 pos, int lifetime, int dmg, Vec2 speed, std::string name);
     void drawWeapon();
     void drawWeaponDisplay();

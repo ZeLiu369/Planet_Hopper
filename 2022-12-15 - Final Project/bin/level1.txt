@@ -1,4 +1,4 @@
-Lighting Night
+Lighting Day
 Music Play
 BackgroundType Background2
 Background Sky2     0 1.25 1.5  640 384

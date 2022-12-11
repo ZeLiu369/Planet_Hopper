@@ -54,10 +54,10 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Space, "SHOOT");
 
     m_gridText.setCharacterSize(12);
-    m_gridText.setFont(m_game->assets().getFont("Tech"));
+    m_gridText.setFont(m_game->assets().getFont("ChunkFive"));
 
     m_weaponUIText.setCharacterSize(14);
-    m_weaponUIText.setFont(m_game->assets().getFont("Tech"));
+    m_weaponUIText.setFont(m_game->assets().getFont("Roboto"));
 
     inventoryItems = { false, false, false, false, false };
     loadLevel(levelPath);
@@ -1566,19 +1566,16 @@ sf::Sprite Scene_Play::getLightingSprite(sf::Sprite gaugeSprite)
 }
 
 /*
-* Display a rectangle with white outline at given position with given size
+* Display a weapon box sprite at given position
 */
-sf::RectangleShape Scene_Play::displayRect(float x, float y, const int size)
+sf::Sprite Scene_Play::displayBox(float x, float y)
 {
-    sf::RectangleShape rect;
-    rect.setSize(sf::Vector2f(size, size));
-    rect.setOrigin(sf::Vector2f(size / 2, size / 2));
-    rect.setPosition(x, y);
-    rect.setFillColor(sf::Color(0, 0, 0, 0));
-    rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-    rect.setOutlineThickness(1);
-   
-    return rect;
+    sf::Sprite box(m_game->assets().getTexture("TexWeaponBox"));
+
+    box.setOrigin(sf::Vector2f(m_game->assets().getTexture("TexWeaponBox").getSize().x / 2, m_game->assets().getTexture("TexWeaponBox").getSize().y / 2));
+    box.setPosition(x, y);
+
+    return box;
 }
 
 /*
@@ -1602,28 +1599,29 @@ void Scene_Play::drawWeaponDisplay()
     float viewCenterY = m_game->window().getView().getCenter().y;
     float windowSizeYHalf = m_game->window().getSize().y / 2.0f;
     const int size = 48;
-    m_game->window().draw(displayText("1", viewCenterX - size - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
-    m_game->window().draw(displayText("2", viewCenterX - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
-    m_game->window().draw(displayText("3", viewCenterX + size - 20, viewCenterY + windowSizeYHalf - size / 2 - 30));
+
+    m_game->window().draw(displayBox(viewCenterX - size - 555, viewCenterY + windowSizeYHalf - size / 2 - 12));
+    m_game->window().draw(displayBox(viewCenterX - 535, viewCenterY + windowSizeYHalf - size / 2 - 12));
+    m_game->window().draw(displayBox(viewCenterX + size - 515, viewCenterY + windowSizeYHalf - size / 2 - 12));
+
+    m_game->window().draw(displayText("1", viewCenterX - size - 575, viewCenterY + windowSizeYHalf - size / 2 - 36));
+    m_game->window().draw(displayText("2", viewCenterX - 555, viewCenterY + windowSizeYHalf - size / 2 - 36));
+    m_game->window().draw(displayText("3", viewCenterX + size - 535, viewCenterY + windowSizeYHalf - size / 2 - 36));
 
     sf::Sprite raygunDisplay(m_game->assets().getTexture("TexRaygun"));
     raygunDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    raygunDisplay.setPosition(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2);
+    raygunDisplay.setPosition(viewCenterX - size - 555, viewCenterY + windowSizeYHalf - size / 2 - 6);
     m_game->window().draw(raygunDisplay);
 
     sf::Sprite bombDisplay(m_game->assets().getTexture("TexBomb"));
     bombDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    bombDisplay.setPosition(viewCenterX, viewCenterY + windowSizeYHalf - size / 2);
+    bombDisplay.setPosition(viewCenterX - 535, viewCenterY + windowSizeYHalf - size / 2 - 8);
     m_game->window().draw(bombDisplay);
 
     sf::Sprite launcherDisplay(m_game->assets().getTexture("TexLauncher"));
     launcherDisplay.setOrigin(sf::Vector2f(size / 2, size / 2));
-    launcherDisplay.setPosition(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2);
+    launcherDisplay.setPosition(viewCenterX + size - 515, viewCenterY + windowSizeYHalf - size / 2 - 6);
     m_game->window().draw(launcherDisplay);
-
-    m_game->window().draw(displayRect(viewCenterX - size, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
-    m_game->window().draw(displayRect(viewCenterX, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
-    m_game->window().draw(displayRect(viewCenterX + size, viewCenterY + windowSizeYHalf - size / 2 - 4, size));
 }
 
 /*
@@ -1904,7 +1902,7 @@ void Scene_Play::sRender()
     {
         sf::Text gameOverText;
         gameOverText.setString("Congratulations! Level Completed");
-        gameOverText.setFont(m_game->assets().getFont("Megaman"));
+        gameOverText.setFont(m_game->assets().getFont("Roboto"));
         gameOverText.setCharacterSize(20);
         gameOverText.setFillColor(sf::Color::White);
         gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2 + gameOverText.getLocalBounds().left,

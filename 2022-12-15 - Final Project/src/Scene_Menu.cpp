@@ -45,8 +45,7 @@ void Scene_Menu::init()
     m_levelPaths.push_back("level2.txt");
     m_levelPaths.push_back("level3.txt");
 
-    m_menuText.setFont(m_game->assets().getFont("Megaman"));
-    m_menuText.setCharacterSize(64);
+    m_menuText.setFont(m_game->assets().getFont("Roboto"));
 
     m_game->assets().getSound("MusicTitle").setLoop(true);
     m_game->assets().getSound("MusicTitle").setVolume(6.0f);
@@ -119,7 +118,7 @@ void Scene_Menu::sRender()
     m_game->window().draw(background);
                                                      
     // draw the game title in the top-left of the screen
-    m_menuText.setCharacterSize(48);
+    m_menuText.setCharacterSize(70);
     m_menuText.setString(m_title);
     m_menuText.setFillColor(sf::Color::Cyan);
     m_menuText.setPosition(sf::Vector2f(10, 10));
@@ -135,7 +134,7 @@ void Scene_Menu::sRender()
     }
 
     // draw the controls in the bottom-left
-    m_menuText.setCharacterSize(20);
+    m_menuText.setCharacterSize(40);
     m_menuText.setFillColor(sf::Color::White);
     m_menuText.setString("up: w     down: s    play: d    back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
