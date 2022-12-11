@@ -47,6 +47,7 @@ public:
     Vec2 pos          = { 0.0, 0.0 };
     Vec2 prevPos      = { 0.0, 0.0 };
     Vec2 scale        = { 1.0, 1.0 };
+    Vec2 prevScale    = { 1.0, 1.0 };
     Vec2 velocity     = { 0.0, 0.0 };
     float scrollFactor = 0;
     float angle     = 0;
@@ -131,6 +132,7 @@ public:
     bool shoot      = false;
     bool canShoot   = true;
     bool canJump    = true;
+    bool sliding    = false;
     // mouse inputs
     bool click1 = false;
     bool click2 = false;

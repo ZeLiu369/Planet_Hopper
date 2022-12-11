@@ -526,8 +526,6 @@ Tile SpikeDown 133 19 1 1 1 0
 Tile SpikeDown 134 19 1 1 1 0
 Tile SpikeDown 135 19 1 1 1 0
 Tile SpikeDown 136 19 1 1 1 0
-Tile WavyMid 116 13 1 1 0 2 2 125 13 116 13
-Tile WavyMid 128 12 1 1 0 1 2 128 12 134 12
 Tile Plat 174 1 1 1 0 0
 Tile Plat 175 1 1 1 0 0
 Tile Plat 176 1 1 1 0 0
@@ -536,6 +534,8 @@ Tile Plat 175 2 1 1 0 0
 Tile Plat 176 2 1 1 0 0
 Tile Spaceship 175 3 1 1 0 0
 Npc WormIdle 171 1 1 6 1 0 0.75 2 Patrol 2 171 1 160 1
+Tile LargePltfrm 116 13 1 1 0 2 2 116 13 126 13
+Tile LargePltfrm 134 10 1 1 0 1 2 134 10 130 10
 Dec Plat 0 13
 Dec Plat 1 13
 Dec Plat 2 13
