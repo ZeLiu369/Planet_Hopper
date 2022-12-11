@@ -865,7 +865,7 @@ void Scene_Play::sInventory()
             auto w = windowToWorld(Vec2(30, 90));
             //auto inv_t = Vec2(30 + x, 20 + y);
             auto inv_t = Vec2(0, 0);
-            auto& item = m_entityManager.addEntity("items");
+            auto item = m_entityManager.addEntity("items");
             item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
             auto s = i->getComponent<CAnimation>().animation.getName();
             std::cout << s << "; " << i->getComponent<CInventory>().index << ";  ";
