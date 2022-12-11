@@ -163,6 +163,8 @@ void GameEngine::update()
     currentScene()->simulate(m_simulationSpeed);
     currentScene()->sRender();
     m_window.display();
+
+    m_assets.changeVolume(0.f);
 }
 
 void GameEngine::quit()

@@ -41,6 +41,7 @@ public:
     const Animation &   getAnimation(const std::string & animationName) const;
     const sf::Font &    getFont(const std::string & fontName) const;
     sf::Sound&          getSound(const std::string& soundName);
+    void                changeVolume(const float& vol);
 };
 
 // Copyright (C) David Churchill - All Rights Reserved
