@@ -36,7 +36,10 @@ void Scene_OptionMenu::init()
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "Options";
-    m_menuStrings.push_back("Volume: ");
+
+    float volume = m_game -> assets().getTheVolume();
+
+    m_menuStrings.push_back("Volume: " + std::to_string(int(volume)) + "/100");
     m_menuStrings.push_back("Music: ");
     m_menuStrings.push_back("Sounds Effects: ");
     m_menuStrings.push_back("Difficulty: ");
