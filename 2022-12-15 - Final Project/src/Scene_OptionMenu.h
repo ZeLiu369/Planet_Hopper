@@ -32,6 +32,7 @@ protected:
     std::vector<std::string> m_levelPaths;
     sf::Text m_menuText;
     size_t m_selectedMenuIndex = 0;
+    float current_volume;
 
     void init();
     void update();

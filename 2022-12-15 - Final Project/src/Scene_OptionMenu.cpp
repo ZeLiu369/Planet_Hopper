@@ -31,15 +31,15 @@ void Scene_OptionMenu::init()
 {
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::D, "PLAY");
-    registerAction(sf::Keyboard::A, "EDIT");
+    registerAction(sf::Keyboard::D, "INCREASE");
+    registerAction(sf::Keyboard::A, "DECREASE");
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "Options";
 
-    float volume = m_game -> assets().getTheVolume();
+    current_volume = m_game -> assets().getTheVolume();
 
-    m_menuStrings.push_back("Volume: " + std::to_string(int(volume)) + "/100");
+    m_menuStrings.push_back("Volume: " + std::to_string(int(current_volume)) + "/100");
     m_menuStrings.push_back("Music: ");
     m_menuStrings.push_back("Sounds Effects: ");
     m_menuStrings.push_back("Difficulty: ");
@@ -47,6 +47,8 @@ void Scene_OptionMenu::init()
 
     m_menuText.setFont(m_game->assets().getFont("Megaman"));
     m_menuText.setCharacterSize(64);
+
+    int num = 1;
 }
 
 void Scene_OptionMenu::update()
@@ -73,16 +75,24 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         {
             m_selectedMenuIndex = (m_selectedMenuIndex + 1) % m_menuStrings.size();
         }
-        else if (action.name() == "PLAY")
+        else if (action.name() == "INCREASE")
         {
-            // if (m_selectedMenuIndex == 0)
-            // {
-            //     m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
-            // }
+
+            // increase the volume
+            if (current_volume >=0 && current_volume <= 99)
+            {
+                m_game->assets().changeVolume(current_volume += 1);
+            }
+
+           
         }
-        else if (action.name() == "EDIT")
+        else if (action.name() == "DECREASE")
         {
-            // m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game, m_levelPaths[m_selectedMenuIndex]));
+            // decrease the volume
+            if (current_volume >= 1 && current_volume <= 100)
+            {
+                m_game->assets().changeVolume(current_volume -= 1);
+            }
         }
         else if (action.name() == "QUIT")
         {
@@ -107,6 +117,7 @@ void Scene_OptionMenu::sRender()
     // draw all of the menu options
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
+        m_menuStrings[0] = "Volume: " + std::to_string(int(current_volume)) + "/100";
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
         m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
@@ -116,7 +127,7 @@ void Scene_OptionMenu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w     down: s    select: d  back: esc");
+    m_menuText.setString("up: w     down: s    adjust: a/d  back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
     m_game->window().draw(m_menuText);
 }

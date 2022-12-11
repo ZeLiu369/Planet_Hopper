@@ -164,9 +164,9 @@ void GameEngine::update()
     currentScene()->sRender();
     m_window.display();
     //DELETE
-    m_assets.changeVolume(0.f);
-    float volume = m_assets.getTheVolume();
-    std::cout << "volume: " << volume << std::endl;
+    // m_assets.changeVolume(0.f);
+    // float volume = m_assets.getTheVolume();
+    // std::cout << "volume: " << volume << std::endl;
 }
 
 void GameEngine::quit()
