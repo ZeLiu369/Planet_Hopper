@@ -31,9 +31,12 @@ void Scene_OptionMenu::init()
 {
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::D, "INCREASE");
-    registerAction(sf::Keyboard::A, "DECREASE");
+    registerAction(sf::Keyboard::Right, "INCREASE10");
+    registerAction(sf::Keyboard::Left, "DECREASE10");
+    registerAction(sf::Keyboard::Up, "INCREASE");
+    registerAction(sf::Keyboard::Down, "DECREASE");
     registerAction(sf::Keyboard::Escape, "QUIT");
+
 
     m_title = "Options";
     
@@ -113,6 +116,44 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                 }
             }
         }
+        else if (action.name() == "INCREASE10")
+        {
+            // increase the music volume
+            if (m_selectedMenuIndex == 0)
+            {
+                if (music_volume >= 0 && music_volume <= 90)
+                {
+                    m_game->assets().changeMusicVolume(music_volume += 10);
+                }
+            }
+            // increase the sounds effect volume
+            if (m_selectedMenuIndex == 1)
+            {
+                if (sounds_volume >= 0 && sounds_volume <= 90)
+                {
+                    m_game->assets().changeSoundsVolume(sounds_volume += 10);
+                }
+            }
+        }
+        else if (action.name() == "DECREASE10")
+        {
+            // decrease the music volume
+            if (m_selectedMenuIndex == 0)
+            {
+                if (music_volume >= 10 && music_volume <= 100)
+                {
+                    m_game->assets().changeMusicVolume(music_volume -= 10);
+                }
+            }
+            // decrease the sounds effect volume
+            if (m_selectedMenuIndex == 1)
+            {
+                if (sounds_volume >= 10 && sounds_volume <= 100)
+                {
+                    m_game->assets().changeSoundsVolume(sounds_volume -= 10);
+                }
+            }
+        }
         else if (action.name() == "QUIT")
         {
             onEnd();
@@ -147,7 +188,7 @@ void Scene_OptionMenu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w     down: s    adjust: a/d  back: esc");
+    m_menuText.setString("up: w  down: s adjust: arrows back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
     m_game->window().draw(m_menuText);
 }
