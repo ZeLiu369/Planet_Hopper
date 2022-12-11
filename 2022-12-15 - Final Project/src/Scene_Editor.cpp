@@ -830,7 +830,8 @@ void Scene_Editor::modConfig()
             {
                 float s = m_selected->getComponent<CFollowPlayer>().speed;
                 m_selected->removeComponent<CFollowPlayer>();
-                m_selected->addComponent<CPatrol>(std::vector<Vec2> {}, s);
+                m_selected->addComponent<CPatrol>();
+                m_selected->getComponent<CPatrol>().speed = s;
             }
         }
     }
