@@ -386,16 +386,12 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
             // If enough time has passed since last firing bullet, it can be fired again
             if (weap.lastFiredLauncher == 0 || m_currentFrame - weap.lastFiredLauncher >= 240)
             {
-                weap.target = windowToWorld(m_mPos);
                 weap.lastFiredLauncher = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
                 int DMG = 4;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
-                Vec2 velocity;
-                if (weap.target.x < entityT.pos.x && entityT.scale.x == 1) { velocity = Vec2(-pc.SPEED * 1.25f, 0.0f); }
-                else if (weap.target.x > entityT.pos.x && entityT.scale.x == -1) { velocity = Vec2(pc.SPEED * 1.25f, 0.0f); }
-                else { velocity = Vec2(pc.SPEED * entityT.scale.x * 1.25f, 0.0f); }
+                Vec2 velocity = Vec2(pc.SPEED * 1.25f * entityT.scale.x, 0.0f);
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
                 m_game->playSound("se_bullet_missile");
             }
@@ -578,11 +574,12 @@ void Scene_Play::sMovement()
         if (b->getComponent<CAnimation>().animation.getName() == "Missile")
         {
             float maxSpeed = m_playerConfig.SPEED * 1.25f;
-            Vec2 distVec = weap.target - Vec2(bt.pos.x, bt.pos.y);
+            //Vec2 distVec = weap.target - Vec2(bt.pos.x, bt.pos.y);
+            Vec2 distVec = windowToWorld(m_mPos) - Vec2(bt.pos.x, bt.pos.y);
             float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);         
             Vec2 normalizeVec = distVec / dist;
-            float dist2 = sqrtf(bt.velocity.x * bt.velocity.x + bt.velocity.y * bt.velocity.y);
-            normalizeVec *= dist2;
+            // scale to keep constant speed
+            normalizeVec *= m_playerConfig.SPEED * 1.25f;
 
             // if within 20 pixels of target blow up
             if (abs(dist) <= 20)
@@ -594,7 +591,7 @@ void Scene_Play::sMovement()
                 continue;
             }
 
-            float scale = 0.06;
+            float scale = 0.03;
             Vec2 steering = normalizeVec - Vec2(bt.velocity.x, bt.velocity.y);
             steering *= scale;
             Vec2 actual = Vec2(bt.velocity.x, bt.velocity.y) + steering;
@@ -824,7 +821,11 @@ void Scene_Play::sLifespan()
             CLifeSpan& ls = e->getComponent<CLifeSpan>();
             if (m_currentFrame - ls.frameCreated > ls.lifespan)
             {
-                e->destroy();
+                if (e->getComponent<CAnimation>().animation.getName() == "Missile")
+                {
+                    e->getComponent<CState>().state = "explosion";
+                }
+                else { e->destroy(); }
             }
         }
     }
@@ -1658,6 +1659,8 @@ void Scene_Play::sRender()
     float ran = (float)rand() / (RAND_MAX);
     electric_shader.setUniform("rnd", ran);
     electric_shader.setUniform("intensity", 0.99f);
+    // need to set parameters for rainbow shader
+    rainbow_shader.setUniform("time", time.getElapsedTime().asSeconds());
 
     // draw all Entity textures / animations
     if (m_drawTextures)
