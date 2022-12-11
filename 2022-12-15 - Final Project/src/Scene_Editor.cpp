@@ -56,7 +56,7 @@ void Scene_Editor::init()
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
+    registerAction(m_game->gameControls.right, "RIGHT");
     registerAction(sf::Keyboard::LShift, "FAST");
 
     m_gridText.setCharacterSize(12);
@@ -73,6 +73,8 @@ void Scene_Editor::init()
 
     m_modText.setCharacterSize(48);
     m_modText.setFont(m_game->assets().getFont("Tech"));
+
+    setUpSounds();
 
     fillAssetList();
     loadBlankLevel();
@@ -195,6 +197,24 @@ bool Scene_Editor::snapToGrid(std::shared_ptr<Entity> entity, Vec2& point)
     return true;
 }
 
+void Scene_Editor::setUpSounds()
+{
+    // music
+    for (std::string m : m_levelAssetList["Music"])
+    {
+        m_game->assets().getSound(m).setLoop(true);
+        m_game->assets().getSound(m).setVolume(m_game->musicVol);
+    }
+
+    // sounds
+    std::vector<std::string> sounds = { "death", "winSound", "throw" };
+
+    for (std::string s : sounds)
+    {
+        m_game->assets().getSound(s).setVolume(m_game->soundVol);
+    }
+}
+
 void Scene_Editor::fillAssetList()
 {
     std::vector<std::string> BLACK_LIST =
@@ -265,8 +285,6 @@ void Scene_Editor::loadBlankLevel()
 
     spawnPlayer();
     spawnCamera();
-    m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-    m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
     m_game->playSound(m_levelConfig.MUSIC);
 }
 
@@ -422,8 +440,6 @@ void Scene_Editor::loadLevel(const std::string& filename)
 
     if (!m_mute)
     {
-        m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-        m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
         m_game->playSound(m_levelConfig.MUSIC);
     }
     std::cout << m_levelConfig.NAME + " loaded!\n";
@@ -814,7 +830,8 @@ void Scene_Editor::modConfig()
             {
                 float s = m_selected->getComponent<CFollowPlayer>().speed;
                 m_selected->removeComponent<CFollowPlayer>();
-                m_selected->addComponent<CPatrol>(std::vector<Vec2> {}, s);
+                m_selected->addComponent<CPatrol>();
+                m_selected->getComponent<CPatrol>().speed = s;
             }
         }
     }
@@ -1149,8 +1166,7 @@ void Scene_Editor::sDoAction(const Action& action)
                     break;
                 }
             }
-            m_game->assets().getSound(m_levelConfig.MUSIC).setLoop(true);
-            m_game->assets().getSound(m_levelConfig.MUSIC).setVolume(2.0f);
+
             if (!m_mute)
             {
                 m_game->playSound(m_levelConfig.MUSIC);
@@ -1159,6 +1175,7 @@ void Scene_Editor::sDoAction(const Action& action)
         else if (action.name() == "MUTE")
         {
             m_mute = !m_mute;
+
             if (!m_mute) { m_game->playSound(m_levelConfig.MUSIC); }
             else m_game->assets().getSound(m_levelConfig.MUSIC).stop();
         }
@@ -1286,7 +1303,7 @@ void Scene_Editor::onEnd()
     m_hasEnded = true;
     m_game->assets().getSound(m_levelConfig.MUSIC).stop();
     m_game->assets().getSound("MusicTitle").setLoop(true);
-    m_game->assets().getSound("MusicTitle").setVolume(6.0f);
+    m_game->assets().getSound("MusicTitle").setVolume(m_game->musicVol);
     m_game->playSound("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }

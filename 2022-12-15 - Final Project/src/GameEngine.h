@@ -25,6 +25,12 @@ typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
                                                      
 class GameEngine
 {
+
+    struct controls
+    {
+        sf::Keyboard::Key right = sf::Keyboard::D, left = sf::Keyboard::L, up = sf::Keyboard::W, gravity = sf::Keyboard::S,
+                          shoot = sf::Keyboard::Space, inventory = sf::Keyboard::I;
+    };
                                                      
 protected:
 
@@ -43,6 +49,12 @@ protected:
     std::shared_ptr<Scene> currentScene();
 
 public:
+
+    float musicVol = 20.0f;
+    float soundVol = 80.0f;
+    std::string diff = "normal";
+
+    controls gameControls;
     
     GameEngine(const std::string & path);
 

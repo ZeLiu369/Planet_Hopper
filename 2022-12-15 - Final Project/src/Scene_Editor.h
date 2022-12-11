@@ -125,6 +125,8 @@ protected:
 
     void init();
 
+    void setUpSounds();
+
     void fillAssetList();
 
     std::string formatFloat(float f);
