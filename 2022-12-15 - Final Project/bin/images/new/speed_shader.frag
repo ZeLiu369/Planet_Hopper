@@ -17,7 +17,7 @@ void main()
     texColor += texture(sprite, texCoord + vec2( 0.01,-0.01));
     texColor += texture(sprite, texCoord + vec2( 0.00, 0.01));
     texColor += texture(sprite, texCoord + vec2( 0.00,-0.01));
-    texColor /= 9.0;
+    texColor /= 18.0;
 
     // Apply the blur filter to the sprite
     gl_FragColor = vec4(texColor.rgb, texColor.a);
