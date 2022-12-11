@@ -31,7 +31,7 @@ void GameEngine::init(const std::string & path)
 {
     m_assets.loadFromFile(path);
 
-    m_window.create(sf::VideoMode(1280, 768), "Definitely Not Mario");
+    m_window.create(sf::VideoMode(1280, 768), "Planet Hopper");
     m_window.setFramerateLimit(60);
                                                      
     changeScene("MENU", std::make_shared<Scene_Menu>(this));
@@ -96,6 +96,37 @@ void GameEngine::sUserInput()
             // look up the action and send the action to the scene
             currentScene()->doAction(Action(currentScene()->getActionMap().at(event.key.code), actionType));
         }
+
+        auto mousePos = sf::Mouse::getPosition(m_window);
+        Vec2 mpos(mousePos.x, mousePos.y);
+
+        if (event.type == sf::Event::MouseButtonPressed)
+        {
+            switch (event.mouseButton.button)
+            {
+            case sf::Mouse::Left: { currentScene()->doAction(Action("LEFT_CLICK", "START", mpos)); break; }
+            case sf::Mouse::Middle: { currentScene()->doAction(Action("MIDDLE_CLICK", "START", mpos)); break; }
+            case sf::Mouse::Right: { currentScene()->doAction(Action("RIGHT_CLICK", "START", mpos)); break; }
+            default: break;
+            }
+
+        }
+
+        if (event.type == sf::Event::MouseButtonReleased)
+        {
+            switch (event.mouseButton.button)
+            {
+            case sf::Mouse::Left: { currentScene()->doAction(Action("LEFT_CLICK", "END", mpos)); break; }
+            case sf::Mouse::Middle: { currentScene()->doAction(Action("MIDDLE_CLICK", "END", mpos)); break; }
+            case sf::Mouse::Right: { currentScene()->doAction(Action("RIGHT_CLICK", "END", mpos)); break; }
+            default: break;
+            }
+        }
+
+        if (event.type == sf::Event::MouseMoved)
+        {
+            currentScene()->doAction(Action("MOUSE_MOVE", "START", Vec2(event.mouseMove.x, event.mouseMove.y)));
+        }
     }
 }
 
@@ -139,9 +170,14 @@ void GameEngine::quit()
     m_running = false;
 }
 
-const Assets& GameEngine::assets() const
+Assets& GameEngine::assets()
 {
     return m_assets;
+}
+
+void GameEngine::playSound(const std::string &soundName)
+{
+    m_assets.getSound(soundName).play();
 }
 
 // Copyright (C) David Churchill - All Rights Reserved

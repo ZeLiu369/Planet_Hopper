@@ -16,6 +16,14 @@
 *.map
 *.pdb
 *.ilk
-2022-12-15 - Final Project/src/Scene_Editor.cpp
+visualstudio
+visualstudio/
+*visualstudio
 2022-12-15 - Final Project/bin/sfmlgame
 .vscode/settings.json
+.DS_Store
+*.obj
+*.pdb
+*.tlog
+*.log
+

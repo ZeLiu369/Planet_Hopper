@@ -23,22 +23,64 @@ class Component
 public:
     bool has = false;
 };
-                                                     
-class CTransform : public Component
+
+class CDraggable : public Component
 {
 public:
-    Vec2 pos        = { 0.0, 0.0 };
-    Vec2 prevPos    = { 0.0, 0.0 };
-    Vec2 scale      = { 1.0, 1.0 };
-    Vec2 velocity   = { 0.0, 0.0 };
+    bool dragging = false;
+    CDraggable() {}
+    CDraggable(bool d)
+        : dragging(d) {}
+};
+
+class CClickable : public Component
+{
+public:
+    bool clicking = false;
+    CClickable() {}
+};
+                                                     
+class CTransform : public Component 
+{
+public:
+    Vec2 originalPos  = { 0.0, 0.0 };
+    Vec2 pos          = { 0.0, 0.0 };
+    Vec2 prevPos      = { 0.0, 0.0 };
+    Vec2 scale        = { 1.0, 1.0 };
+    Vec2 velocity     = { 0.0, 0.0 };
+    float scrollFactor = 0;
     float angle     = 0;
+    float prevAngle = 0;
                                                      
     CTransform() {}
     CTransform(const Vec2 & p)
         : pos(p), prevPos(p) {}
+    CTransform(const Vec2& p, const Vec2& sc)
+        : pos(p), prevPos(p), scale(sc) {}
+    CTransform(const Vec2& p, const Vec2& sc, float sf)
+        : pos(p), prevPos(p), originalPos(p), scale(sc), scrollFactor(sf) {}
     CTransform(const Vec2 & p, const Vec2 & sp, const Vec2 & sc, float a)
         : pos(p), prevPos(p), velocity(sp), scale(sc), angle(a) {}
 
+};
+
+class CWeapon : public Component
+{
+public:
+    std::string currentWeapon  = "Raygun";
+    std::string attackState    = "Idle";
+    int duration               = 30;
+    int frameCreated           = 0;
+    int lastFiredLauncher      = 0;
+    int lastFiredRaygun        = 0;
+    int lastFiredBomb          = 0;
+    int lastFiredNpc           = 0;
+    Vec2 target                = { 0.0, 0.0 };
+    CWeapon() {}
+    CWeapon(std::string weapon) 
+        : currentWeapon(weapon) {}
+    CWeapon(std::string weapon, std::string atk, int dur, int created)
+        : currentWeapon(weapon), attackState(atk), duration(dur), frameCreated(created) {}
 };
 
 class CLifeSpan : public Component
@@ -89,8 +131,10 @@ public:
     bool shoot      = false;
     bool canShoot   = true;
     bool canJump    = true;
-    // new input
-    bool money      = false;
+    // mouse inputs
+    bool click1 = false;
+    bool click2 = false;
+    bool click3 = false;
 
     CInput() {}
 };
@@ -123,6 +167,7 @@ class CGravity : public Component
 {
 public:
     float gravity = 0;
+    bool flipped = false;
     CGravity() {}
     CGravity(float g) : gravity(g) {}
 };
@@ -156,20 +201,43 @@ public:
     CPatrol(std::vector<Vec2>& pos, float s) : positions(pos), speed(s) {}
 };
 
-// new component
-class CCoinCounter : public Component
-{
-public:
-    int coins = 0;
-    CCoinCounter() {}
-};
-
 class CLevelStatus : public Component
 {
 public:
     bool completed = false;
+    bool unlocked  = false;
 
     CLevelStatus() {}
+    CLevelStatus(bool i) : unlocked(i) {}
+};
+
+class CInventory : public Component
+{
+public:
+    std::vector<bool>           in_Inventory{false, false, false, false, false};
+    std::vector<std::string>    inventoryItems;
+    float index = 0;
+
+    CInventory() {}
+    CInventory(float i) : index(i) {}
+};
+
+class CButton : public Component
+{
+public:
+    std::string value;
+
+    CButton() {}
+    CButton(const std::string & s) : value(s) {}
+};
+
+class CJump : public Component
+{
+public:
+    float jump = 0;
+    CJump() {}
+    CJump(float j)
+        : jump(j) {}
 };
 
 // Copyright (C) David Churchill - All Rights Reserved

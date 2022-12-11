@@ -1,159 +1,22 @@
-﻿  GameEngine.cpp
-  Scene_Menu.cpp
-  Scene_Overworld.cpp
-  Scene_Play.cpp
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(62,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Scene_Play.cpp(152): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+﻿  Scene_Play.cpp
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,13): warning C4101: 'y1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,9): warning C4101: 'x1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(342,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(364,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(378,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(389,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(404,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(428,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(594,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(324): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CAnimation,CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(1013): message : see reference to class template instantiation 'std::_Tuple_element<_Ty,std::tuple<CTransform,CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>' being compiled
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(72): message : see reference to function template instantiation '_Ty &std::get<T,CTransform,CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>(std::tuple<CTransform,CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter> &) noexcept' being compiled
-          with
-          [
-              _Ty=CLevelStatus,
-              T=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Entity.h(62): message : see reference to function template instantiation 'T &Entity::getComponent<T>(void)' being compiled
-          with
-          [
-              T=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Users\Jephthah\Projects\C++\COMP4300\2022-12-15 - Final Project\src\Scene_Overworld.cpp(51): message : see reference to function template instantiation 'T &Entity::addComponent<CLevelStatus,>(void)' being compiled
-          with
-          [
-              T=CLevelStatus
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,49): error C2061: syntax error: identifier '_Ttype' (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975,67): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(975): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(1014,68): error C2039: '_Ttype': is not a member of 'std::_Tuple_element<_Ty,std::tuple<CTransform,CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(1014): message : see declaration of 'std::_Tuple_element<_Ty,std::tuple<CTransform,CLifeSpan,CInput,CBoundingBox,CAnimation,CGravity,CState,CCoinCounter>>'
-          with
-          [
-              _Ty=CLevelStatus
-          ] (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(1013,66): error C2061: syntax error: identifier '_Ttype' (compiling source file ..\src\Scene_Overworld.cpp)
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\tuple(1015,24): error C2061: syntax error: identifier '_Ttype' (compiling source file ..\src\Scene_Overworld.cpp)
+  Generating code
+  1 of 2238 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    6 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  SFMLGame.vcxproj -> C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\bin\SFMLGame.exe

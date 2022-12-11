@@ -34,10 +34,9 @@ void Scene_Menu::init()
     registerAction(sf::Keyboard::W,     "UP");
     registerAction(sf::Keyboard::S,     "DOWN");
     registerAction(sf::Keyboard::D,     "PLAY");
-    registerAction(sf::Keyboard::A, "EDIT");
     registerAction(sf::Keyboard::Escape, "QUIT");
 
-    m_title = "Mega Mario";
+    m_title = "PLANET HOPPER";
     m_menuStrings.push_back("Play");
     m_menuStrings.push_back("Options");
     m_menuStrings.push_back("Level Editor");
@@ -48,6 +47,10 @@ void Scene_Menu::init()
 
     m_menuText.setFont(m_game->assets().getFont("Megaman"));
     m_menuText.setCharacterSize(64);
+
+    m_game->assets().getSound("MusicTitle").setLoop(true);
+    m_game->assets().getSound("MusicTitle").setVolume(6.0f);
+    m_game->playSound("MusicTitle");
 }
 
 void Scene_Menu::update()
@@ -73,16 +76,17 @@ void Scene_Menu::sDoAction(const Action& action)
         {
             if (m_selectedMenuIndex == 0)
             {
-                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 1));
+                m_game->assets().getSound("MusicTitle").stop();
             }
             if (m_selectedMenuIndex == 1)
             {
                 m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
             }
-        }
-        else if (action.name() == "EDIT")
-        {
-            m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game, m_levelPaths[m_selectedMenuIndex]));
+            if (m_selectedMenuIndex == 2)
+            {
+                m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game));
+            }
         }
         else if (action.name() == "QUIT")
         {
@@ -96,11 +100,28 @@ void Scene_Menu::sRender()
     // clear the window to a blue
     m_game->window().setView(m_game->window().getDefaultView());
     m_game->window().clear(sf::Color(150, 200, 255));
+
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromFile("images/new/background3.png");
+    backgroundTexture.setSmooth(true);
+    backgroundTexture.setRepeated(true);
+
+    Vec2 TextureSize(backgroundTexture.getSize().x, backgroundTexture.getSize().y);  //Added to store texture size.
+    Vec2 WindowSize(m_game->window().getSize().x, m_game->window().getSize().y);   //Added to store window size.
+
+    float ScaleX = (float)WindowSize.x / TextureSize.x;
+    float ScaleY = (float)WindowSize.y / TextureSize.y;     //Calculate scale.
+
+    sf::Sprite background;
+    background.setTexture(backgroundTexture);
+    background.setScale(ScaleX, ScaleY);      //Set scale. 
+
+    m_game->window().draw(background);
                                                      
     // draw the game title in the top-left of the screen
     m_menuText.setCharacterSize(48);
     m_menuText.setString(m_title);
-    m_menuText.setFillColor(sf::Color::Black);
+    m_menuText.setFillColor(sf::Color::Cyan);
     m_menuText.setPosition(sf::Vector2f(10, 10));
     m_game->window().draw(m_menuText);
     
@@ -109,14 +130,14 @@ void Scene_Menu::sRender()
     {
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
-        m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
+        m_menuText.setPosition(sf::Vector2f(10, 150 + i * 72));
         m_game->window().draw(m_menuText);
     }
 
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
-    m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w     down: s    play: d   edit:a   back: esc");
+    m_menuText.setFillColor(sf::Color::White);
+    m_menuText.setString("up: w     down: s    play: d    back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
     m_game->window().draw(m_menuText);
 }
