@@ -472,12 +472,32 @@ void Scene_Play::sMovement()
     // horizontal movement
     int dir = (input.right - input.left);
     transform.velocity.x = dir * pc.SPEED;
+    transform.prevScale.x = transform.scale.x;
     if (dir != 0) transform.scale.x = dir;
 
     // vertical movement
     if (state.state == "air")
     {
-        transform.velocity.y += gravity.gravity;
+        if (input.sliding) 
+        {
+            if ((input.right && transform.scale.x == 1) || (input.left && transform.scale.x == -1))
+            {
+                if (transform.scale.x == transform.prevScale.x) { transform.velocity.y = 2.5 * transform.scale.y; }
+            }
+            else 
+            { 
+                transform.velocity.y += gravity.gravity;
+                if (input.up && input.canJump)
+                {
+                    input.canJump = false;
+                    transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
+                }
+            }
+        }
+        else 
+        {   
+            transform.velocity.y += gravity.gravity; 
+        }
 
         // stops jump if player releases UP input
         if (gravity.gravity >= 0)
@@ -506,7 +526,6 @@ void Scene_Play::sMovement()
             input.canJump = false;
             gravity.gravity = -gravity.gravity;
         }
-
     }
     transform.scale.y = gravity.gravity >= 0 ? 1 : -1;
 
@@ -885,7 +904,7 @@ void Scene_Play::sCollision()
 
     m_platforms.clear();
     m_player->getComponent<CState>().state = "air";
-
+    m_player->getComponent<CInput>().sliding = false;
     for (auto& tile : m_entityManager.getEntities("tile"))
     {
         for (auto& e : m_entityManager.getEntities())
@@ -922,7 +941,15 @@ void Scene_Play::sCollision()
                         // collison correction for player
                         if (prev.y > 0)
                         {
+                            e->getComponent<CInput>().sliding = true;
                             et.pos.x += delta.x > 0 ? overlap.x : -overlap.x;
+                            for (auto weapon : m_entityManager.getEntities("weapon"))
+                            {
+                                if (weapon->getComponent<CAnimation>().animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
+                                {
+                                    weapon->getComponent<CTransform>().pos.x += delta.x > 0 ? overlap.x : -overlap.x;
+                                }
+                            }
                         }
 
                         else if (prev.x > 0)
@@ -1298,9 +1325,13 @@ void Scene_Play::sAnimation()
     // animation when player is in the air
     else
     {
-        if (pAni.animation.getName() != "Air")
+        if (pAni.animation.getName() != "Air" && !m_player->getComponent<CInput>().sliding)
         {
             m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Air"), true);
+        }
+        else if (pAni.animation.getName() != "Slide" && m_player->getComponent<CInput>().sliding)
+        {
+            m_player->addComponent<CAnimation>(m_game->assets().getAnimation("Slide"), true);
         }
     }
 
