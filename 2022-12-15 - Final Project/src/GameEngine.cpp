@@ -163,10 +163,6 @@ void GameEngine::update()
     currentScene()->simulate(m_simulationSpeed);
     currentScene()->sRender();
     m_window.display();
-    //DELETE
-    // m_assets.changeVolume(0.f);
-    // float volume = m_assets.getTheVolume();
-    // std::cout << "volume: " << volume << std::endl;
 }
 
 void GameEngine::quit()
@@ -184,6 +180,10 @@ void GameEngine::playSound(const std::string &soundName)
     m_assets.getSound(soundName).play();
 }
 
+void GameEngine::playMusic(const std::string &musicName)
+{
+    m_assets.getMusic(musicName).play();
+}
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)

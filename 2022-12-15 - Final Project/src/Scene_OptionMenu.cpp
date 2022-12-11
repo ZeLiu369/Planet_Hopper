@@ -36,12 +36,12 @@ void Scene_OptionMenu::init()
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "Options";
+    
+    music_volume = m_game->assets().getMusicVolume();
+    sounds_volume = m_game -> assets().getSoundsVolume();
 
-    current_volume = m_game -> assets().getTheVolume();
-
-    m_menuStrings.push_back("Volume: " + std::to_string(int(current_volume)) + "/100");
-    m_menuStrings.push_back("Music: ");
-    m_menuStrings.push_back("Sounds Effects: ");
+    m_menuStrings.push_back("Music Volume: " + std::to_string(int(music_volume)) + "/100");
+    m_menuStrings.push_back("Sounds Effects Volume: " + std::to_string(int(sounds_volume)) + "/100");
     m_menuStrings.push_back("Difficulty: ");
     m_menuStrings.push_back("Key Binding: ");
 
@@ -77,21 +77,40 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         }
         else if (action.name() == "INCREASE")
         {
-
-            // increase the volume
-            if (current_volume >=0 && current_volume <= 99)
+            // increase the music volume
+            if (m_selectedMenuIndex == 0)
             {
-                m_game->assets().changeVolume(current_volume += 1);
+                if (music_volume >= 0 && music_volume <= 99)
+                {
+                    m_game->assets().changeMusicVolume(music_volume += 1);
+                }
             }
-
-           
+            // increase the sounds effect volume
+            if (m_selectedMenuIndex == 1)
+            {
+                if (sounds_volume >= 0 && sounds_volume <= 99)
+                {
+                    m_game->assets().changeSoundsVolume(sounds_volume += 1);
+                }
+            }
         }
         else if (action.name() == "DECREASE")
         {
-            // decrease the volume
-            if (current_volume >= 1 && current_volume <= 100)
+            // decrease the music volume
+            if (m_selectedMenuIndex == 0)
             {
-                m_game->assets().changeVolume(current_volume -= 1);
+                if (music_volume >= 1 && music_volume <= 100)
+                {
+                    m_game->assets().changeMusicVolume(music_volume -= 1);
+                }
+            }
+            // decrease the sounds effect volume
+            if (m_selectedMenuIndex == 1)
+            {
+                if (sounds_volume >= 1 && sounds_volume <= 100)
+                {
+                    m_game->assets().changeSoundsVolume(sounds_volume -= 1);
+                }
             }
         }
         else if (action.name() == "QUIT")
@@ -117,7 +136,8 @@ void Scene_OptionMenu::sRender()
     // draw all of the menu options
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
-        m_menuStrings[0] = "Volume: " + std::to_string(int(current_volume)) + "/100";
+        m_menuStrings[0] = "Music Volume: " + std::to_string(int(music_volume)) + "/100";
+        m_menuStrings[1] = "Sounds Effect Volume: " + std::to_string(int(sounds_volume)) + "/100";
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
         m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
