@@ -157,13 +157,13 @@ void Assets::addSound(const std::string &soundName, const std::string &path)
 
 sf::Sound& Assets::getMusic(const std::string& musicName)
 {
-    assert(m_musicMap.find(musicName) != m_musicMap.end());
+    //assert(m_musicMap.find(musicName) != m_musicMap.end());
     return m_musicMap.at(musicName);
 }
 
 sf::Sound& Assets::getSound(const std::string& soundName)
 {
-    assert(m_soundMap.find(soundName) != m_soundMap.end());
+    //assert(m_soundMap.find(soundName) != m_soundMap.end());
     return m_soundMap.at(soundName);
 }
 

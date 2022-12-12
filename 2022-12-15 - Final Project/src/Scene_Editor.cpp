@@ -203,7 +203,7 @@ void Scene_Editor::setUpSounds()
     for (std::string m : m_levelAssetList["Music"])
     {
         m_game->assets().getMusic(m).setLoop(true);
-        m_game->assets().getMusic(m).setVolume(m_game->musicVol);
+        m_game->assets().changeMusicVolume(m_game->musicVol);
     }
 
     // sounds
@@ -211,7 +211,7 @@ void Scene_Editor::setUpSounds()
 
     for (std::string s : sounds)
     {
-        m_game->assets().getSound(s).setVolume(m_game->soundVol);
+        m_game->assets().changeSoundsVolume(m_game->soundVol);
     }
 }
 

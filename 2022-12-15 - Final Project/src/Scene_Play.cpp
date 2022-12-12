@@ -264,8 +264,8 @@ void Scene_Play::loadLevel(const std::string& filename)
     spawnPlayer();
     // temporarily hard coding background sound to be quiet
     //CHANGE
-    m_game->assets().getMusic(sound).setVolume(1);
-    m_game->playSound(sound);
+    m_game->assets().changeMusicVolume(1);
+    // m_game->playSound(sound);
 
     // Load shaders
     if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
