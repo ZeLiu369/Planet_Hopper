@@ -16,6 +16,7 @@
 #include "Scene_Play.h"
 #include "Scene_Menu.h"
 #include "Scene_Overworld.h"
+#include "Scene_OptionMenu.h"
 #include "Physics.h"
 #include "Assets.h"
 #include "GameEngine.h"
@@ -42,6 +43,7 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
+    registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");        // Toggle option menu
 
     registerAction(sf::Keyboard::Num1, "RAYGUN");
     registerAction(sf::Keyboard::Num2, "BOMB");
@@ -1248,6 +1250,11 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
         else if (action.name() == "INVENTORY") { m_inventory = !m_inventory; setPaused(!m_paused); }
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+        else if (action.name() == "TOGGLE_OPTION_MENU")
+        {
+            setPaused(!m_paused);
+            setOptionMenu(true);
+        }
         else if (action.name() == "PAUSE") { setPaused(!m_paused); }
         else if (action.name() == "QUIT") { onEnd(); }
 
@@ -1939,6 +1946,11 @@ void Scene_Play::sRender()
                 m_game->window().draw(m_gridText);
             }
         }
+    }
+
+    if (m_optionMenuOpen)
+    {   
+        m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game), false);
     }
 
     if (m_inventory)

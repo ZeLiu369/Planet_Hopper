@@ -152,7 +152,18 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
                                                      
     m_currentScene = sceneName;
 }
-                                                     
+
+std::shared_ptr<Scene> GameEngine::getScene(const std::string &sceneName)
+{
+    
+    if (m_sceneMap.find(sceneName) == m_sceneMap.end())
+    {
+        std::cerr << "Warning: Scene does not exist: " << sceneName << std::endl;
+    }
+
+    return m_sceneMap.find(sceneName)->second;
+}
+
 void GameEngine::update()
 {
     if (!isRunning()) { return; }

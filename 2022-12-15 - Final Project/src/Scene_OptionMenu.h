@@ -34,6 +34,7 @@ protected:
     size_t m_selectedMenuIndex = 0;
     float sounds_volume;
     float music_volume;
+    std::string prev_scene;
 
     void init();
     void update();

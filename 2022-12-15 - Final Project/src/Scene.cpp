@@ -32,6 +32,11 @@ void Scene::setPaused(bool paused)
     m_paused = paused;
 }
 
+void Scene::setOptionMenu(bool open)
+{
+    m_optionMenuOpen = open;
+}
+
 size_t Scene::width() const
 {
     return m_game->window().getSize().x;
