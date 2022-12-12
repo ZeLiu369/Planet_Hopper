@@ -51,6 +51,12 @@ void Assets::loadFromFile(const std::string & path)
             file >> name >> path;
             addFont(name, path);
         }
+        else if (str == "Music")
+        {
+            std::string name, path;
+            file >> name >> path;
+            addMusic(name, path);
+        }
         else if (str == "Sound")
         {
             std::string name, path;
@@ -117,6 +123,22 @@ const sf::Font & Assets::getFont(const std::string & fontName) const
     return m_fontMap.at(fontName);
 }
 
+void Assets::addMusic(const std::string &musicName, const std::string &path)
+{
+    m_musicBufferMap[musicName] = sf::SoundBuffer();
+    if (!m_musicBufferMap[musicName].loadFromFile(path))
+    {
+        std::cerr << "Could not load music file: " << path << std::endl;
+        m_musicBufferMap.erase(musicName);
+    }
+    else
+    {
+        std::cout << "Loaded Music:    " << path << std::endl;
+        m_musicMap[musicName] = sf::Sound(m_musicBufferMap[musicName]);
+        m_musicMap[musicName].setVolume(50.f);
+    }
+}
+
 void Assets::addSound(const std::string &soundName, const std::string &path)
 {
     m_soundBufferMap[soundName] = sf::SoundBuffer();
@@ -129,14 +151,48 @@ void Assets::addSound(const std::string &soundName, const std::string &path)
     {
         std::cout << "Loaded Sound:    " << path << std::endl;
         m_soundMap[soundName] = sf::Sound(m_soundBufferMap[soundName]);
-        m_soundMap[soundName].setVolume(25);
+        m_soundMap[soundName].setVolume(50.f);
     }
+}
+
+sf::Sound& Assets::getMusic(const std::string& musicName)
+{
+    assert(m_musicMap.find(musicName) != m_musicMap.end());
+    return m_musicMap.at(musicName);
 }
 
 sf::Sound& Assets::getSound(const std::string& soundName)
 {
     assert(m_soundMap.find(soundName) != m_soundMap.end());
     return m_soundMap.at(soundName);
+}
+
+// for each sound, change the volume to the new volume
+void Assets::changeMusicVolume(const float &vol)
+{
+    for (auto &music : m_musicMap)
+    {
+        music.second.setVolume(vol);
+    }
+}
+
+float Assets::getMusicVolume()
+{
+    return m_musicMap.begin()->second.getVolume();
+}
+
+// for each sound, change the volume to the new volume
+void Assets::changeSoundsVolume(const float& vol)
+{
+    for (auto &sound : m_soundMap)
+    {
+        sound.second.setVolume(vol);
+    }
+}
+
+float Assets::getSoundsVolume()
+{   
+    return m_soundMap.begin()->second.getVolume();
 }
 
 // Copyright (C) David Churchill - All Rights Reserved

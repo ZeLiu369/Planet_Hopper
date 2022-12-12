@@ -48,9 +48,9 @@ void Scene_Menu::init()
 
     m_menuText.setFont(m_game->assets().getFont("Roboto"));
 
-    m_game->assets().getSound("MusicTitle").setLoop(true);
-    m_game->assets().getSound("MusicTitle").setVolume(6.0f);
-    m_game->playSound("MusicTitle");
+    m_game->assets().getMusic("MusicTitle").setLoop(true);
+    m_game->assets().getMusic("MusicTitle").setVolume(50.f);
+    m_game->playMusic("MusicTitle");
 }
 
 void Scene_Menu::update()
@@ -77,7 +77,7 @@ void Scene_Menu::sDoAction(const Action& action)
             if (m_selectedMenuIndex == 0)
             {
                 m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 1));
-                m_game->assets().getSound("MusicTitle").stop();
+                m_game->assets().getMusic("MusicTitle").stop();
             }
             if (m_selectedMenuIndex == 1)
             {

@@ -64,6 +64,7 @@ public:
     void run();
 
     void playSound(const std::string &soundName);
+    void playMusic(const std::string &musicName);
 
     sf::RenderWindow & window();
     Assets& assets();

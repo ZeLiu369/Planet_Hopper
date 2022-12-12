@@ -202,8 +202,8 @@ void Scene_Editor::setUpSounds()
     // music
     for (std::string m : m_levelAssetList["Music"])
     {
-        m_game->assets().getSound(m).setLoop(true);
-        m_game->assets().getSound(m).setVolume(m_game->musicVol);
+        m_game->assets().getMusic(m).setLoop(true);
+        m_game->assets().getMusic(m).setVolume(m_game->musicVol);
     }
 
     // sounds
@@ -272,7 +272,7 @@ void Scene_Editor::loadBlankLevel()
 {
     m_entityManager = EntityManager();
 
-    m_game->assets().getSound("MusicTitle").stop();
+    m_game->assets().getMusic("MusicTitle").stop();
 
     LevelConfig& lc = m_levelConfig;
     lc.MUSIC = "Play";
@@ -285,7 +285,7 @@ void Scene_Editor::loadBlankLevel()
 
     spawnPlayer();
     spawnCamera();
-    m_game->playSound(m_levelConfig.MUSIC);
+    m_game->playMusic(m_levelConfig.MUSIC);
 }
 
 void Scene_Editor::loadLevel(const std::string& filename)
@@ -440,7 +440,7 @@ void Scene_Editor::loadLevel(const std::string& filename)
 
     if (!m_mute)
     {
-        m_game->playSound(m_levelConfig.MUSIC);
+        m_game->playMusic(m_levelConfig.MUSIC);
     }
     std::cout << m_levelConfig.NAME + " loaded!\n";
 }
@@ -990,7 +990,7 @@ void Scene_Editor::sState()
                 if (f.good() == true)
                 {
                     clearMenu();
-                    m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+                    m_game->assets().getMusic(m_levelConfig.MUSIC).stop();
                     loadLevel(fileName);
                     m_menuSelection = 0;
                 }
@@ -1157,7 +1157,7 @@ void Scene_Editor::sDoAction(const Action& action)
 
         else if (action.name() == "MUSIC")
         {
-            m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+            m_game->assets().getMusic(m_levelConfig.MUSIC).stop();
             for (int i = 0; i < m_levelAssetList["Music"].size(); i++)
             {
                 if (m_levelAssetList["Music"][i] == m_levelConfig.MUSIC)
@@ -1169,15 +1169,15 @@ void Scene_Editor::sDoAction(const Action& action)
 
             if (!m_mute)
             {
-                m_game->playSound(m_levelConfig.MUSIC);
+                m_game->playMusic(m_levelConfig.MUSIC);
             }
         }
         else if (action.name() == "MUTE")
         {
             m_mute = !m_mute;
 
-            if (!m_mute) { m_game->playSound(m_levelConfig.MUSIC); }
-            else m_game->assets().getSound(m_levelConfig.MUSIC).stop();
+            if (!m_mute) { m_game->playMusic(m_levelConfig.MUSIC); }
+            else m_game->assets().getMusic(m_levelConfig.MUSIC).stop();
         }
         else if (action.name() == "BACKGROUND")
         {
@@ -1301,10 +1301,10 @@ void Scene_Editor::sAnimation()
 void Scene_Editor::onEnd()
 {
     m_hasEnded = true;
-    m_game->assets().getSound(m_levelConfig.MUSIC).stop();
-    m_game->assets().getSound("MusicTitle").setLoop(true);
-    m_game->assets().getSound("MusicTitle").setVolume(m_game->musicVol);
-    m_game->playSound("MusicTitle");
+    m_game->assets().getMusic(m_levelConfig.MUSIC).stop();
+    m_game->assets().getMusic("MusicTitle").setLoop(true);
+    m_game->assets().getMusic("MusicTitle").setVolume(m_game->musicVol);
+    m_game->playMusic("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
 

@@ -32,6 +32,8 @@ protected:
     std::vector<std::string> m_levelPaths;
     sf::Text m_menuText;
     size_t m_selectedMenuIndex = 0;
+    float sounds_volume;
+    float music_volume;
 
     void init();
     void update();

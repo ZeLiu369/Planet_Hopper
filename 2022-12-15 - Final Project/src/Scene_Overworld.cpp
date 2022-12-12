@@ -36,7 +36,8 @@ void Scene_Overworld::init(const int& level)
 
     m_text.setFont(m_game->assets().getFont("ChunkFive"));
     
-    m_game->assets().getSound("MusicTitle").stop();
+    m_game->assets().getMusic("MusicTitle").stop();
+
     //m_game->playSound("OverWorld");
 
     loadMap(level);
@@ -261,8 +262,8 @@ void Scene_Overworld::update()
 void Scene_Overworld::onEnd()
 {
     m_hasEnded = true;
-    m_game->assets().getSound("OverWorld").stop();
-    m_game->playSound("MusicTitle");
+    m_game->assets().getMusic("OverWorld").stop();
+    m_game->playMusic("MusicTitle");
     m_game->changeScene("MENU", nullptr, true);
 }
 

@@ -79,7 +79,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     // reset the entity manager every time we load a level
     m_entityManager = EntityManager();
 
-    m_game->assets().getSound("OverWorld").stop();
+    m_game->assets().getMusic("OverWorld").stop();
     //m_game->playSound("Play");
 
     std::ifstream fin(filename);
@@ -263,7 +263,8 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     spawnPlayer();
     // temporarily hard coding background sound to be quiet
-    m_game->assets().getSound(sound).setVolume(1);
+    //CHANGE
+    m_game->assets().getMusic(sound).setVolume(1);
     m_game->playSound(sound);
 
     // Load shaders
@@ -1440,8 +1441,8 @@ Vec2 Scene_Play::windowToWorld(const Vec2& window) const
 void Scene_Play::onEnd()
 {
     m_hasEnded = true;
-    m_game->assets().getSound("Play").stop();
-    m_game->playSound("OverWorld");
+    m_game->assets().getMusic("Play").stop();
+    m_game->playMusic("OverWorld");
 
     if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
     else 
