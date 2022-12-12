@@ -485,7 +485,8 @@ void Scene_Play::sMovement()
     // vertical movement
     if (state.state == "air")
     {
-        if (input.sliding) 
+        if (input.sliding && 
+           ((transform.velocity.y > 0 && gravity.gravity > 0) || (transform.velocity.y < 0 && gravity.gravity < 0)))
         {
             if ((input.right && transform.scale.x == 1) || (input.left && transform.scale.x == -1))
             {
@@ -498,7 +499,8 @@ void Scene_Play::sMovement()
                 {
                     input.canJump = false;
                     transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
-                    transform.velocity.x += (pc.JUMP/2) * transform.scale.x;
+                    transform.velocity.x += (pc.JUMP/4) * transform.scale.x;
+                    transform.scale.x = -transform.scale.x;
                 }
             }
         }
