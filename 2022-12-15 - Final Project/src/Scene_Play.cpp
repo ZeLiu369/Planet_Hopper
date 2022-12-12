@@ -43,7 +43,7 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
     registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
-    registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");        // Toggle drawing (N)ight
+    registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");        // Toggle option menu
 
     registerAction(sf::Keyboard::Num1, "RAYGUN");
     registerAction(sf::Keyboard::Num2, "BOMB");
@@ -1226,7 +1226,7 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
             setPaused(!m_paused);
-            m_optionMenuOpen = !m_optionMenuOpen;
+            setOptionMenu(true);
         }
         else if (action.name() == "PAUSE") { setPaused(!m_paused); }
         else if (action.name() == "QUIT") { onEnd(); }
@@ -1917,7 +1917,6 @@ void Scene_Play::sRender()
 
     if (m_optionMenuOpen)
     {   
-        // current_scene = m_game.currentScene();
         m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game), false);
     }
 

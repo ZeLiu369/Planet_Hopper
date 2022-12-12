@@ -18,6 +18,7 @@
 #include "Common.h"
 #include "Scene.h"
 #include "Assets.h"
+#include "Scene_OptionMenu.h"
 
 #include <memory>
 
@@ -36,8 +37,6 @@ protected:
 
     sf::RenderWindow    m_window;
     Assets              m_assets;
-    std::string         m_currentScene;
-    SceneMap            m_sceneMap;
     size_t              m_simulationSpeed = 1;
     bool                m_running = true;
 
@@ -45,7 +44,6 @@ protected:
     void update();
                                                      
     void sUserInput();
-
     std::shared_ptr<Scene> currentScene();
 
 public:
@@ -53,12 +51,15 @@ public:
     float musicVol = 20.0f;
     float soundVol = 80.0f;
     std::string diff = "normal";
+    std::string m_currentScene;
+    SceneMap m_sceneMap;
 
     controls gameControls;
     
     GameEngine(const std::string & path);
 
     void changeScene(const std::string & sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
+    std::shared_ptr<Scene> getScene(const std::string &sceneName);
 
     void quit();
     void run();

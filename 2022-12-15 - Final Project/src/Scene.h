@@ -41,7 +41,6 @@ protected:
     void setPaused(bool paused);
 
 public:
-
     Scene();
     Scene(GameEngine * gameEngine);
 
@@ -56,6 +55,9 @@ public:
     size_t width() const;
     size_t height() const;
     size_t currentFrame() const;
+
+    bool m_optionMenuOpen = false;
+    void setOptionMenu(bool open);
 
     bool hasEnded() const;
     const ActionMap& getActionMap() const;

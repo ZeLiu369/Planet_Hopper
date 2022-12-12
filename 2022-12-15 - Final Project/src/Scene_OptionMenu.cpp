@@ -37,6 +37,7 @@ void Scene_OptionMenu::init()
     registerAction(sf::Keyboard::Down, "DECREASE");
     registerAction(sf::Keyboard::Escape, "QUIT");
 
+    prev_scene = m_game->m_currentScene;
 
     m_title = "Options";
     
@@ -196,7 +197,8 @@ void Scene_OptionMenu::sRender()
 void Scene_OptionMenu::onEnd()
 {
     m_hasEnded = true;
-    m_game->changeScene("MENU", nullptr, true);
+    m_game->changeScene(prev_scene, nullptr, true);
+    m_game->getScene(m_game->m_currentScene)->setOptionMenu(false);
 }
 
 // Copyright (C) David Churchill - All Rights Reserved
