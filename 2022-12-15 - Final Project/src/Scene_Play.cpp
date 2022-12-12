@@ -409,7 +409,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Bomb");
-                bullet->addComponent<CGravity>(pc.GRAVITY);
+                bullet->addComponent<CGravity>(0.75);
                 if (pScale.y == -1)
                 {
                     bullet->getComponent<CGravity>().flipped = true;
