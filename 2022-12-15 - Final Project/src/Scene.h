@@ -38,7 +38,7 @@ protected:
     size_t          m_currentFrame = 0;
 
     virtual void onEnd() = 0;
-    void setPaused(bool paused);
+    
 
 public:
     Scene();
@@ -50,7 +50,8 @@ public:
 
     virtual void doAction(const Action& action);
     void simulate(const size_t frames);
-    void registerAction(int inputKey, const std::string& actionName);
+    void setPaused(bool paused);
+    void registerAction(int inputKey, const std::string &actionName);
 
     size_t width() const;
     size_t height() const;

@@ -1252,7 +1252,7 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
-            setPaused(!m_paused);
+            setPaused(true);
             setOptionMenu(true);
         }
         else if (action.name() == "PAUSE") { setPaused(!m_paused); }

@@ -199,6 +199,7 @@ void Scene_OptionMenu::onEnd()
     m_hasEnded = true;
     m_game->changeScene(prev_scene, nullptr, true);
     m_game->getScene(m_game->m_currentScene)->setOptionMenu(false);
+    m_game->getScene(m_game->m_currentScene)->setPaused(false);
 }
 
 // Copyright (C) David Churchill - All Rights Reserved
