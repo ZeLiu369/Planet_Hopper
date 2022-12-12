@@ -471,7 +471,14 @@ void Scene_Play::sMovement()
 
     // horizontal movement
     int dir = (input.right - input.left);
-    transform.velocity.x = dir * pc.SPEED;
+
+    if (state.state != "air") transform.velocity.x = dir * pc.SPEED;
+    else
+    {
+        if ((abs(transform.velocity.x) <= pc.SPEED) || 
+           ( (transform.velocity.x < 0 && dir > 0) || (transform.velocity.x > 0 && dir < 0)) ) transform.velocity.x += dir * 1;
+    }
+
     transform.prevScale.x = transform.scale.x;
     if (dir != 0) transform.scale.x = dir;
 
@@ -491,6 +498,7 @@ void Scene_Play::sMovement()
                 {
                     input.canJump = false;
                     transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
+                    transform.velocity.x += (pc.JUMP/2) * transform.scale.x;
                 }
             }
         }
@@ -944,6 +952,8 @@ void Scene_Play::sCollision()
                         {
                             e->getComponent<CInput>().sliding = true;
                             et.pos.x += delta.x > 0 ? overlap.x : -overlap.x;
+                            if ((delta.x >= 0 && et.velocity.x < 0) || (delta.x < 0 && et.velocity.x > 0)) et.velocity.x = 0;
+
                             for (auto weapon : m_entityManager.getEntities("weapon"))
                             {
                                 if (weapon->getComponent<CAnimation>().animation.getName() == m_player->getComponent<CWeapon>().currentWeapon)
