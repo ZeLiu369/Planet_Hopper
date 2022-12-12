@@ -49,6 +49,7 @@ protected:
     bool                    m_inventory = false;
     bool                    m_drawGrid = false;
     bool                    m_night = false;
+    bool                    m_optionMenuOpen = false;
     const Vec2              m_gridSize = { 64, 64 };
     int                     m_countdown = 150;
     int                     m_action = 0;
