@@ -48,7 +48,7 @@ void Scene_OptionMenu::init()
     m_menuStrings.push_back("Difficulty: ");
     m_menuStrings.push_back("Key Binding: ");
 
-    m_menuText.setFont(m_game->assets().getFont("Megaman"));
+    m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
 
     int num = 1;

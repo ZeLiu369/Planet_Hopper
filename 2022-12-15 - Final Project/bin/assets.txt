@@ -19,11 +19,13 @@ Texture   TexStand   images/misc/spritesheetIdle.png
 Texture   TexRun     images/misc/spritesheetRun.png     
 Texture   TexAir     images/misc/spritesheetJump.png
 Texture   TexShoot   images/misc/shootIdle.png
+Texture   TexSlide   images/misc/slide.png
 
 Texture   TexPlat       images/misc/platform.png
 Texture   TexWavy       images/misc/platformWavy.png
 Texture   TexWavyLeft   images/misc/platformWavyLeft.png 
 Texture   TexWavyMid    images/misc/platformWavyMiddle.png
+Texture   TexLrgPlat    images/misc/largePlatform.png
 Texture   TexWavyRight  images/misc/platformWavyRight.png
 Texture   TexSpikeUp    images/misc/spikeUp.png
 Texture   TexSpikeDown  images/misc/spikeDown.png        
@@ -50,35 +52,14 @@ Texture   TexBlueStar   images/misc/powerupBlue_star.png
 Texture   TexRaygun    images/misc/raygun.png
 Texture   TexBomb      images/misc/bomb.png
 Texture   TexLauncher  images/misc/launcher.png
-         
-Texture   TexBuster  images/megaman/buster.png
+   
 Texture   TexExplode images/misc/explosionSheet.png
-Texture   TexCoin    images/misc/coinspin.png
-Texture   TexBrick   images/mario/brick.png
-Texture   TexQ       images/mario/qfade.png
-Texture   TexQ2      images/mario/question2.png
-Texture   TexPipeS   images/mario/pipesmall.png
-Texture   TexPipeT   images/mario/pipetall.png
-Texture   TexCloudB  images/mario/cloudbig.png
-Texture   TexCloudS  images/mario/cloudsmall.png
-Texture   TexBush    images/mario/bush.png
-Texture   TexBushBig images/mario/bushbig.png
-Texture   TexGround  images/mario/ground.png
-Texture   TexBlock   images/mario/block.png
-Texture   TexPole    images/mario/flagpole.png
-Texture   TexPoleTop images/mario/flagtop.png
-Texture   TexFlag    images/mario/flag.png
 
 Texture   TexSpace   images/new/blue.png
 Texture   TexPlanet1 images/new/planet01.png
 Texture   TexPlanet2 images/new/planet02.png
 Texture   TexPlanet3 images/new/planet07.png
 Texture   TexInv     images/new/spritesheet.png
-Texture   TexDmg     images/new/DamagePotion.png
-Texture   TexHeal    images/new/HealingPotion.png
-Texture   TexIn      images/new/InvisibilityPotion.png
-Texture   TexMana    images/new/ManaPotion.png
-Texture   TexPoi     images/new/PoisonPotion.png
 Texture   TexShip    images/new/spaceship.png
 Texture   TexGauge   images/new/Gauge.png
 Texture   TexMplay   images/new/miniPlayer.png
@@ -91,13 +72,13 @@ Texture   TexWormDeath	images/new/Worm/Death.png
 Texture   TexWormFire	images/new/Worm/Fireball.png
 Texture   TexWormEx	images/new/Worm/Explosion.png
 
-
 Texture   TexDemonIdle	images/new/Demon/idle0.png
 Texture   TexDemonWalk	images/new/Demon/walk.png
 Texture   TexDemonAtk	images/new/Demon/attack.png
 Texture   TexDemonHit	images/new/Demon/hit.png
 Texture   TexDemonDie	images/new/Demon/death.png
 
+Texture   TexWeaponBox  images/misc/WeaponBox.png
 
 Animation Sky        TexSky      1    0
 Animation Stars      TexStars    1    0
@@ -120,12 +101,14 @@ Animation Stand      TexStand     10   5
 Animation Run        TexRun       8    4
 Animation Air        TexAir       20   5
 Animation Shoot      TexShoot     1    0
+Animation Slide      TexSlide     1    0
 
 Animation Plat        TexPlat       1    0
 Animation Wavy        TexWavy       1    0
 Animation WavyLeft    TexWavyLeft   1    0
 Animation WavyMid     TexWavyMid    1    0
-Animation WavyRight   TexWavyRight  1    0   
+Animation WavyRight   TexWavyRight  1    0
+Animation LargePltfrm TexLrgPlat     1    0   
 Animation SpikeUp     TexSpikeUp    1    0
 Animation SpikeDown   TexSpikeDown  1    0
 Animation Missile     TexMissile    4    5
@@ -150,24 +133,8 @@ Animation PillYellow  TexPillYellow 1    0
 Animation BlueBolt    TexBlueBolt   1    0
 Animation BlueShield  TexBlueShield 1    0
 Animation BlueStar    TexBlueStar   1    0
-
-Animation Buster     TexBuster   1    0   
+   
 Animation Explosion  TexExplode  24   3   
-Animation Coin       TexCoin     6    5 
-Animation Question   TexQ        4   10   
-Animation Brick      TexBrick    1    0   
-Animation Question2  TexQ2       1    0   
-Animation PipeTall   TexPipeT    1    0   
-Animation PipeSmall  TexPipeS    1    0   
-Animation CloudBig   TexCloudB   1    0   
-Animation CloudSmall TexCloudS   1    0   
-Animation Bush       TexBush     1    0   
-Animation BushBig    TexBushBig  1    0   
-Animation Ground     TexGround   1    0   
-Animation Block      TexBlock    1    0   
-Animation Flag       TexFlag     1    0   
-Animation Pole       TexPole     1    0   
-Animation PoleTop    TexPoleTop  1    0
 Animation Gauge      TexGauge    1    0
 Animation mPlayer    TexMplay    1    0
 
@@ -176,11 +143,6 @@ Animation Plan1      TexPlanet1  1    0
 Animation Plan2      TexPlanet2  1    0
 Animation Plan3      TexPlanet3  1    0
 Animation Inventory  TexInv      1    0
-Animation DmgPotion  TexDmg      1    0
-Animation HealPotion TexHeal     1    0
-Animation InvPotion  TexIn       1    0
-Animation ManaPotion TexMana     1    0
-Animation PoiPotion  TexPoi      1    0
 
 Animation WormIdle	TexWormIdle     9    3
 Animation WormWalk	TexWormWalk     9    3
@@ -190,17 +152,16 @@ Animation WormDeath	TexWormDeath    8    6
 Animation WormFire	TexWormFire     6    2
 Animation WormExplode	TexWormEx       7    2
 
-
 Animation DemonIdle	TexDemonIdle    6    5
 Animation DemonWalk	TexDemonWalk   12    12
 Animation DemonAttack	TexDemonAtk    15    4
 Animation DemonHit	TexDemonHit     5    10
 Animation DemonDeath	TexDemonDie    19    9
 
+Animation WeaponBox     TexWeaponBox   1     0
 
-Font      Tech       fonts/tech.ttf
-Font      Mario      fonts/mario.ttf
-Font      Megaman    fonts/megaman.ttf
+Font      ChunkFive  fonts/ChunkFive-Regular.otf
+Font      Roboto     fonts/Roboto-Bold.ttf
 
 Music     MusicTitle sounds/menu.ogg
 Music     Play       sounds/play.ogg

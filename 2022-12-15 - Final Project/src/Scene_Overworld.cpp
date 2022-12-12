@@ -34,9 +34,10 @@ void Scene_Overworld::init(const int& level)
     m_levelPaths.push_back("level2.txt");
     m_levelPaths.push_back("level3.txt");
 
-    m_text.setFont(m_game->assets().getFont("Megaman"));
-
+    m_text.setFont(m_game->assets().getFont("ChunkFive"));
+    
     m_game->assets().getMusic("MusicTitle").stop();
+
     //m_game->playSound("OverWorld");
 
     loadMap(level);
@@ -367,14 +368,14 @@ void Scene_Overworld::sRender()
     }
 
     // draw the game name in the top middle of the screem
-    m_text.setCharacterSize(40);
+    m_text.setCharacterSize(55);
     m_text.setFillColor(sf::Color::White);
     m_text.setString("PLANET HOPPER");
     m_text.setPosition(sf::Vector2f(400, 50));
     m_game->window().draw(m_text);
 
     // draw the controls in the bottom-left
-    m_text.setCharacterSize(20);
+    m_text.setCharacterSize(35);
     m_text.setFillColor(sf::Color::White);
     m_text.setString("move left: a    move right: d   select: space   back: esc");
     m_text.setPosition(sf::Vector2f(10, 690));

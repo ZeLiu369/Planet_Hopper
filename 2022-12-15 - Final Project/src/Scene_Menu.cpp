@@ -37,7 +37,8 @@ void Scene_Menu::init()
     registerAction(sf::Keyboard::Escape, "QUIT");
 
     m_title = "PLANET HOPPER";
-    m_menuStrings.push_back("Play");
+    m_menuStrings.push_back("Continue");
+    m_menuStrings.push_back("New Game");
     m_menuStrings.push_back("Options");
     m_menuStrings.push_back("Level Editor");
 
@@ -45,8 +46,7 @@ void Scene_Menu::init()
     m_levelPaths.push_back("level2.txt");
     m_levelPaths.push_back("level3.txt");
 
-    m_menuText.setFont(m_game->assets().getFont("Megaman"));
-    m_menuText.setCharacterSize(64);
+    m_menuText.setFont(m_game->assets().getFont("Roboto"));
 
     m_game->assets().getMusic("MusicTitle").setLoop(true);
     m_game->assets().getMusic("MusicTitle").setVolume(50.f);
@@ -81,9 +81,14 @@ void Scene_Menu::sDoAction(const Action& action)
             }
             if (m_selectedMenuIndex == 1)
             {
-                m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
+                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 1));
+                m_game->assets().getSound("MusicTitle").stop();
             }
             if (m_selectedMenuIndex == 2)
+            {
+                m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
+            }
+            if (m_selectedMenuIndex == 3)
             {
                 m_game->changeScene("EDIT", std::make_shared<Scene_Editor>(m_game));
             }
@@ -119,23 +124,28 @@ void Scene_Menu::sRender()
     m_game->window().draw(background);
                                                      
     // draw the game title in the top-left of the screen
-    m_menuText.setCharacterSize(48);
+    m_menuText.setCharacterSize(70);
     m_menuText.setString(m_title);
     m_menuText.setFillColor(sf::Color::Cyan);
-    m_menuText.setPosition(sf::Vector2f(10, 10));
+    m_menuText.setOrigin(m_menuText.getLocalBounds().width / 2 + m_menuText.getLocalBounds().left,
+        m_menuText.getLocalBounds().height / 2 + m_menuText.getLocalBounds().top);
+    m_menuText.setPosition(sf::Vector2f(m_game->window().getSize().x / 2.0f, 60));
     m_game->window().draw(m_menuText);
-    
+
     // draw all of the menu options
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
         m_menuText.setString(m_menuStrings[i]);
+        m_menuText.setOrigin(m_menuText.getLocalBounds().width / 2 + m_menuText.getLocalBounds().left,
+            m_menuText.getLocalBounds().height / 2 + m_menuText.getLocalBounds().top);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
-        m_menuText.setPosition(sf::Vector2f(10, 150 + i * 72));
+        m_menuText.setPosition(sf::Vector2f(m_game->window().getSize().x / 2.0f, 200 + i * 110));
         m_game->window().draw(m_menuText);
     }
 
+    m_menuText.setOrigin(0, 0);
     // draw the controls in the bottom-left
-    m_menuText.setCharacterSize(20);
+    m_menuText.setCharacterSize(40);
     m_menuText.setFillColor(sf::Color::White);
     m_menuText.setString("up: w     down: s    play: d    back: esc");
     m_menuText.setPosition(sf::Vector2f(10, 690));
