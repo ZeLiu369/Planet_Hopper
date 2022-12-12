@@ -47,6 +47,12 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num2, "BOMB");
     registerAction(sf::Keyboard::Num3, "LAUNCHER");
 
+    registerAction(sf::Keyboard::Num5, "INVENTORY_SLOT_ONE");
+    registerAction(sf::Keyboard::Num6, "INVENTORY_SLOT_TWO");
+    registerAction(sf::Keyboard::Num7, "INVENTORY_SLOT_THREE");
+    registerAction(sf::Keyboard::Num8, "INVENTORY_SLOT_FOUR");
+    registerAction(sf::Keyboard::Num9, "INVENTORY_SLOT_FIVE");
+
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
@@ -59,7 +65,6 @@ void Scene_Play::init(const std::string& levelPath)
     m_weaponUIText.setCharacterSize(14);
     m_weaponUIText.setFont(m_game->assets().getFont("Roboto"));
 
-    inventoryItems = { false, false, false, false, false };
     loadLevel(levelPath);
 }
 
@@ -451,7 +456,6 @@ void Scene_Play::update()
         sLifespan();
         sAnimation();
         sAI();
-        sInventory();
     }
     sCamera();
     
@@ -885,25 +889,47 @@ void Scene_Play::sLifespan()
     }
 }
 
-void Scene_Play::sInventory()
+void Scene_Play::sInventory(std::string action, std::string name, int index)
 {
-    for (auto& i : m_entityManager.getEntities("item"))
+    if (action == "add")
     {
-        if (inventoryItems[i->getComponent<CInventory>().index])
+        m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
+        m_inventoryEntity->getComponent<CInventory>().inventoryItems[index] = name;
+
+        for (int i = 0; i < 5; i++)
         {
-            float x = m_game->window().getView().getCenter().x - width() / 2;
-            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-            auto w = windowToWorld(Vec2(30, 90));
-            //auto inv_t = Vec2(30 + x, 20 + y);
-            auto inv_t = Vec2(0, 0);
-            auto item = m_entityManager.addEntity("items");
-            item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i->getComponent<CInventory>().index), inv_t.y));
-            auto s = i->getComponent<CAnimation>().animation.getName();
-            std::cout << s << "; " << i->getComponent<CInventory>().index << ";  ";
-            std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
-            item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
+            if (m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
+            {
+                float x = m_game->window().getView().getCenter().x - width() / 2;
+                float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+                auto w = windowToWorld(Vec2(30, 90));
+                //auto inv_t = Vec2(30 + x, 20 + y);
+                auto inv_t = Vec2(0, 0);
+                auto item = m_entityManager.addEntity("items");
+                item->addComponent<CInventory>(i);
+                item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
+                auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
+                std::cout << s << "; " << i << ";  ";
+                std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
+                item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
+            }
         }
     }
+
+    if (action == "use")
+    {
+        m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = false;
+        for (auto& e : m_entityManager.getEntities("items"))
+        {
+            auto i = e->getComponent<CInventory>().index;
+            if (!m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
+            {
+                // use item (); 
+                e->destroy();
+            }
+        }
+    }
+
 }
 
 void Scene_Play::sCollision()
@@ -1027,19 +1053,6 @@ void Scene_Play::sCollision()
         m_game->playSound("death");
         m_player->destroy();
         spawnPlayer();
-    }
-
-    // item collisions
-    for (auto& e : m_entityManager.getEntities("item"))
-    {
-        auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and item
-        if (overlap.x > 0 && overlap.y > 0)
-        {
-            auto index = e->getComponent<CInventory>().index;
-            inventoryItems[index] = true;
-            m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
-            e->destroy();
-        }
     }
 
     for (auto e : m_entityManager.getEntities("npc"))
@@ -1202,6 +1215,20 @@ void Scene_Play::sCollision()
         }
     }
 
+    // item collisions
+    for (auto& e : m_entityManager.getEntities("item"))
+    {
+        auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and item
+        if (overlap.x > 0 && overlap.y > 0)
+        {
+            auto index = e->getComponent<CInventory>().index;
+            /*m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
+            m_inventoryEntity->getComponent<CInventory>().inventoryItems[index] = e->getComponent<CAnimation>().animation.getName();*/
+            e->destroy();
+            sInventory("add", e->getComponent<CAnimation>().animation.getName(), index);
+        }
+    }
+
     // if player has reached end of the level
     if (goal)
     {
@@ -1238,6 +1265,12 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
         else if (action.name() == "BOMB")     { m_player->getComponent<CWeapon>().currentWeapon = "Bomb";     }
         else if (action.name() == "LAUNCHER") { m_player->getComponent<CWeapon>().currentWeapon = "Launcher"; }
+
+        else if (action.name() == "INVENTORY_SLOT_ONE")     { if (m_inventory) sInventory("use", "one", 0); }
+        else if (action.name() == "INVENTORY_SLOT_TWO")     { if (m_inventory) sInventory("use", "two", 1); }
+        else if (action.name() == "INVENTORY_SLOT_THREE")   { if (m_inventory) sInventory("use", "three", 2); }
+        else if (action.name() == "INVENTORY_SLOT_FOUR")    { if (m_inventory) sInventory("use", "four", 3); }
+        else if (action.name() == "INVENTORY_SLOT_FIVE")    { if (m_inventory) sInventory("use", "five", 4); }
 
         else if (action.name() == "LEFT_CLICK")
         {
@@ -1536,7 +1569,7 @@ void Scene_Play::sCamera()
         
         Vec2 offset = before - after;
         
-        gameView.move(sf::Vector2f(offset.x, offset.y + 150));
+        gameView.move(sf::Vector2f(offset.x, offset.y + 32));
     }
     m_game->window().setView(gameView);
     
@@ -1928,7 +1961,7 @@ void Scene_Play::sRender()
             auto transform = e->getComponent<CTransform>();
             float x = m_game->window().getView().getCenter().x - width() / 2;
             float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-            auto inv_t = Vec2(30 + x, 20 + y);
+            auto inv_t = Vec2(20 + x, 15 + y);
             transform.pos += Vec2(inv_t.x, inv_t.y);
             //std::cout << "Render stuff: " << e->getComponent<CInventory>().index  << " ";
             //std::cout << transform.pos.x << ", " << transform.pos.y << "\n";

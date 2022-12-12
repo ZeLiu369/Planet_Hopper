@@ -34,7 +34,6 @@ protected:
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_inventoryEntity;
     std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
-    std::vector<bool> inventoryItems;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
     sf::Shader              electric_shader, bright_shader, speed_shader, rainbow_shader;
@@ -82,8 +81,8 @@ protected:
     
     void sDoAction(const Action& action);
 
+    void sInventory(std::string action, std::string name, int index);
     void sAI();
-    void sInventory();
     void sCamera();
     void sClick();
     void sMovement();
