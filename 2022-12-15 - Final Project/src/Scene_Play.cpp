@@ -1596,15 +1596,18 @@ void Scene_Play::sCamera()
     }
     m_game->window().setView(gameView);
     
-    // update scroll background movement based on camera movement
-    for (auto e : m_entityManager.getEntities("scrollbackground"))
+    if (!(m_prevCameraPos == Vec2(0, 0)))
     {
-        auto& eTran = e->getComponent<CTransform>();
-        eTran.velocity.x = ((gameView.getCenter().x - m_game->window().getSize().x / 2.0f) - m_prevCameraPos.x) * eTran.scrollFactor;
-        eTran.velocity.y = ((gameView.getCenter().y - m_game->window().getSize().y / 2.0f) - m_prevCameraPos.y) * eTran.scrollFactor;
-        eTran.pos += eTran.velocity;
+        // update scroll background movement based on camera movement
+        for (auto e : m_entityManager.getEntities("scrollbackground"))
+        {
+            auto& eTran = e->getComponent<CTransform>();
+            eTran.velocity.x = ((gameView.getCenter().x - m_game->window().getSize().x / 2.0f) - m_prevCameraPos.x) * eTran.scrollFactor;
+            eTran.velocity.y = ((gameView.getCenter().y - m_game->window().getSize().y / 2.0f) - m_prevCameraPos.y) * eTran.scrollFactor;
+            eTran.pos += eTran.velocity;
+        }
     }
-
+    
     // always keep no scroll background on screen
     for (auto e : m_entityManager.getEntities("noscrollbackground"))
     {
@@ -1613,7 +1616,7 @@ void Scene_Play::sCamera()
         ePos.y = m_game->window().getView().getCenter().y;
     }
 
-    updateBackgrounds();
+    if (!(m_prevCameraPos == Vec2(0, 0))) { updateBackgrounds(); }
 }
 
 /*
