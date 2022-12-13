@@ -27,6 +27,7 @@
 #include <fstream>
 #include <sstream>
 #include <math.h>
+#include <cmath>
 
 Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
     : Scene(gameEngine)
@@ -69,6 +70,23 @@ void Scene_Play::init(const std::string& levelPath)
     m_weaponUIText.setFont(m_game->assets().getFont("Roboto"));
 
     loadLevel(levelPath);
+
+    std::string diff = m_game-> getDiff();
+
+    if (diff == "EASY")
+    {
+        bulletScaler = 2.0;
+    }
+
+    if (diff == "NORMAL")
+    {
+        bulletScaler = 1.0;
+    }
+
+    if (diff == "HARD")
+    {
+        bulletScaler = 0.5;
+    }
 }
 
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
@@ -315,7 +333,7 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CInput>();
     m_player->addComponent<CGravity>(pc.GRAVITY);
     m_player->addComponent<CHealth>(10, 10);
-    m_player->addComponent<CDamage>(2);
+    // m_player->addComponent<CDamage>(2);
     m_player->addComponent<CState>("air");
     m_player->addComponent<CJump>();
 
@@ -357,7 +375,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 auto bullet = m_entityManager.addEntity("EnemyBullet");
                 bullet->addComponent<CAnimation>(m_game->assets().getAnimation("WormFire"), true);
                 bullet->addComponent<CTransform>(Vec2(entity->getComponent<CTransform>().pos.x,
-                    entity->getComponent<CTransform>().pos.y));
+                entity->getComponent<CTransform>().pos.y));
                 bullet->addComponent<CBoundingBox>(m_game->assets().getAnimation("WormFire").getSize());
                 bullet->addComponent<CLifeSpan>(80, m_currentFrame);
                 bullet->addComponent<CDamage>(entity->getComponent<CDamage>().damage);
@@ -402,7 +420,8 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredLauncher = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
-                int DMG = 4;
+                // int DMG = 4;
+                int DMG = std::ceil(bulletScaler * 4);
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * 1.25f * entityT.scale.x, 0.0f);
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
@@ -417,7 +436,8 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredBomb = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(24, 24);
                 int BULLET_LIFETIME = 180;
-                int DMG = 2;
+                // int DMG = 2;
+                int DMG = std::ceil(bulletScaler * 2);
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
@@ -441,7 +461,15 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredRaygun = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(30, 17);
                 int BULLET_LIFETIME = 60;
-                int DMG = 1;
+
+
+                // DELETE 1
+                // int damage = e->getComponent<CDamage>().damage;
+
+                int DMG = std::ceil(bulletScaler*1);
+
+                // std::cout << "Damage: " << bulletScaler << std::endl;
+
                 Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
@@ -920,7 +948,6 @@ void Scene_Play::sInventory(std::string action, std::string name, int index)
                 item->addComponent<CInventory>(i);
                 item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
                 auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
-                std::cout << s << "; " << i << ";  ";
                 std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
                 item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
             }
@@ -974,6 +1001,17 @@ void Scene_Play::sCollision()
                         {
                             e->addComponent<CInvincibility>(30);
                             e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
+
+
+                            //DELETE
+                            std::cout << "Damage to player: " << tile->getComponent<CDamage>().damage << std::endl;
+                            std::cout << "Player health: " << e->getComponent<CHealth>().current << std::endl;
+                            std::cout << typeid(tile->getComponent<CDamage>().damage).name() << '\n';
+                            std::cout << typeid(e->getComponent<CHealth>().current).name() << '\n';
+
+
+
+
                             m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
                             {
@@ -1084,6 +1122,11 @@ void Scene_Play::sCollision()
             {
                 if (m_player->hasComponent<CInvincibility>()) { break; }
                 m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
+
+                // DELETE
+                std::cout << "Damage to player: " << e->getComponent<CDamage>().damage << std::endl;
+                std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
+
                 m_player->addComponent<CInvincibility>(60);
                 m_game->playSound("ow");
 
@@ -1110,6 +1153,10 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
+
+                //DELETE
+                std::cout << "bullet hit npc damge:   " << bullet->getComponent<CDamage>().damage << std::endl;
+                std::cout << "npc health: " << npc->getComponent<CHealth>().current << std::endl;
             }
 
             // the npc is dead
@@ -1215,6 +1262,10 @@ void Scene_Play::sCollision()
                     {
                         m_player->addComponent<CInvincibility>(10);
                         m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
+
+                        //DELETE
+                        std::cout << "Damage to player: " << f->getComponent<CDamage>().damage << std::endl;
+                        std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
                         m_game->playSound("ow");
                     }
                     f->destroy();

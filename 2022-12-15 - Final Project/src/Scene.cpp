@@ -15,7 +15,8 @@
                                                      
 #include "Scene.h"
 #include "GameEngine.h"
-                                                     
+#include <cmath>
+
 Scene::Scene()
 {
 
@@ -56,7 +57,60 @@ bool Scene::hasEnded() const
 {
     return m_hasEnded;
 }
-                                                     
+
+void Scene::changeDiff(std::string diff)
+{
+    float takenDamage = 1.0;
+    if (diff == "EASY")
+    {
+        takenDamage = 0.5;
+        bulletScaler = 2.0;
+    }
+
+    if (diff == "NORMAL")
+    {
+        takenDamage = 1.0;
+        bulletScaler = 1.0;
+    }
+
+    if (diff == "HARD")
+    {
+        takenDamage = 2.0;
+        bulletScaler = 0.5;
+    }
+
+   
+    
+    for (auto e : m_entityManager.getEntities("bullet"))
+    {
+        if (e->hasComponent<CDamage>())
+        {
+            e->getComponent<CDamage>().damage = std::ceil(e->getComponent<CDamage>().damage * bulletScaler);
+        }
+    }
+    for (auto e : m_entityManager.getEntities("EnemyBullet"))
+    {
+        if (e->hasComponent<CDamage>())
+        {
+            e->getComponent<CDamage>().damage = std::ceil(e->getComponent<CDamage>().damage * takenDamage);
+        }
+    }
+    for (auto e : m_entityManager.getEntities("npc"))
+    {
+        if (e->hasComponent<CDamage>())
+        {
+            e->getComponent<CDamage>().damage = std::ceil(e->getComponent<CDamage>().damage * takenDamage);
+        }
+    }
+    for (auto e : m_entityManager.getEntities("tile"))
+    {
+        if (e->hasComponent<CDamage>())
+        {
+            e->getComponent<CDamage>().damage = std::ceil(e->getComponent<CDamage>().damage * takenDamage);
+        }
+    }
+}
+
 const ActionMap& Scene::getActionMap() const
 {
     return m_actionMap;

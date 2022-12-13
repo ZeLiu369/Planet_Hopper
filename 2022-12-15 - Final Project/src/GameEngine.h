@@ -50,7 +50,7 @@ public:
 
     float musicVol = 20.0f;
     float soundVol = 80.0f;
-    std::string diff = "normal";
+    std::string diff;
     std::string m_currentScene;
     SceneMap m_sceneMap;
 
@@ -67,7 +67,10 @@ public:
     void playSound(const std::string &soundName);
     void playMusic(const std::string &musicName);
 
-    sf::RenderWindow & window();
+    std::string getDiff();
+    void setDiff(std::string d);
+
+    sf::RenderWindow &window();
     Assets& assets();
     bool isRunning();
 };
