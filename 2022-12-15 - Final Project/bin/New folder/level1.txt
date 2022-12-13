@@ -363,7 +363,7 @@ Tile SpikeDown 46 25 1 1 2 0
 Tile Plat 36 20 1 1 0 0
 Tile Plat 33 14 1 1 0 0
 Item BlueShield 47 10
-Item BlueStar 50 23
+Item BlueStar 62 18
 Tile Plat 69 26 1 1 0 0
 Tile Plat 70 26 1 1 0 0
 Tile Plat 71 26 1 1 0 0
@@ -581,7 +581,7 @@ Npc WormIdle 63 14 1 3 1 0 0.75 3 Patrol 2 63 14 66 14
 Npc WormIdle 55 24 1 3 1 0 0.75 2 Follow
 Npc WormIdle 85 10 -1 3 1 0 0.75 2 Patrol 2 85 10 79 10
 Npc WormIdle 106 1 -1 3 1 0 0.75 2 Follow
-Npc DemonIdle 53 18 -1 5 3 0 0.75 2 Patrol 2 53 18 63 18
+Npc DemonIdle 53 18 -1 5 3 0 0.75 2 Patrol 2 53 18 63.01 18
 Npc DemonIdle 68 23 1 5 3 0 0.75 2 Patrol 2 68 23 64 23
 Npc DemonIdle 70 18 -1 5 3 0 0.75 2 Patrol 2 70 18 75 18
 Npc DemonIdle 82 10 1 5 3 0 0.75 2 Patrol 2 82 10 80 10
@@ -781,7 +781,6 @@ Tile Plat 75 26 1 1 0 0
 Tile Plat 76 26 1 1 0 0
 Tile Plat 77 26 1 1 0 0
 Tile Plat 78 26 1 1 0 0
-Item PillRed 74 10
 Dec ArrowUp 23 13
 Dec ArrowDown 37 25
 Dec Alarm 118 2
