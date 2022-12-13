@@ -44,6 +44,7 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
     registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
     registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");        // Toggle option menu
+    registerAction(sf::Keyboard::B, "BOSS");        
 
     registerAction(sf::Keyboard::Num1, "RAYGUN");
     registerAction(sf::Keyboard::Num2, "BOMB");
@@ -295,6 +296,11 @@ void Scene_Play::loadLevel(const std::string& filename)
         std::cerr << "Error while loading rainbow shader" << std::endl;
         return;
     }
+}
+
+void Scene_Play::loadBoss()
+{
+    loadLevel("BossFight.txt");
 }
 
 void Scene_Play::spawnPlayer()
@@ -1257,6 +1263,7 @@ void Scene_Play::sDoAction(const Action& action)
         }
         else if (action.name() == "PAUSE") { setPaused(!m_paused); }
         else if (action.name() == "QUIT") { onEnd(); }
+        else if (action.name() == "BOSS") { loadBoss(); }
 
         else if (action.name() == "UP") { m_player->getComponent<CInput>().up = true; }
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }

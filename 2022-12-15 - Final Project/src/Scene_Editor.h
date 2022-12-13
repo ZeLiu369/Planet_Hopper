@@ -119,7 +119,7 @@ protected:
     // level properties
     std::map<std::string, std::vector<std::string>>m_levelAssetList =
     {
-        {"Music", {"MusicTitle", "Play", "OverWorld"}},
+        {"Music", {"MusicTitle", "Play", "OverWorld", "BossFight"}},
         {"Background", {"Background1", "Background2", "Background3", "None"}}
     };
 
