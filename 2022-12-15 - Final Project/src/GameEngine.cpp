@@ -205,12 +205,13 @@ std::string GameEngine::getDiff()
 void GameEngine::setDiff(std::string d)
 {
     diff = d;
+    getScene("PLAY")->changeDiff(d);
 }
 
 
-// Copyright (C) David Churchill - All Rights Reserved
-// COMP4300 - 2022-09 - Assignment 3
-// Written by David Churchill (dave.churchill@gmail.com)
-// Unauthorized copying of these files are strictly prohibited
-// Distributed only for course work at Memorial University
-// If you see this file online please contact email above
+    // Copyright (C) David Churchill - All Rights Reserved
+    // COMP4300 - 2022-09 - Assignment 3
+    // Written by David Churchill (dave.churchill@gmail.com)
+    // Unauthorized copying of these files are strictly prohibited
+    // Distributed only for course work at Memorial University
+    // If you see this file online please contact email above

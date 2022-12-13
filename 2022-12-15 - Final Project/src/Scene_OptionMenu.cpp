@@ -219,8 +219,6 @@ void Scene_OptionMenu::sRender()
 {
     sf::Time elapsed1 = clock.getElapsedTime();
 
-    std::cout << "Time elapsed: " << elapsed1.asSeconds() << std::endl;
-
     // clear the window to a blue
     m_game->window().setView(m_game->window().getDefaultView());
     m_game->window().clear(sf::Color(150, 200, 255));
