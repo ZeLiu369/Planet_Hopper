@@ -76,7 +76,7 @@ void Scene_Menu::sDoAction(const Action& action)
         {
             if (m_selectedMenuIndex == 0)
             {
-                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 1));
+                m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, 3));
                 m_game->assets().getMusic("MusicTitle").stop();
             }
             if (m_selectedMenuIndex == 1)

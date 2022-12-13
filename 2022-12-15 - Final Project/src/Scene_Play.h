@@ -67,6 +67,7 @@ protected:
     sf::Text displayText(std::string, float x, float y);
     sf::Sprite displayBox(float x, float y);
     std::shared_ptr<Entity> setupBullet(Vec2 size, Vec2 pos, int lifetime, int dmg, Vec2 speed, std::string name);
+    void loadBoss();
     void drawWeapon();
     void drawWeaponDisplay();
     void updateBackgrounds();

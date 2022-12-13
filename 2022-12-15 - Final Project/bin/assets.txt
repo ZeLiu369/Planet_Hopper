@@ -173,6 +173,7 @@ Font      Roboto     fonts/Roboto-Bold.ttf
 Music     MusicTitle sounds/menu.ogg
 Music     Play       sounds/play.ogg
 Music     OverWorld  sounds/Overworld_bgm.ogg
+Music     BossFight  sounds/BossFight.wav
 
 Sound  se_bullet_leaser  sounds/se_bullet_leaser.wav
 Sound  se_bullet_missile sounds/se_bullet_missile.wav
