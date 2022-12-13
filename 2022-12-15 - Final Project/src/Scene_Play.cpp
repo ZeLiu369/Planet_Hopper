@@ -87,10 +87,9 @@ void Scene_Play::loadLevel(const std::string& filename)
     m_entityManager = EntityManager();
 
     m_game->assets().getMusic("OverWorld").stop();
-    //m_game->playSound("Play");
 
     std::ifstream fin(filename);
-    std::string temp, sound;
+    std::string temp;
     int i = 0;
     std::vector<Vec2> pos;
     int x1, y1;
@@ -104,7 +103,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     {
         std::string texture;
         if (temp == "BackgroundType") { fin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); }
-        else if (temp == "Music") { fin >> sound; }
+        else if (temp == "Music") { fin >> m_levelMusic; }
         else if (temp == "Dec" || temp == "Tile")
         {
             std::string type = temp;
@@ -269,10 +268,9 @@ void Scene_Play::loadLevel(const std::string& filename)
     if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
-    // temporarily hard coding background sound to be quiet
-    //CHANGE
-    m_game->assets().changeMusicVolume(1);
-    // m_game->playSound(sound);
+
+    m_game->assets().getMusic(m_levelMusic).setLoop(true);
+    m_game->playMusic(m_levelMusic);
 
     // Load shaders
     if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
@@ -560,10 +558,8 @@ void Scene_Play::sMovement()
     transform.prevPos = transform.pos;
     transform.pos.x += transform.velocity.x;
     transform.pos.y += transform.velocity.y;
-    for (auto& t : m_platforms)
-    {
-        transform.pos += t->getComponent<CTransform>().velocity;
-    }
+
+    if (m_touchedPlatform != NULL) transform.pos += m_touchedPlatform->getComponent<CTransform>().velocity;
 
     // weapon movement
     for (auto weapon : m_entityManager.getEntities("weapon"))
@@ -942,7 +938,7 @@ void Scene_Play::sCollision()
     //           Also, something BELOW something else will have a y value GREATER than it
     //           Also, something ABOVE something else will have a y value LESS than it
 
-    m_platforms.clear();
+    m_touchedPlatform = NULL;
     m_player->getComponent<CState>().state = "air";
     m_player->getComponent<CInput>().sliding = false;
     for (auto& tile : m_entityManager.getEntities("tile"))
@@ -973,6 +969,9 @@ void Scene_Play::sCollision()
                                 spawnPlayer();
                             }
                         }
+                        
+                        if (tile->hasComponent<CBoundingBox>() && !tile->getComponent<CBoundingBox>().blockMove) continue;
+
                         CTransform& et = e->getComponent<CTransform>();
                         CTransform& tileT = tile->getComponent<CTransform>();
                         Vec2 delta = et.pos - tileT.pos;
@@ -1005,7 +1004,7 @@ void Scene_Play::sCollision()
                                 else
                                 {
                                     m_player->getComponent<CState>().state = "ground";
-                                    if (tile->hasComponent<CPatrol>()) m_platforms.push_back(tile);
+                                    if (tile->hasComponent<CPatrol>() && m_touchedPlatform == NULL) m_touchedPlatform = tile;
                                 }
                                 et.pos.y += overlap.y;
 
@@ -1015,7 +1014,7 @@ void Scene_Play::sCollision()
                                 if (m_player->getComponent<CGravity>().gravity >= 0)
                                 {
                                     m_player->getComponent<CState>().state = "ground";
-                                    if (tile->hasComponent<CPatrol>()) m_platforms.push_back(tile);
+                                    if (tile->hasComponent<CPatrol>() && m_touchedPlatform == NULL) m_touchedPlatform = tile;
                                 }
                                 else
                                 {
@@ -1049,8 +1048,10 @@ void Scene_Play::sCollision()
     // when the player goes to far left
     if (transform.pos.x < box.halfSize.x) transform.pos.x = box.halfSize.x;
 
-    // when the player falls into a pit
-    if (transform.pos.y > height())
+    // when the player falls into a pit or falls into space
+    float upperBarrier = ((30 - ceil(height() / m_gridSize.y)) * -m_gridSize.y);
+
+    if (transform.pos.y > height() || transform.pos.y < upperBarrier)
     {
         m_game->playSound("death");
         m_player->destroy();
@@ -1223,6 +1224,13 @@ void Scene_Play::sCollision()
         auto overlap = Physics::GetOverlap(m_player, e);        // get the overlap between player and item
         if (overlap.x > 0 && overlap.y > 0)
         {
+            if (e->hasComponent<CAnimation>() && e->getComponent<CAnimation>().animation.getName() == "PillRed")
+            {
+                e->destroy();
+                m_player->getComponent<CHealth>().current = m_player->getComponent<CHealth>().max;
+                continue;
+            }
+
             auto index = e->getComponent<CInventory>().index;
             /*m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
             m_inventoryEntity->getComponent<CInventory>().inventoryItems[index] = e->getComponent<CAnimation>().animation.getName();*/
@@ -1481,7 +1489,8 @@ Vec2 Scene_Play::windowToWorld(const Vec2& window) const
 void Scene_Play::onEnd()
 {
     m_hasEnded = true;
-    m_game->assets().getMusic("Play").stop();
+    m_game->assets().getMusic(m_levelMusic).stop();
+    m_game->assets().getMusic("OverWorld").setLoop(true);
     m_game->playMusic("OverWorld");
 
     if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
@@ -1619,12 +1628,6 @@ sf::Sprite Scene_Play::getLightingSprite(sf::Sprite gaugeSprite)
     // keep the sprite at it's original position
     gaugeSprite.setPosition(735, 10);
 
-    // this is needed so that the health bar isn't dark like the rest of the level
-    sf::RectangleShape healthBarRect;
-    healthBarRect.setSize(sf::Vector2f(320, 50));
-    healthBarRect.setPosition(10, 10);
-    healthBarRect.setFillColor(sf::Color(0, 0, 0, 255));
-
     // create the lighting sprite and set its position
     sf::Sprite light(m_lightTexture);
     light.setOrigin(light.getTexture()->getSize().x / 2.0f, light.getTexture()->getSize().y / 2.0f);
@@ -1634,7 +1637,6 @@ sf::Sprite Scene_Play::getLightingSprite(sf::Sprite gaugeSprite)
     light.setPosition(x_pos, y_pos);
     // draw the lighting sprite and a rect over the healthbar to keep it the same colour
     m_renderTexture.clear();
-    m_renderTexture.draw(healthBarRect, blendMode);
     m_renderTexture.draw(gaugeSprite, blendMode);
     m_renderTexture.draw(light, blendMode);
     m_renderTexture.display();
@@ -1777,26 +1779,8 @@ void Scene_Play::sRender()
 
         for (auto e : m_entityManager.getEntities())
         {
-            // the health bar for the player
             auto& transform = e->getComponent<CTransform>();
-            if (e->tag() == "player" && e->hasComponent<CHealth>())
-            {
-                auto &h = e->getComponent<CHealth>();
-                Vec2 size(320, 50);
-                sf::RectangleShape rect({size.x, size.y});
-                rect.setPosition(m_game->window().getView().getCenter().x - width() / 2 + 10, m_game->window().getView().getCenter().y - height() / 2 + 10);
-                rect.setFillColor(sf::Color(96, 96, 96));
-                rect.setOutlineColor(sf::Color::Black);
-                rect.setOutlineThickness(2);
-                m_game->window().draw(rect);
 
-                float ratio = (float)(h.current) / h.max;
-                size.x *= ratio;
-                rect.setSize({size.x, size.y});
-                rect.setFillColor(sf::Color(255, 0, 0));
-                rect.setOutlineThickness(0);
-                m_game->window().draw(rect);
-            }
             // the health bar for the npc
             if (e->tag() == "npc" && e->hasComponent<CHealth>())
             {
@@ -1920,6 +1904,35 @@ void Scene_Play::sRender()
         sf::Sprite sprite = getLightingSprite(gauge);
         m_game->window().draw(sprite);
     }
+
+    // draw player health
+    auto& health = m_player->getComponent<CHealth>();
+
+    Vec2 upperLeftCorner = Vec2((m_game->window().getView().getCenter().x - width() / 2),
+        (m_game->window().getView().getCenter().y - height() / 2));
+
+    float w = m_game->assets().getTexture("TexHeart").getSize().x;
+    float h = m_game->assets().getTexture("TexHeart").getSize().y;
+    bool even = true;
+    for (int i = 0; i < health.current; i++)
+    {
+        if (even)
+        {
+            sf::Texture ht(m_game->assets().getTexture(i + 1 != health.current ? "TexHeart" : "TexBrokenHeart"));
+
+            sf::Sprite border(ht);
+            border.setColor(sf::Color(0, 0, 0, 200));
+            border.setPosition(upperLeftCorner.x + (w * i / 2) + (w * 0.1), upperLeftCorner.y + h * 0.1);
+            border.setScale(1.1, 1.1);
+            m_game->window().draw(border);
+
+            sf::Sprite heart(ht);
+            heart.setPosition(upperLeftCorner.x + (w * i / 2), upperLeftCorner.y);
+            m_game->window().draw(heart);
+        }
+        even = !even;
+    }
+
 
     // draw the grid so that students can easily debug
     if (m_drawGrid)
