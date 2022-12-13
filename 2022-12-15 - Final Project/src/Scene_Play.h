@@ -54,8 +54,9 @@ protected:
     sf::Text                m_gridText;
     sf::Text                m_weaponUIText;
     bool goal = false;
+    std::string             m_levelMusic;
 
-    std::vector<std::shared_ptr<Entity>> m_platforms;
+    std::shared_ptr<Entity> m_touchedPlatform;
 
     Vec2                    m_mPos;
 

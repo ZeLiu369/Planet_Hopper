@@ -80,6 +80,10 @@ Texture   TexDemonDie	images/new/Demon/death.png
 
 Texture   TexWeaponBox  images/misc/WeaponBox.png
 
+Texture   TexHeart      images/misc/heart.png
+Texture   TexBrokenHeart     images/misc/brokenheart.png
+
+
 Animation Sky        TexSky      1    0
 Animation Stars      TexStars    1    0
 Animation Hill	     TexHill     1    0
@@ -159,6 +163,9 @@ Animation DemonHit	TexDemonHit     5    10
 Animation DemonDeath	TexDemonDie    19    9
 
 Animation WeaponBox     TexWeaponBox   1     0
+
+Animation Heart         TexHeart       1     0
+Animation BrokenHeart   TexBrokenHeart 1     0
 
 Font      ChunkFive  fonts/ChunkFive-Regular.otf
 Font      Roboto     fonts/Roboto-Bold.ttf

@@ -203,15 +203,6 @@ void Scene_Editor::setUpSounds()
     for (std::string m : m_levelAssetList["Music"])
     {
         m_game->assets().getMusic(m).setLoop(true);
-        m_game->assets().changeMusicVolume(m_game->musicVol);
-    }
-
-    // sounds
-    std::vector<std::string> sounds = { "death", "winSound", "throw" };
-
-    for (std::string s : sounds)
-    {
-        m_game->assets().changeSoundsVolume(m_game->soundVol);
     }
 }
 
@@ -1302,8 +1293,6 @@ void Scene_Editor::onEnd()
 {
     m_hasEnded = true;
     m_game->assets().getMusic(m_levelConfig.MUSIC).stop();
-    m_game->assets().getMusic("MusicTitle").setLoop(true);
-    m_game->assets().getMusic("MusicTitle").setVolume(m_game->musicVol);
     m_game->playMusic("MusicTitle");
     m_game->changeScene("MENU", std::shared_ptr<Scene_Menu>(), true);
 }
