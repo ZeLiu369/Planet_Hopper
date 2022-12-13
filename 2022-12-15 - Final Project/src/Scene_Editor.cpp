@@ -575,7 +575,7 @@ void Scene_Editor::saveLevel()
                 for (Vec2& p : points)
                 {
                     Vec2 g = midPixelToGrid(e,p);
-                    saveLine = saveLine + " " + formatFloat(g.x) + " " + formatFloat(g.y);
+                    saveLine = saveLine + " " + std::to_string(static_cast<int>(g.x)) + " " + std::to_string(static_cast<int>(g.y));
                 }
             }
         }
