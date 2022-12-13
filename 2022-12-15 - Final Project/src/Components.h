@@ -236,6 +236,7 @@ public:
 class CJump : public Component
 {
 public:
+    float lastJumped = 0;
     float jump = 0;
     CJump() {}
     CJump(float j)

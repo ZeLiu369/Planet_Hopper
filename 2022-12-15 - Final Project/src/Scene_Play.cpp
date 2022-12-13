@@ -317,6 +317,7 @@ void Scene_Play::spawnPlayer()
     m_player->addComponent<CHealth>(10, 10);
     m_player->addComponent<CDamage>(2);
     m_player->addComponent<CState>("air");
+    m_player->addComponent<CJump>();
 
     // raygun is default weapon
     m_player->addComponent<CWeapon>("Raygun");
@@ -486,8 +487,13 @@ void Scene_Play::sMovement()
     if (state.state != "air") transform.velocity.x = dir * pc.SPEED;
     else
     {
-        if ((abs(transform.velocity.x) <= pc.SPEED) || 
-           ( (transform.velocity.x < 0 && dir > 0) || (transform.velocity.x > 0 && dir < 0)) ) transform.velocity.x += dir * 1;
+        // only accelerate in x if player has jumped off a wall within last 30 frames
+        if (m_currentFrame - m_player->getComponent<CJump>().lastJumped < 30)
+        {
+            if ((abs(transform.velocity.x) <= pc.SPEED) ||
+                ((transform.velocity.x < 0 && dir > 0) || (transform.velocity.x > 0 && dir < 0))) transform.velocity.x += dir;
+        }
+        else { transform.velocity.x = dir * pc.SPEED; }
     }
 
     transform.prevScale.x = transform.scale.x;
@@ -512,6 +518,7 @@ void Scene_Play::sMovement()
                     transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
                     transform.velocity.x += (pc.JUMP/4) * transform.scale.x;
                     transform.scale.x = -transform.scale.x;
+                    m_player->getComponent<CJump>().lastJumped = m_currentFrame;
                 }
             }
         }
