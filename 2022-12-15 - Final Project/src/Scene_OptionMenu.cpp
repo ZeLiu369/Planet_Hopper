@@ -36,6 +36,10 @@ void Scene_OptionMenu::init()
     registerAction(sf::Keyboard::Up, "INCREASE");
     registerAction(sf::Keyboard::Down, "DECREASE");
     registerAction(sf::Keyboard::Escape, "QUIT");
+    registerAction(sf::Keyboard::Enter, "Enter");
+
+    // use for counting for displaying the confirm text
+    clock.restart();
 
     prev_scene = m_game->m_currentScene;
 
@@ -44,9 +48,11 @@ void Scene_OptionMenu::init()
     music_volume = m_game->assets().getMusicVolume();
     sounds_volume = m_game -> assets().getSoundsVolume();
 
+    diff1 = m_game -> getDiff();
+
     m_menuStrings.push_back("Music Volume: " + std::to_string(int(music_volume)) + "/100");
     m_menuStrings.push_back("Sounds Effects Volume: " + std::to_string(int(sounds_volume)) + "/100");
-    m_menuStrings.push_back("Difficulty: ");
+    m_menuStrings.push_back("Difficulty: " + diff1);
     m_menuStrings.push_back("Key Binding: ");
 
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
@@ -97,6 +103,22 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                     m_game->assets().changeSoundsVolume(sounds_volume += 1);
                 }
             }
+            // increase the difficulty
+            if (m_selectedMenuIndex == 2)
+            {
+                if (diff1 == "EASY")
+                {
+                    diff1 = "NORMAL";
+                }
+                else if (diff1 == "NORMAL")
+                {
+                    diff1 = "HARD";
+                }
+                else if (diff1 == "HARD")
+                {
+                    diff1 = "EASY";
+                }
+            }
         }
         else if (action.name() == "DECREASE")
         {
@@ -114,6 +136,22 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                 if (sounds_volume >= 1 && sounds_volume <= 100)
                 {
                     m_game->assets().changeSoundsVolume(sounds_volume -= 1);
+                }
+            }
+            // decrease the difficulty
+            if (m_selectedMenuIndex == 2)
+            {
+                if (diff1 == "EASY")
+                {
+                    diff1 = "HARD";
+                }
+                else if (diff1 == "NORMAL")
+                {
+                    diff1 = "EASY";
+                }
+                else if (diff1 == "HARD")
+                {
+                    diff1 = "NORMAL";
                 }
             }
         }
@@ -155,6 +193,21 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                 }
             }
         }
+        else if (action.name() == "Enter")
+        {   
+            // confirm the difficulty
+            if (m_selectedMenuIndex == 2)
+            {
+                m_game->setDiff(diff1);
+
+                // display the confirmation text (prompt)
+                confirmText.setString("Difficulty set to " + diff1 + "!");
+                confirmText.setCharacterSize(20);
+                confirmText.setFillColor(sf::Color::Red);
+                confirmText.setFont(m_game->assets().getFont("ChunkFive"));
+                confirmText.setPosition(sf::Vector2f(500, 10));
+            }
+        }
         else if (action.name() == "QUIT")
         {
             onEnd();
@@ -164,6 +217,10 @@ void Scene_OptionMenu::sDoAction(const Action &action)
 
 void Scene_OptionMenu::sRender()
 {
+    sf::Time elapsed1 = clock.getElapsedTime();
+
+    std::cout << "Time elapsed: " << elapsed1.asSeconds() << std::endl;
+
     // clear the window to a blue
     m_game->window().setView(m_game->window().getDefaultView());
     m_game->window().clear(sf::Color(150, 200, 255));
@@ -180,6 +237,7 @@ void Scene_OptionMenu::sRender()
     {
         m_menuStrings[0] = "Music Volume: " + std::to_string(int(music_volume)) + "/100";
         m_menuStrings[1] = "Sounds Effect Volume: " + std::to_string(int(sounds_volume)) + "/100";
+        m_menuStrings[2] = "Difficulty: " + diff1;
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
         m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
@@ -189,8 +247,18 @@ void Scene_OptionMenu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w  down: s adjust: arrows back: esc");
+    m_menuText.setString("up: w  down: s adjust: arrows back: esc  enter: confirm");
     m_menuText.setPosition(sf::Vector2f(10, 690));
+
+    // disapper the confirmation text after 2 seconds
+    if (elapsed1.asSeconds() > 2)
+    {
+        confirmText.setString("");
+        clock.restart();
+    }
+    m_game->window().draw(confirmText);
+
+
     m_game->window().draw(m_menuText);
 }
 

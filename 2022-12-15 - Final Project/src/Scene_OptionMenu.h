@@ -31,10 +31,13 @@ protected:
     std::vector<std::string> m_menuStrings;
     std::vector<std::string> m_levelPaths;
     sf::Text m_menuText;
+    sf::Text confirmText;
     size_t m_selectedMenuIndex = 0;
     float sounds_volume;
     float music_volume;
     std::string prev_scene;
+    std::string diff1;
+    sf::Clock clock;
 
     void init();
     void update();

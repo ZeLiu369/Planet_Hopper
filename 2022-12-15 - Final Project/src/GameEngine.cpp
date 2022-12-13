@@ -30,6 +30,7 @@ GameEngine::GameEngine(const std::string & path)
 void GameEngine::init(const std::string & path)
 {
     m_assets.loadFromFile(path);
+    diff = "NORMAL";
 
     m_window.create(sf::VideoMode(1280, 768), "Planet Hopper");
     m_window.setFramerateLimit(60);
@@ -195,6 +196,18 @@ void GameEngine::playMusic(const std::string &musicName)
 {
     m_assets.getMusic(musicName).play();
 }
+
+std::string GameEngine::getDiff()
+{
+    return diff;
+}
+
+void GameEngine::setDiff(std::string d)
+{
+    diff = d;
+}
+
+
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)
