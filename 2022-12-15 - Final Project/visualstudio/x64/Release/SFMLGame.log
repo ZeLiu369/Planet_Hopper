@@ -1,22 +1,23 @@
 ﻿  Scene_Play.cpp
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(97,13): warning C4101: 'y1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(97,9): warning C4101: 'x1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(356,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(378,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(392,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(403,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(418,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(442,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(636,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(96,13): warning C4101: 'y1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(96,9): warning C4101: 'x1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(354,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(376,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(390,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(401,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(416,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(440,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(632,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(1936,37): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(338): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(336): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
           with
           [
               T=CLifeSpan
           ]
   Generating code
-  1 of 2289 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 2290 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    8 functions had inline decision re-evaluated but remain unchanged
+    58 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\bin\SFMLGame.exe

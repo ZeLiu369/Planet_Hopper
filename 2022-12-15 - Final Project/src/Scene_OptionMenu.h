@@ -42,7 +42,7 @@ protected:
     void sDoAction(const Action &action);
 
 public:
-    Scene_OptionMenu(GameEngine *gameEngine = nullptr);
+    Scene_OptionMenu(GameEngine *gameEngine);
     void sRender();
 };
 
