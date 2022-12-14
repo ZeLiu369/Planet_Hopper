@@ -94,6 +94,16 @@ public:
         : lifespan(duration), frameCreated(frame) {}
 };
 
+class CBulletTimer : public Component
+{
+public:
+    int interval = 0;
+    int frameCreated = 0;
+    CBulletTimer() {}
+    CBulletTimer(int i, int frame)
+        : interval(i), frameCreated(frame) {}
+};
+
 class CDamage : public Component
 {
 public:

@@ -39,7 +39,8 @@ typedef std::tuple<
     CPatrol,
     CFollowPlayer,
     CInvincibility,
-    CJump
+    CJump,
+    CBulletTimer
 > ComponentTuple;
 
 class Entity
