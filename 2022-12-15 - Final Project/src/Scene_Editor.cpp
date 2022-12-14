@@ -1613,9 +1613,9 @@ void Scene_Editor::sRender()
             animation.animation.getSprite().setScale((m_gridSize.x * 4) / aniSize.x ,  (m_gridSize.y * 4) / aniSize.y );
             m_game->window().draw(animation.animation.getSprite());
 
-            m_selectionText.setString("\n>");
-            m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (m_modText.getCharacterSize() + 3), 
-                                        upperLeftCorner.y + (height() / 4) + (m_pageSelection * (m_modText.getCharacterSize() + 6)));
+            m_selectionText.setString(std::string(m_pageSelection, '\n') + "\n>");
+            m_selectionText.setPosition(upperLeftCorner.x + (width() / 2) - (m_modText.getCharacterSize() + 3),
+                upperLeftCorner.y + (height() / 4));
             m_game->window().draw(m_selectionText);
 
             std::vector<std::string>& values = m_modTypes[m_selected->tag()];
