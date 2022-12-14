@@ -192,3 +192,5 @@ Sound  throw             sounds/sfx_throw.wav
 Sound  explosion         sounds/explosion.wav
 Sound  winSound          sounds/WinFantasia.wav
 Sound  death             sounds/death.wav
+Sound  bossHit           sounds/BossHit.wav
+Sound  bossDeath         sounds/BossDeath.wav

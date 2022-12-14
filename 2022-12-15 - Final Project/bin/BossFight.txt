@@ -83,9 +83,9 @@ Tile Plat 25 3 1 1 0 0
 Tile Plat 25 2 1 1 0 0
 Tile Plat 25 1 1 1 0 0
 Tile Plat 25 0 1 1 0 0
-Tile SpikeUp 6 1 1 1 0 0
-Tile SpikeDown 11 14 1 1 0 0
-Tile SpikeDown 14 14 1 1 0 0
+Tile SpikeUp 6 1 1 1 1 0
+Tile SpikeDown 11 14 1 1 1 0
+Tile SpikeDown 14 14 1 1 1 0
 Tile WavyLeft 6 5 1 1 0 0
 Tile WavyMid 7 5 1 1 0 0
 Tile WavyRight 19 5 1 1 0 0
@@ -98,7 +98,8 @@ Tile WavyMid 14 8 1 1 0 0
 Tile WavyLeft 10 8 1 1 0 0
 Tile WavyRight 15 8 1 1 0 0
 Tile WavyRight 8 5 1 1 0 0
-Dec SpikeUp 19 1
+Tile SpikeUp 19 1 1 1 1 0
+Item PillRed 24 1
 Dec Plat 0 16
 Dec Plat 0 17
 Dec Plat 0 18
