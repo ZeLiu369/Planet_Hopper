@@ -188,7 +188,6 @@ void Scene_Play::loadLevel(const std::string& filename)
                 auto backgroundScroll = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
                 backgroundScroll->addComponent<CTransform>(Vec2(x, y), Vec2(scaleX, scaleY), scrollFactor);
-                //std::cout << backgroundScroll->getComponent<CTransform>().pos.y << ", " << backgroundScroll->getComponent<CTransform>().originalPos.y << "\n";
 
                 auto backgroundScroll2 = m_entityManager.addEntity("scrollbackground");
                 backgroundScroll2->addComponent<CAnimation>(m_game->assets().getAnimation(texture), true);
@@ -252,7 +251,6 @@ void Scene_Play::loadLevel(const std::string& filename)
             std::string tileName;
             float x, y;
             fin >> tileName >> x >> y;
-            //Vec2 tSize = m_game->assets().getAnimation(tileName).getSize();
 
             auto item = m_entityManager.addEntity("item");
 
@@ -289,7 +287,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     spawnPlayer();
 
     m_game->assets().getMusic(m_levelMusic).setLoop(true);
-    //m_game->playMusic(m_levelMusic);
+    m_game->playMusic(m_levelMusic);
 
     // Load shaders
     if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
@@ -312,10 +310,16 @@ void Scene_Play::loadLevel(const std::string& filename)
         std::cerr << "Error while loading rainbow shader" << std::endl;
         return;
     }
+    if (!red_shader.loadFromFile("images/new/shader_red.frag", sf::Shader::Fragment))
+    {
+        std::cerr << "Error while loading red shader" << std::endl;
+        return;
+    }
 }
 
 void Scene_Play::loadBoss()
 {
+    m_game->assets().getMusic("Play").stop();
     loadLevel("BossFight.txt");
 
     auto boss = m_entityManager.addEntity("boss");
@@ -324,7 +328,7 @@ void Scene_Play::loadBoss()
     boss->addComponent<CTransform>(gridToMidPixel(13, 5, boss));
     boss->addComponent<CBoundingBox>(Vec2(75, 150));
     boss->addComponent<CHealth>(25, 25);
-    boss->addComponent<CDamage>(1);
+    boss->addComponent<CDamage>(2);
     boss->addComponent<CState>("idle");
     boss->addComponent<CBulletTimer>(300, m_currentFrame);
 }
@@ -814,7 +818,7 @@ void Scene_Play::sAI()
             velocity = { normalizeVec.x * 3, normalizeVec.y * 3 };
 
             scale.x = velocity.x > 0 ? 1.0 : -1.0;
-            if (pos.dist(target) <= 100) { state = "attack"; }
+            if (pos.dist(target) <= 75) { state = "attack"; }
             else { state = "idle"; }
 
             if (pos.dist(target) <= 50)
@@ -826,6 +830,12 @@ void Scene_Play::sAI()
         }
         else
         {
+            if (!(state == "death"))
+            {
+                m_game->assets().getMusic("BossFight").stop();
+                m_game->playSound("bossDeath");
+                m_game->playSound("winSound");
+            }
             state = "death";
         }
     }
@@ -978,15 +988,17 @@ void Scene_Play::sLifespan()
         }
     }
 
-    // implemented invincibility
-    if (m_player->hasComponent<CInvincibility>())
+    for (auto e : m_entityManager.getEntities())
     {
-        auto& invincible = m_player->getComponent<CInvincibility>();
-        auto& animation = m_player->getComponent<CAnimation>().animation;
-        invincible.iframes -= 1;
-        if (invincible.iframes <= 0)
+        // implemented invincibility
+        if (e->hasComponent<CInvincibility>())
         {
-            m_player->removeComponent<CInvincibility>();
+            auto& invincible = e->getComponent<CInvincibility>();
+            invincible.iframes -= 1;
+            if (invincible.iframes <= 0)
+            {
+                e->removeComponent<CInvincibility>();
+            }
         }
     }
 
@@ -1228,8 +1240,8 @@ void Scene_Play::sCollision()
                 if (m_player->getComponent<CHealth>().current <= 0)
                 {
                     m_player->getComponent<CHealth>().current = 0;
-                    m_player->destroy();
-                    spawnPlayer();
+                    m_game->playSound("death");
+                    loadBoss();
                 }
             }
         }
@@ -1237,6 +1249,9 @@ void Scene_Play::sCollision()
         {
             if (Physics::GetOverlap(boss, bullet).x > 0 && Physics::GetOverlap(boss, bullet).y > 0)
             {
+                // don't care about boss taking damage when invincible, just wanna apply red shader each time they are hit
+                boss->addComponent<CInvincibility>(10);
+                m_game->playSound("bossHit");
                 bullet->getComponent<CState>().state = "explosion";
                 boss->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
             }
@@ -1942,7 +1957,7 @@ void Scene_Play::sRender()
     float ran = (float)rand() / (RAND_MAX);
     electric_shader.setUniform("rnd", ran);
     electric_shader.setUniform("intensity", 0.99f);
-    // need to set parameters for rainbow shader
+    // need to set parameters for rainbow shader and red shader
     rainbow_shader.setUniform("time", time.getElapsedTime().asSeconds());
 
     // draw all Entity textures / animations
@@ -1960,7 +1975,7 @@ void Scene_Play::sRender()
                 animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
                 animation.getSprite().setScale(transform.scale.x, transform.scale.y);
 
-                if (e->hasComponent<CInvincibility>())
+                if (e->hasComponent<CInvincibility>() && !(e->tag() == "boss"))
                 {
                     c = sf::Color(255, 255, 255, 128);
                     animation.getSprite().setColor(c);
@@ -1970,7 +1985,9 @@ void Scene_Play::sRender()
                     c = sf::Color(255, 255, 255, 255);
                     animation.getSprite().setColor(c);
                 }
+
                 if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                else if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
                 else { m_game->window().draw(animation.getSprite()); }
             }
         }

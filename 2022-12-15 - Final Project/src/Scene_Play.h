@@ -36,7 +36,7 @@ protected:
     std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
-    sf::Shader              electric_shader, bright_shader, speed_shader, rainbow_shader;
+    sf::Shader              electric_shader, bright_shader, speed_shader, rainbow_shader, red_shader;
     sf::Clock               time;
     std::string             m_levelPath;
     int                     m_levelEnd;
