@@ -1124,7 +1124,7 @@ void Scene_Play::sCollision()
                             {
                                 if (m_player->getComponent<CGravity>().gravity >= 0)
                                 {
-                                    et.velocity.y = 0;
+                                    if (et.velocity.y < 0) et.velocity.y = 0;
                                 }
                                 else
                                 {
@@ -1143,7 +1143,7 @@ void Scene_Play::sCollision()
                                 }
                                 else
                                 {
-                                    et.velocity.y = 0;
+                                    if (et.velocity.y > 0) et.velocity.y = 0;
                                 }
                                 et.pos.y -= overlap.y;
                             }
