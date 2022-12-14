@@ -41,6 +41,7 @@ protected:
     std::string             m_levelPath;
     int                     m_levelEnd;
     int                     m_level;
+    int                     m_transition = 0;
     PlayerConfig            m_playerConfig;
     Vec2                    m_prevCameraPos;
     bool                    m_drawTextures = true;

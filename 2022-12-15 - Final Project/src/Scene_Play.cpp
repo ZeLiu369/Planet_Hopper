@@ -215,6 +215,10 @@ void Scene_Play::loadLevel(const std::string& filename)
                 m_lightTexture = m_game->assets().getTexture("TexLight");
                 m_night = true;
             }
+            else
+            {
+                m_night = false;
+            }
         }
         else if (temp == "Npc")
         {
@@ -1442,11 +1446,21 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
-        if (m_countdown == 150) { m_game->playSound("winSound"); }
-        // Change scene after m_countdown number of frames has passed
-        m_countdown--;
-        m_action = 1;
-        if (m_countdown <= 0) onEnd();
+        m_game->assets().getMusic("Play").stop();
+        if (m_level == 3)
+        {
+            if (m_transition == 0) { m_game->playSound("winSound"); }
+            m_transition++;
+            if (m_transition == 275) { loadBoss(); }
+        }
+        else
+        {
+            if (m_countdown == 150) { m_game->playSound("winSound"); }
+            m_countdown--;
+            // Change scene after m_countdown number of frames has passed
+            m_action = 1;
+            if (m_countdown <= 0) onEnd();
+        }
     }
 }
 
@@ -1704,12 +1718,11 @@ void Scene_Play::onEnd()
     m_game->playMusic("OverWorld");
 
     if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
-    else 
+    else
     {
         m_level++;
         m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
     }
-    
 }
 
 /*
@@ -1782,7 +1795,7 @@ void Scene_Play::sCamera()
     gameView.setCenter(windowCenterX, windowCenterY);
     gameView.setViewport(sf::FloatRect(0, 0, 1, 1));
     
-    if (goal) // if player at the end of level, zoom in on player
+    if (goal && m_transition < 275) // if player at the end of level, zoom in on player
     {
         Vec2 before(m_player->getComponent<CTransform>().pos.x - view.getCenter().x - (m_game->window().getSize().x / 2),
             m_player->getComponent<CTransform>().pos.y - view.getCenter().y - (m_game->window().getSize().y / 2));
@@ -2231,7 +2244,7 @@ void Scene_Play::sRender()
     // Draw the weapon display UI
     drawWeaponDisplay();
 
-    if (goal) // if level complete, display level complete text just above player's head
+    if (goal && m_transition < 275) // if level complete, display level complete text just above player's head
     {
         sf::Text gameOverText;
         gameOverText.setString("Congratulations! Level Completed");
@@ -2242,6 +2255,18 @@ void Scene_Play::sRender()
             gameOverText.getLocalBounds().height / 2 + gameOverText.getLocalBounds().top);
         gameOverText.setPosition(sf::Vector2f(m_player->getComponent<CTransform>().pos.x, m_player->getComponent<CTransform>().pos.y - 80));
         m_game->window().draw(gameOverText);
+    }
+
+    if (m_level == 3 && m_transition < 275)
+    {
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(m_game->window().getSize().x, m_game->window().getSize().y));
+        rect.setOrigin(m_game->window().getSize().x / 2.0f, m_game->window().getSize().y / 2.0f);
+        rect.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y);
+        int transparency = m_transition;
+        if (m_transition > 255) { transparency = 255; }
+        rect.setFillColor(sf::Color(0, 0, 0, transparency));
+        m_game->window().draw(rect);
     }
 }
 

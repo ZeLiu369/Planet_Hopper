@@ -1,5 +1,5 @@
 Lighting Day
-Music OverWorld
+Music Play
 BackgroundType Background1
 Background Sky     0 1.25 1.5  640 384
 Background Stars   0 1.25 1.65 640 384
