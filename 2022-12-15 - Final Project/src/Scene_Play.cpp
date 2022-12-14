@@ -289,7 +289,7 @@ void Scene_Play::loadLevel(const std::string& filename)
     spawnPlayer();
 
     m_game->assets().getMusic(m_levelMusic).setLoop(true);
-    m_game->playMusic(m_levelMusic);
+    //m_game->playMusic(m_levelMusic);
 
     // Load shaders
     if (!electric_shader.loadFromFile("images/new/electric_shader.frag", sf::Shader::Fragment))
@@ -317,6 +317,16 @@ void Scene_Play::loadLevel(const std::string& filename)
 void Scene_Play::loadBoss()
 {
     loadLevel("BossFight.txt");
+
+    auto boss = m_entityManager.addEntity("boss");
+    boss->addComponent<CAnimation>(m_game->assets().getAnimation("BossIdle"), true);
+
+    boss->addComponent<CTransform>(gridToMidPixel(13, 5, boss));
+    boss->addComponent<CBoundingBox>(Vec2(75, 150));
+    boss->addComponent<CHealth>(25, 25);
+    boss->addComponent<CDamage>(1);
+    boss->addComponent<CState>("idle");
+    boss->addComponent<CBulletTimer>(300, m_currentFrame);
 }
 
 void Scene_Play::spawnPlayer()
@@ -714,6 +724,12 @@ void Scene_Play::sMovement()
         e->getComponent<CTransform>().pos += e->getComponent<CTransform>().velocity;
     }
 
+    for (auto bullet : m_entityManager.getEntities("bossbullet"))
+    {
+        bullet->getComponent<CTransform>().prevPos = bullet->getComponent<CTransform>().pos;
+        bullet->getComponent<CTransform>().pos += bullet->getComponent<CTransform>().velocity;
+    }
+
     // moving tiles
     for (auto tile : m_entityManager.getEntities("tile"))
     {
@@ -732,7 +748,7 @@ void Scene_Play::sMovement()
             else
             {
                 Vec2 distVec = Vec2(currentPosition.x, currentPosition.y) - Vec2(tPos.x, tPos.y);
-                int dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+                float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
                 Vec2 normalizeVec = distVec / dist;
                 // make sure if the tile is within 5 pixels in x direction that they do not move
                 // in the x direction
@@ -755,6 +771,64 @@ void Scene_Play::sMovement()
 
 void Scene_Play::sAI()
 {
+    for (auto boss : m_entityManager.getEntities("boss"))
+    {
+        auto& prevPos = boss->getComponent<CTransform>().prevPos;
+        auto& pos = boss->getComponent<CTransform>().pos;
+        auto& velocity = boss->getComponent<CTransform>().velocity;
+        auto& scale = boss->getComponent<CTransform>().scale;
+        auto& state = boss->getComponent<CState>().state;
+
+        if (boss->hasComponent<CBulletTimer>())
+        {
+            if (m_currentFrame - boss->getComponent<CBulletTimer>().frameCreated > boss->getComponent<CBulletTimer>().interval)
+            {
+                boss->getComponent<CBulletTimer>().frameCreated = m_currentFrame;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    auto bossBullet = m_entityManager.addEntity("bossbullet");
+                    bossBullet->addComponent<CAnimation>(m_game->assets().getAnimation("BossBullet"), true);
+                    bossBullet->addComponent<CBoundingBox>(Vec2(45, 45));
+                    bossBullet->addComponent<CTransform>(pos);
+                    bossBullet->addComponent<CLifeSpan>(300, m_currentFrame);
+                    bossBullet->addComponent<CDamage>(1);
+                    Vec2 bulletVelocity;
+                    if (i == 0) { bulletVelocity = { 5, 0 }; }
+                    else if (i == 1) { bulletVelocity = { -5, 0 }; }
+                    else if (i == 2) { bulletVelocity = { 0, -5 }; }
+                    else if (i == 3) { bulletVelocity = { 0, 5 }; }
+                    bossBullet->getComponent<CTransform>().velocity = bulletVelocity;
+                }
+            }
+        }
+
+        if (boss->getComponent<CHealth>().current > 0)
+        {
+            Vec2 target = m_player->getComponent<CTransform>().pos;
+
+            Vec2 distVec = target - pos;
+            float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+            Vec2 normalizeVec = distVec / dist;
+
+            velocity = { normalizeVec.x * 3, normalizeVec.y * 3 };
+
+            scale.x = velocity.x > 0 ? 1.0 : -1.0;
+            if (pos.dist(target) <= 100) { state = "attack"; }
+            else { state = "idle"; }
+
+            if (pos.dist(target) <= 50)
+            {
+                velocity = { 0.0, 0.0 };
+            }
+            prevPos = pos;
+            pos += velocity;
+        }
+        else
+        {
+            state = "death";
+        }
+    }
     for (auto e : m_entityManager.getEntities("npc"))
     {
         Vec2 aiVelocity(0, e->getComponent<CTransform>().velocity.y);
@@ -1141,6 +1215,62 @@ void Scene_Play::sCollision()
         }
     }
 
+    // Boss collisions
+    for (auto boss : m_entityManager.getEntities("boss"))
+    {
+        if (Physics::GetOverlap(boss, m_player).x > 0 && Physics::GetOverlap(boss, m_player).y > 0)
+        {
+            if (!m_player->hasComponent<CInvincibility>())
+            {
+                m_player->getComponent<CHealth>().current -= boss->getComponent<CDamage>().damage;
+                m_player->addComponent<CInvincibility>(30);
+                m_game->playSound("ow");
+                if (m_player->getComponent<CHealth>().current <= 0)
+                {
+                    m_player->getComponent<CHealth>().current = 0;
+                    m_player->destroy();
+                    spawnPlayer();
+                }
+            }
+        }
+        for (auto bullet : m_entityManager.getEntities("bullet"))
+        {
+            if (Physics::GetOverlap(boss, bullet).x > 0 && Physics::GetOverlap(boss, bullet).y > 0)
+            {
+                bullet->getComponent<CState>().state = "explosion";
+                boss->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
+            }
+            // the boss is dead
+            if (boss->getComponent<CHealth>().current <= 0)
+            {
+                boss->getComponent<CHealth>().current = 0;               
+                boss->removeComponent<CBoundingBox>();
+                boss->removeComponent<CDamage>();
+                boss->removeComponent<CBulletTimer>();
+            }
+        }
+    }
+
+    // Boss bullet collisions
+    for (auto bBullet : m_entityManager.getEntities("bossbullet"))
+    {
+        if (Physics::GetOverlap(bBullet, m_player).x > 0 && Physics::GetOverlap(bBullet, m_player).y > 0)
+        {
+            if (!m_player->hasComponent<CInvincibility>())
+            {
+                m_player->getComponent<CHealth>().current -= bBullet->getComponent<CDamage>().damage;
+                m_player->addComponent<CInvincibility>(30);
+                m_game->playSound("ow");
+                if (m_player->getComponent<CHealth>().current <= 0)
+                {
+                    m_player->getComponent<CHealth>().current = 0;
+                    m_player->destroy();
+                    spawnPlayer();
+                }
+            }
+        }
+    }
+
     // handling bullet and npc collisiobs
     for (auto& npc : m_entityManager.getEntities("npc"))
     {
@@ -1165,19 +1295,10 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current = 0;
                 if (npc->hasComponent<CPatrol>()) { npc->removeComponent<CPatrol>(); }
                 else if (npc->hasComponent<CFollowPlayer>()) { npc->removeComponent<CFollowPlayer>(); }
-                // playing death animation doesn't work
+
                 auto& animation = npc->getComponent<CAnimation>().animation;
                 auto& state = npc->getComponent<CState>().state;
-                state = state.substr(0, state.find(" ")) + " Death";
 
-                if (npc->hasComponent<CPatrol>())
-                {
-                    npc->removeComponent<CPatrol>();
-                }
-                else if (npc->hasComponent<CFollowPlayer>())
-                {
-                    npc->removeComponent<CFollowPlayer>();
-                }
                 npc->removeComponent<CBoundingBox>();
                 npc->removeComponent<CDamage>();
                 npc->removeComponent<CGravity>();
@@ -1406,21 +1527,20 @@ void Scene_Play::sAnimation()
         }
     }
 
-    // npc animations
-    for (auto& npc : m_entityManager.getEntities("npc"))
+    // boss animations
+    for (auto boss : m_entityManager.getEntities("boss"))
     {
-        // play death animation
-        if (npc->getComponent<CHealth>().current <= 0)
+        if (boss->getComponent<CState>().state == "death" && !(boss->getComponent<CAnimation>().animation.getName() == "BossDeath"))
         {
-            auto& animation = npc->getComponent<CAnimation>().animation;
-            if (animation.getName().find("Worm") != std::string::npos)
-            {
-                if (!(animation.getName() == "WormDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false); }
-            }
-            else
-            {
-                if (!(animation.getName() == "DemonDeath")) { npc->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false); }
-            }
+            boss->addComponent<CAnimation>(m_game->assets().getAnimation("BossDeath"), false);
+        }
+        else if (boss->getComponent<CState>().state == "idle" && !(boss->getComponent<CAnimation>().animation.getName() == "BossIdle"))
+        {
+            boss->addComponent<CAnimation>(m_game->assets().getAnimation("BossIdle"), true);
+        }
+        else if (boss->getComponent<CState>().state == "attack" && !(boss->getComponent<CAnimation>().animation.getName() == "BossAttack"))
+        {
+            boss->addComponent<CAnimation>(m_game->assets().getAnimation("BossAttack"), true);
         }
     }
 
@@ -1464,8 +1584,26 @@ void Scene_Play::sAnimation()
 
     for (auto& e : m_entityManager.getEntities("npc"))
     {
-        auto& state =       e->getComponent<CState>().state;
+        auto& state = e->getComponent<CState>().state;
         auto& animation = e->getComponent<CAnimation>().animation.getName();
+        if (e->getComponent<CHealth>().current <= 0)
+        {
+            if (animation.find("Worm") != std::string::npos)
+            {
+                if (!(animation == "WormDeath"))
+                {
+                    e->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false);
+                }
+            }
+            else
+            {
+                if (!(animation == "DemonDeath"))
+                {
+                    e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false);
+                }
+            }
+            break;
+        }
         if (state.find("Worm") != std::string::npos)
         {
             if (state == "Worm Idle" && animation != "WormIdle")
@@ -1483,10 +1621,6 @@ void Scene_Play::sAnimation()
             else if (state == "Worm Hit" && animation != "WormHit")
             {
                 e->addComponent<CAnimation>(m_game->assets().getAnimation("WormHit"), true);
-            }
-            else if (state == "Worm Death" && animation != "WormDeath")
-            {
-                e->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false);
             }
         }
 
@@ -1507,10 +1641,6 @@ void Scene_Play::sAnimation()
             else if (state == "Demon Hit" && animation != "DemonHit")
             {
                 e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonHit"), true);
-            }
-            else if (state == "Demon Death" && animation != "DemonDeath")
-            {
-                e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false);
             }
         }
     }
@@ -1848,14 +1978,26 @@ void Scene_Play::sRender()
         for (auto e : m_entityManager.getEntities())
         {
             auto& transform = e->getComponent<CTransform>();
+            auto& animation = e->getComponent<CAnimation>().animation;
 
             // the health bar for the npc
-            if (e->tag() == "npc" && e->hasComponent<CHealth>())
+            if (e->tag() == "npc" || e->tag() == "boss" && e->hasComponent<CHealth>())
             {
                 auto& h = e->getComponent<CHealth>();
-                Vec2 size(64, 6);
-                sf::RectangleShape rect({ size.x, size.y });
-                rect.setPosition(transform.pos.x - 32, transform.pos.y - 48);
+                Vec2 size;
+                sf::RectangleShape rect;
+                if (e->tag() == "npc")
+                {
+                    size = Vec2(64, 6);
+                    rect.setSize({size.x, size.y});
+                    rect.setPosition(transform.pos.x - 32, transform.pos.y - 48);
+                }
+                else
+                {
+                    size = Vec2(128, 6);
+                    rect.setSize({ size.x, size.y });
+                    rect.setPosition(transform.pos.x - 70, transform.pos.y - 74);
+                }
                 rect.setFillColor(sf::Color(96, 96, 96));
                 rect.setOutlineColor(sf::Color::Black);
                 rect.setOutlineThickness(2);
@@ -1868,10 +2010,13 @@ void Scene_Play::sRender()
                 rect.setOutlineThickness(0);
                 m_game->window().draw(rect);
 
-                for (int i = 0; i < h.max; i++)
+                if (e->tag() == "npc")
                 {
-                    tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
-                    m_game->window().draw(tick);
+                    for (int i = 0; i < h.max; i++)
+                    {
+                        tick.setPosition(rect.getPosition() + sf::Vector2f(i * 64 * 1 / h.max, 0));
+                        m_game->window().draw(tick);
+                    }
                 }
             }
         }

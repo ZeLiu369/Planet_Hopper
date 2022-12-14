@@ -78,6 +78,11 @@ Texture   TexDemonAtk	images/new/Demon/attack.png
 Texture   TexDemonHit	images/new/Demon/hit.png
 Texture   TexDemonDie	images/new/Demon/death.png
 
+Texture   TexBossIdle   images/new/BossIdle.png
+Texture   TexBossDeath  images/new/BossDeath.png
+Texture   TexBossAtk    images/new/BossAttack.png
+Texture   TexBossBlt    images/new/SummonIdle.png
+
 Texture   TexWeaponBox  images/misc/WeaponBox.png
 
 Texture   TexHeart      images/misc/heart.png
@@ -161,6 +166,11 @@ Animation DemonWalk	TexDemonWalk   12    12
 Animation DemonAttack	TexDemonAtk    15    4
 Animation DemonHit	TexDemonHit     5    10
 Animation DemonDeath	TexDemonDie    19    9
+
+Animation BossIdle      TexBossIdle    8     6
+Animation BossDeath     TexBossDeath   19    7
+Animation BossAttack    TexBossAtk     6     6
+Animation BossBullet    TexBossBlt     4     6
 
 Animation WeaponBox     TexWeaponBox   1     0
 
