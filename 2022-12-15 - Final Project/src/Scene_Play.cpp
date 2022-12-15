@@ -321,7 +321,7 @@ void Scene_Play::loadBoss()
 
     boss->addComponent<CTransform>(gridToMidPixel(13, 5, boss));
     boss->addComponent<CBoundingBox>(Vec2(75, 150));
-    boss->addComponent<CHealth>(1, 1);
+    boss->addComponent<CHealth>(25, 25);
     boss->addComponent<CDamage>(2);
     boss->addComponent<CState>("idle");
     boss->addComponent<CBulletTimer>(300, m_currentFrame);
