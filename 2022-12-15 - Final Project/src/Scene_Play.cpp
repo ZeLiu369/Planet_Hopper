@@ -420,6 +420,14 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         PlayerConfig& pc = m_playerConfig;
         CTransform& entityT = entity->getComponent<CTransform>();
 
+        int damageBoost = 1;
+
+        // double damage if damage boost effect active
+        if (entity->getComponent<CStatusEffect>().currentEffect == "DAMAGE")
+        {
+            damageBoost = 2;
+        }
+
         // Following code sets up the bullets based on the current weapon
         if (weap.currentWeapon == "Launcher")
         {
@@ -430,7 +438,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
                 // int DMG = 4;
-                int DMG = std::ceil(bulletScaler * 4);
+                int DMG = std::ceil(bulletScaler * 4) * damageBoost;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * 1.25f * entityT.scale.x, 0.0f);
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
@@ -446,7 +454,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 BULLET_SIZE = Vec2(24, 24);
                 int BULLET_LIFETIME = 180;
                 // int DMG = 2;
-                int DMG = std::ceil(bulletScaler * 2);
+                int DMG = std::ceil(bulletScaler * 2) * damageBoost;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
@@ -475,7 +483,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 // DELETE 1
                 // int damage = e->getComponent<CDamage>().damage;
 
-                int DMG = std::ceil(bulletScaler*1);
+                int DMG = std::ceil(bulletScaler*1) * damageBoost;
 
                 // std::cout << "Damage: " << bulletScaler << std::endl;
 
@@ -1117,21 +1125,10 @@ void Scene_Play::sCollision()
                             goal = true;
                             continue;
                         }
-                        if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>())
+                        if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                         {
                             e->addComponent<CInvincibility>(30);
                             e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
-
-
-                            //DELETE
-                            std::cout << "Damage to player: " << tile->getComponent<CDamage>().damage << std::endl;
-                            std::cout << "Player health: " << e->getComponent<CHealth>().current << std::endl;
-                            std::cout << typeid(tile->getComponent<CDamage>().damage).name() << '\n';
-                            std::cout << typeid(e->getComponent<CHealth>().current).name() << '\n';
-
-
-
-
                             m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
                             {
@@ -1240,12 +1237,8 @@ void Scene_Play::sCollision()
 
             if (overlap.x > 0 && overlap.y > 0)
             {
-                if (m_player->hasComponent<CInvincibility>()) { break; }
+                if (m_player->hasComponent<CInvincibility>() || m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") { break; }
                 m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
-
-                // DELETE
-                std::cout << "Damage to player: " << e->getComponent<CDamage>().damage << std::endl;
-                std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
 
                 m_player->addComponent<CInvincibility>(60);
                 m_game->playSound("ow");
@@ -1266,7 +1259,7 @@ void Scene_Play::sCollision()
     {
         if (Physics::GetOverlap(boss, m_player).x > 0 && Physics::GetOverlap(boss, m_player).y > 0)
         {
-            if (!m_player->hasComponent<CInvincibility>())
+            if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
                 m_player->getComponent<CHealth>().current -= boss->getComponent<CDamage>().damage;
                 m_player->addComponent<CInvincibility>(30);
@@ -1305,7 +1298,7 @@ void Scene_Play::sCollision()
     {
         if (Physics::GetOverlap(bBullet, m_player).x > 0 && Physics::GetOverlap(bBullet, m_player).y > 0)
         {
-            if (!m_player->hasComponent<CInvincibility>())
+            if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
                 m_player->getComponent<CHealth>().current -= bBullet->getComponent<CDamage>().damage;
                 m_player->addComponent<CInvincibility>(30);
@@ -1332,10 +1325,6 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
-
-                //DELETE
-                std::cout << "bullet hit npc damge:   " << bullet->getComponent<CDamage>().damage << std::endl;
-                std::cout << "npc health: " << npc->getComponent<CHealth>().current << std::endl;
             }
 
             // the npc is dead
@@ -1428,14 +1417,10 @@ void Scene_Play::sCollision()
                 if(Physics::IsInside(tt.pos, e))
                 {
                     f->addComponent<CAnimation>(m_game->assets().getAnimation("WormExplode"), false);
-                    if (e->tag() == "player")
+                    if (e->tag() == "player" && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                     {
                         m_player->addComponent<CInvincibility>(10);
                         m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
-
-                        //DELETE
-                        std::cout << "Damage to player: " << f->getComponent<CDamage>().damage << std::endl;
-                        std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
                         m_game->playSound("ow");
                     }
                     f->destroy();

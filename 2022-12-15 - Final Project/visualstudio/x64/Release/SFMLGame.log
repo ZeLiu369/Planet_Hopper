@@ -4,13 +4,13 @@ C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scen
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(382,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(404,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(418,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(429,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(445,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(470,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(698,31): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(807,81): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(1072,90): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(2246,37): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(437,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(453,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(478,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(706,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(815,81): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(1080,90): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(2231,37): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(75,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(327): message : see reference to function template instantiation 'T &Entity::addComponent<CBulletTimer,int,size_t&>(int &&,size_t &)' being compiled
           with
@@ -18,7 +18,7 @@ C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scen
               T=CBulletTimer
           ]
   Generating code
-  3 of 2369 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  1 of 2367 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     8 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
