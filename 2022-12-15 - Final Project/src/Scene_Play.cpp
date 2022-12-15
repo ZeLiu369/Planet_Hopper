@@ -1468,8 +1468,7 @@ void Scene_Play::sCollision()
         if (m_game->progress == 3) { saveLine = "Level 3"; }
         else { saveLine = "Level " + std::to_string(m_game->progress + 1); }
         fout << saveLine << std::endl;
-
-        m_game->assets().getMusic(m_levelMusic).stop();
+        m_game->assets().getMusic("Play").stop();
         if (m_game->progress == 3 && m_levelPath == "level3.txt")
         {
             if (m_transition == 0) { m_game->playSound("winSound"); }
