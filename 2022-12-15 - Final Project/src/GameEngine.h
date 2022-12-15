@@ -48,6 +48,8 @@ protected:
 
 public:
 
+    int   progress = 1;
+
     float musicVol = 20.0f;
     float soundVol = 80.0f;
     std::string diff;

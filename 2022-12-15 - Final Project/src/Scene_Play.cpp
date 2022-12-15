@@ -277,10 +277,6 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     auto bomb = m_entityManager.addEntity("weapon");
     bomb->addComponent<CAnimation>(m_game->assets().getAnimation("Bomb"), true);
-    
-    if (filename == "level1.txt") { m_level = 1;  }
-    if (filename == "level2.txt") { m_level = 2; }
-    if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
 
@@ -1440,8 +1436,8 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
-        m_game->assets().getMusic("Play").stop();
-        if (m_level == 3)
+        m_game->assets().getMusic(m_levelMusic).stop();
+        if (m_game->progress == 3 && m_levelPath == "level3.txt")
         {
             if (m_transition == 0) { m_game->playSound("winSound"); }
             m_transition++;
@@ -1490,13 +1486,13 @@ void Scene_Play::sDoAction(const Action& action)
             if (m_inventory)
             {
                 m_invSelect--;
-                if (m_invSelect < 0) m_invSelect = m_inventoryEntity->getComponent<CInventory>().inventoryItems.size();
+                if (m_invSelect < 0) m_invSelect = 4;
             }
         }
         else if (action.name() == "RIGHT") 
         {
             m_player->getComponent<CInput>().right = true; 
-            if (m_inventory) m_invSelect = (m_invSelect + 1) % (m_inventoryEntity->getComponent<CInventory>().inventoryItems.size() + 1);
+            if (m_inventory) m_invSelect = (m_invSelect + 1) % 5;
         }
 
         else if (action.name() == "SHOOT") 
@@ -1724,11 +1720,16 @@ void Scene_Play::onEnd()
     m_game->assets().getMusic("OverWorld").setLoop(true);
     m_game->playMusic("OverWorld");
 
-    if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
     else
     {
-        m_level++;
-        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+        if (m_levelPath == "level1.txt" && m_game->progress == 1 || m_levelPath == "level2.txt" && m_game->progress == 2)
+        {
+            m_game->progress++;
+            if (m_game->progress > 3) m_game->progress = 3;
+        }
+
+        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
     }
 }
 
@@ -2277,7 +2278,7 @@ void Scene_Play::sRender()
         m_game->window().draw(gameOverText);
     }
 
-    if (m_level == 3 && m_transition < 275)
+    if (m_game->progress == 3 && m_transition < 275)
     {
         sf::RectangleShape rect;
         rect.setSize(sf::Vector2f(m_game->window().getSize().x, m_game->window().getSize().y));
