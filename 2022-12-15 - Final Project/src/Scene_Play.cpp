@@ -1483,6 +1483,7 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
+            m_player->addComponent<CInput>();
             setPaused(true);
             setOptionMenu(true);
         }
