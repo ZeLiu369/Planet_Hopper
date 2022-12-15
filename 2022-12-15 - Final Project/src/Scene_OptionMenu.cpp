@@ -42,7 +42,11 @@ void Scene_OptionMenu::init()
     // use for counting for displaying the confirm text
     clock.restart();
 
-    prev_scene = m_game->m_currentScene;
+    if ( m_game->m_currentScene == "MENU" || m_game->m_currentScene == "PLAY")
+    {
+        std::string prevScene = m_game->m_currentScene;
+        m_game -> optionMenu_return_scene = prevScene;
+    }
 
     m_title = "Options";
     
@@ -212,7 +216,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
             // enter the Scene_KeyBinding scene
             if (m_selectedMenuIndex == 3)
             {
-                m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game));
+                m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game), false);
             }
         }
         else if (action.name() == "QUIT")
@@ -223,7 +227,8 @@ void Scene_OptionMenu::sDoAction(const Action &action)
 }
 
 void Scene_OptionMenu::sRender()
-{
+{   
+    std::cout << "prevScene" << m_game -> optionMenu_return_scene << std::endl;
     sf::Time elapsed1 = clock.getElapsedTime();
 
     // clear the window to a blue
@@ -270,7 +275,7 @@ void Scene_OptionMenu::sRender()
 void Scene_OptionMenu::onEnd()
 {
     m_hasEnded = true;
-    m_game->changeScene(prev_scene, nullptr, true);
+    m_game->changeScene(m_game->optionMenu_return_scene, nullptr, true);
     m_game->getScene(m_game->m_currentScene)->setOptionMenu(false);
     m_game->getScene(m_game->m_currentScene)->setPaused(false);
 }

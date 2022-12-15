@@ -56,6 +56,8 @@ public:
     std::string m_currentScene;
     SceneMap m_sceneMap;
 
+    std::string     optionMenu_return_scene = "MENU";
+
     controls gameControls;
     
     GameEngine(const std::string & path);

@@ -36,7 +36,6 @@ protected:
     bool            m_paused = false;
     bool            m_hasEnded = false;
     size_t          m_currentFrame = 0;
-
     float           bulletScaler = 1.0f;
 
     virtual void onEnd() = 0;

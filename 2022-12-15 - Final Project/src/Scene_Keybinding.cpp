@@ -35,13 +35,11 @@ void Scene_Keybinding::init()
     // registerAction(sf::Keyboard::Left, "DECREASE10");
     // registerAction(sf::Keyboard::Up, "INCREASE");
     // registerAction(sf::Keyboard::Down, "DECREASE");
-    // registerAction(sf::Keyboard::Escape, "QUIT");
+    registerAction(sf::Keyboard::Escape, "QUIT");
     // registerAction(sf::Keyboard::Enter, "Enter");
 
     // use for counting for displaying the confirm text
     // clock.restart();
-
-    prev_scene = m_game->m_currentScene;
 
     m_title = "Key Binding";
     
@@ -242,7 +240,7 @@ void Scene_Keybinding::onEnd()
     // m_game->changeScene(prev_scene, nullptr, true);
     // m_game->getScene(m_game->m_currentScene)->setOptionMenu(false);
     // m_game->getScene(m_game->m_currentScene)->setPaused(false);
-    m_game->changeScene("OPTIONMENU", std::shared_ptr<Scene_OptionMenu>());
+    m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
 }
 
 // Copyright (C) David Churchill - All Rights Reserved
