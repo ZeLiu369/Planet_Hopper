@@ -1,25 +1,25 @@
 ﻿  Scene_Play.cpp
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(108,13): warning C4101: 'y1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(108,9): warning C4101: 'x1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(382,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(404,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(418,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(437,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(453,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(478,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(706,31): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(815,81): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(1080,90): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(2237,37): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(75,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(327): message : see reference to function template instantiation 'T &Entity::addComponent<CBulletTimer,int,size_t&>(int &&,size_t &)' being compiled
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(90,13): warning C4101: 'y1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(90,9): warning C4101: 'x1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(356,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(378,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(392,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(411,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(427,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(452,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(682,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(791,81): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(1048,86): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(2191,37): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(74,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(300): message : see reference to function template instantiation 'T &Entity::addComponent<CBulletTimer,int,size_t&>(int &&,size_t &)' being compiled
           with
           [
               T=CBulletTimer
           ]
   Generating code
-  1 of 2367 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  2 of 2251 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    66 functions had inline decision re-evaluated but remain unchanged
+    27 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   SFMLGame.vcxproj -> C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\bin\SFMLGame.exe
