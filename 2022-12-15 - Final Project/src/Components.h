@@ -234,17 +234,6 @@ public:
     CLevelStatus(bool i) : unlocked(i) {}
 };
 
-class CInventory : public Component
-{
-public:
-    std::vector<bool>           in_Inventory{false, false, false, false, false};
-    std::vector<std::string>    inventoryItems;
-    float index = 0;
-
-    CInventory() {}
-    CInventory(float i) : index(i) {}
-};
-
 class CButton : public Component
 {
 public:

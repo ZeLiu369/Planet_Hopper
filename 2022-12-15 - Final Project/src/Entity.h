@@ -30,7 +30,6 @@ typedef std::tuple<
     CGravity,
     CState,
     CLevelStatus,
-    CInventory,
     CDraggable,
     CWeapon,
     CDamage,

@@ -32,7 +32,6 @@ class Scene_Play : public Scene
 protected:
 
     std::shared_ptr<Entity> m_player;
-    std::shared_ptr<Entity> m_inventoryEntity;
     std::map<std::string, std::vector<std::shared_ptr<Entity>>> m_backgroundsMap;
     sf::RenderTexture       m_renderTexture;
     sf::Texture             m_lightTexture;
@@ -60,6 +59,8 @@ protected:
 
     std::shared_ptr<Entity> m_touchedPlatform;
 
+    // inventory stuff
+    std::vector< std::shared_ptr<Entity>> m_invContent = { NULL, NULL, NULL, NULL, NULL };
     int                     m_invSelect = 0;
 
     Vec2                    m_mPos;
@@ -88,11 +89,10 @@ protected:
     
     void sDoAction(const Action& action);
 
-    void sInventory(std::string action, std::string name, int index);
+    bool sInventory(std::string action, std::string name, int index);
     void sStatus();
     void sAI();
     void sCamera();
-    void sClick();
     void sMovement();
     void sLifespan();
     void sAnimation();
