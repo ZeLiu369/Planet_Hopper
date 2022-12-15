@@ -257,6 +257,31 @@ void GameEngine::setShootKey(std::string s)
     }
 }
 
+std::string GameEngine::getMoveKey()
+{
+    return moveKey;
+}
+
+void GameEngine::setMoveKey(std::string s)
+{
+    moveKey = s;
+    
+    if (s == "WASD")
+    {
+       gameControls.up = sf::Keyboard::W;
+       gameControls.gravity = sf::Keyboard::S;
+       gameControls.left = sf::Keyboard::A;
+       gameControls.right = sf::Keyboard::D;
+    }
+    else if (s == "ARROW")
+    {
+       gameControls.up = sf::Keyboard::Up;
+       gameControls.gravity = sf::Keyboard::Down;
+       gameControls.left = sf::Keyboard::Left;
+       gameControls.right = sf::Keyboard::Right;
+    }
+}
+
 // Copyright (C) David Churchill - All Rights Reserved
 // COMP4300 - 2022-09 - Assignment 3
 // Written by David Churchill (dave.churchill@gmail.com)

@@ -34,6 +34,7 @@ protected:
     size_t m_selectedMenuIndex = 0;
     sf::Clock clock;
     std::string shootKey1;
+    std::string moveKey1;
 
     void init();
     void update();

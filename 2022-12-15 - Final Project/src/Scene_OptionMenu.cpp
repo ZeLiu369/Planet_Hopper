@@ -67,7 +67,7 @@ void Scene_OptionMenu::init()
     m_menuStrings.push_back("Music Volume: " + std::to_string(int(music_volume)) + "/100");
     m_menuStrings.push_back("Sounds Effects Volume: " + std::to_string(int(sounds_volume)) + "/100");
     m_menuStrings.push_back("Difficulty: " + diff1);
-    m_menuStrings.push_back("                           Key Binding");
+    m_menuStrings.push_back("                        PRESS SPACE ENTER Key Binding");
 
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
@@ -92,12 +92,12 @@ void Scene_OptionMenu::sDoAction(const Action &action)
             }
             else
             {
-                m_selectedMenuIndex = m_menuStrings.size() - 1;
+                m_selectedMenuIndex = m_menuStrings.size() - 2;
             }
         }
         else if (action.name() == "DOWN")
         {
-            m_selectedMenuIndex = (m_selectedMenuIndex + 1) % m_menuStrings.size();
+            m_selectedMenuIndex = (m_selectedMenuIndex + 1) % (m_menuStrings.size() - 1);
         }
         else if (action.name() == "INCREASE")
         {

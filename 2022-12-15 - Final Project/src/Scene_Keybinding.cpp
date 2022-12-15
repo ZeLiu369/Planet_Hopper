@@ -42,9 +42,10 @@ void Scene_Keybinding::init()
 
     registerAction(sf::Keyboard::Enter, "CONFIRM");
     registerAction(sf::Keyboard::Escape, "QUIT");
-    // registerAction(sf::Keyboard::Enter, "Enter");
+
     int num = 1;
     shootKey1 = m_game->getShootKey();
+    moveKey1 = m_game->getMoveKey();
 
     m_title = "Key Binding";
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
@@ -84,7 +85,14 @@ void Scene_Keybinding::sDoAction(const Action &action)
         {
             if (m_selectedMenuIndex == 0)
             {
-                
+                if (moveKey1 == "WASD")
+                {
+                    moveKey1 = "ARROW";
+                }
+                else if (moveKey1 == "ARROW")
+                {
+                    moveKey1 = "WASD";
+                }
             }
 
             if (m_selectedMenuIndex == 1)
@@ -107,7 +115,14 @@ void Scene_Keybinding::sDoAction(const Action &action)
         {
             if (m_selectedMenuIndex == 0)
             {
-               
+                if (moveKey1 == "WASD")
+                {
+                    moveKey1 = "ARROW";
+                }
+                else if (moveKey1 == "ARROW")
+                {
+                    moveKey1 = "WASD";
+                }
             }
             if (m_selectedMenuIndex == 1)
             {
@@ -128,6 +143,7 @@ void Scene_Keybinding::sDoAction(const Action &action)
         else if (action.name() == "CONFIRM")
         {   
             m_game->setShootKey(shootKey1);
+            m_game->setMoveKey(moveKey1);
             if (m_game -> hasScene("PLAY"))
             {   
                 m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::J);
@@ -135,6 +151,30 @@ void Scene_Keybinding::sDoAction(const Action &action)
                 m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Space);
                 m_game->getScene("PLAY") -> registerAction(m_game->gameControls.shoot, "SHOOT");
             }
+
+            if (m_game -> hasScene("PLAY") && moveKey1 == "ARROW")
+            {
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::W);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::A);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::S);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::D);
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::Up, "UP");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::Down, "DOWN");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::Left, "LEFT");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::Right, "RIGHT");
+            }
+            else if (m_game -> hasScene("PLAY") && moveKey1 == "WASD")
+            {
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Up);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Left);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Down);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Right);
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::W, "UP");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::A, "LEFT");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::S, "DOWN");
+                m_game->getScene("PLAY") -> registerAction(sf::Keyboard::D, "RIGHT");
+            }
+
              // display the confirmation text (prompt)
             confirmText.setString("Key binding saved!");
             confirmText.setCharacterSize(20);
@@ -166,7 +206,7 @@ void Scene_Keybinding::sRender()
 
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
-        m_menuStrings[0] = "Movement: " ;
+        m_menuStrings[0] = "Movement: " + moveKey1;
         m_menuStrings[1] = "Shoot: " + shootKey1;
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));

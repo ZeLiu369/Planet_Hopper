@@ -29,7 +29,7 @@ class GameEngine
 
     struct controls
     {
-        sf::Keyboard::Key right = sf::Keyboard::D, left = sf::Keyboard::L, up = sf::Keyboard::W, gravity = sf::Keyboard::S,
+        sf::Keyboard::Key right = sf::Keyboard::D, left = sf::Keyboard::A, up = sf::Keyboard::W, gravity = sf::Keyboard::S,
                           shoot = sf::Keyboard::Space, inventory = sf::Keyboard::I;
     };
                                                      
@@ -58,6 +58,7 @@ public:
     float takenScaler = 1.0f;
 
     std::string shootKey = "SPACE";
+    std::string moveKey = "WASD";
 
     sf::Event event;
 
@@ -85,6 +86,9 @@ public:
 
     void setShootKey(std::string s);
     std::string getShootKey();
+
+    std::string getMoveKey();
+    void setMoveKey(std::string s);
 
     sf::RenderWindow &window();
     Assets& assets();

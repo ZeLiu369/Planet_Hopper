@@ -51,10 +51,10 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num2, "BOMB");
     registerAction(sf::Keyboard::Num3, "LAUNCHER");
 
-    registerAction(sf::Keyboard::W, "UP");
-    registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
+    registerAction(m_game->gameControls.up, "UP");
+    registerAction(m_game->gameControls.gravity, "DOWN");
+    registerAction(m_game->gameControls.left, "LEFT");
+    registerAction(m_game->gameControls.right, "RIGHT");
     //CHANGED
     // registerAction(sf::Keyboard::Space, "SHOOT");
     registerAction(m_game->gameControls.shoot, "SHOOT");
