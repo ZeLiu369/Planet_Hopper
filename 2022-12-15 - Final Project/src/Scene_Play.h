@@ -40,7 +40,6 @@ protected:
     sf::Clock               time;
     std::string             m_levelPath;
     int                     m_levelEnd;
-    int                     m_level;
     int                     m_transition = 0;
     PlayerConfig            m_playerConfig;
     Vec2                    m_prevCameraPos;
@@ -58,6 +57,8 @@ protected:
     std::string             m_levelMusic;
 
     std::shared_ptr<Entity> m_touchedPlatform;
+
+    int                     m_invSelect = 0;
 
     Vec2                    m_mPos;
 

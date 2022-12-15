@@ -51,12 +51,6 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num2, "BOMB");
     registerAction(sf::Keyboard::Num3, "LAUNCHER");
 
-    registerAction(sf::Keyboard::Num5, "INVENTORY_SLOT_ONE");
-    registerAction(sf::Keyboard::Num6, "INVENTORY_SLOT_TWO");
-    registerAction(sf::Keyboard::Num7, "INVENTORY_SLOT_THREE");
-    registerAction(sf::Keyboard::Num8, "INVENTORY_SLOT_FOUR");
-    registerAction(sf::Keyboard::Num9, "INVENTORY_SLOT_FIVE");
-
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
@@ -283,10 +277,6 @@ void Scene_Play::loadLevel(const std::string& filename)
 
     auto bomb = m_entityManager.addEntity("weapon");
     bomb->addComponent<CAnimation>(m_game->assets().getAnimation("Bomb"), true);
-    
-    if (filename == "level1.txt") { m_level = 1;  }
-    if (filename == "level2.txt") { m_level = 2; }
-    if (filename == "level3.txt") { m_level = 3; }
 
     spawnPlayer();
 
@@ -1446,8 +1436,8 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
-        m_game->assets().getMusic("Play").stop();
-        if (m_level == 3)
+        m_game->assets().getMusic(m_levelMusic).stop();
+        if (m_game->progress == 3 && m_levelPath == "level3.txt")
         {
             if (m_transition == 0) { m_game->playSound("winSound"); }
             m_transition++;
@@ -1481,10 +1471,29 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "QUIT") { onEnd(); }
         else if (action.name() == "BOSS") { loadBoss(); }
 
-        else if (action.name() == "UP") { m_player->getComponent<CInput>().up = true; }
+        else if (action.name() == "UP") 
+        {
+            m_player->getComponent<CInput>().up = true;
+            if (m_inventory)
+            {
+                sInventory("use", "item", m_invSelect);
+            }
+        }
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
-        else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
-        else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
+        else if (action.name() == "LEFT") 
+        {
+            m_player->getComponent<CInput>().left = true; 
+            if (m_inventory)
+            {
+                m_invSelect--;
+                if (m_invSelect < 0) m_invSelect = 4;
+            }
+        }
+        else if (action.name() == "RIGHT") 
+        {
+            m_player->getComponent<CInput>().right = true; 
+            if (m_inventory) m_invSelect = (m_invSelect + 1) % 5;
+        }
 
         else if (action.name() == "SHOOT") 
         { 
@@ -1495,12 +1504,6 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
         else if (action.name() == "BOMB")     { m_player->getComponent<CWeapon>().currentWeapon = "Bomb";     }
         else if (action.name() == "LAUNCHER") { m_player->getComponent<CWeapon>().currentWeapon = "Launcher"; }
-
-        else if (action.name() == "INVENTORY_SLOT_ONE")     { if (m_inventory) sInventory("use", "one", 0); }
-        else if (action.name() == "INVENTORY_SLOT_TWO")     { if (m_inventory) sInventory("use", "two", 1); }
-        else if (action.name() == "INVENTORY_SLOT_THREE")   { if (m_inventory) sInventory("use", "three", 2); }
-        else if (action.name() == "INVENTORY_SLOT_FOUR")    { if (m_inventory) sInventory("use", "four", 3); }
-        else if (action.name() == "INVENTORY_SLOT_FIVE")    { if (m_inventory) sInventory("use", "five", 4); }
 
         else if (action.name() == "LEFT_CLICK")
         {
@@ -1717,11 +1720,16 @@ void Scene_Play::onEnd()
     m_game->assets().getMusic("OverWorld").setLoop(true);
     m_game->playMusic("OverWorld");
 
-    if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+    if (m_action == 0) m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
     else
     {
-        m_level++;
-        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game, m_level));
+        if (m_levelPath == "level1.txt" && m_game->progress == 1 || m_levelPath == "level2.txt" && m_game->progress == 2)
+        {
+            m_game->progress++;
+            if (m_game->progress > 3) m_game->progress = 3;
+        }
+
+        m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
     }
 }
 
@@ -2000,6 +2008,7 @@ void Scene_Play::sRender()
                 }
 
                 if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), &speed_shader); }
                 else if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
                 else { m_game->window().draw(animation.getSprite()); }
             }
@@ -2215,8 +2224,20 @@ void Scene_Play::sRender()
         {
             auto& transform = e->getComponent<CTransform>();
             transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70);
-
             auto& animation = e->getComponent<CAnimation>().animation;
+
+            sf::RectangleShape rect;
+            rect.setSize(sf::Vector2f(animation.getSize().y, animation.getSize().y));
+            //rect.setOrigin(0,0);
+            float x = m_game->window().getView().getCenter().x - width() / 2;
+            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+            rect.setPosition(transform.pos.x + ((m_gridSize.x + 8) * m_invSelect) + 8.5, transform.pos.y);
+            rect.setFillColor(sf::Color(0, 0, 0, 0));
+            rect.setOutlineColor(sf::Color(100, 200, 100));
+            rect.setOutlineThickness(6);
+
+            m_game->window().draw(rect);
+
             animation.getSprite().setRotation(transform.angle);
             animation.getSprite().setOrigin(0, 0);
             animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
@@ -2257,7 +2278,7 @@ void Scene_Play::sRender()
         m_game->window().draw(gameOverText);
     }
 
-    if (m_level == 3 && m_transition < 275)
+    if (m_game->progress == 3 && m_transition < 275)
     {
         sf::RectangleShape rect;
         rect.setSize(sf::Vector2f(m_game->window().getSize().x, m_game->window().getSize().y));
