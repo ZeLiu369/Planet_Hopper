@@ -89,6 +89,7 @@ protected:
     void sDoAction(const Action& action);
 
     void sInventory(std::string action, std::string name, int index);
+    void sStatus();
     void sAI();
     void sCamera();
     void sClick();

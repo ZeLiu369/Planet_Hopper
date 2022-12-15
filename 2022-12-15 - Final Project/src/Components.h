@@ -65,6 +65,17 @@ public:
 
 };
 
+class CStatusEffect : public Component
+{
+public:
+    std::string currentEffect = "NONE";
+    int frameCreated = 0;
+    int duration = 0;
+    CStatusEffect() {}
+    CStatusEffect(std::string effect, int frame, int dur)
+        : currentEffect(effect), frameCreated(frame), duration(dur) {}
+};
+
 class CWeapon : public Component
 {
 public:

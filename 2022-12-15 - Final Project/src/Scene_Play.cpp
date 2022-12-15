@@ -344,6 +344,7 @@ void Scene_Play::spawnPlayer()
     // m_player->addComponent<CDamage>(2);
     m_player->addComponent<CState>("air");
     m_player->addComponent<CJump>();
+    m_player->addComponent<CStatusEffect>();
 
     // raygun is default weapon
     m_player->addComponent<CWeapon>("Raygun");
@@ -497,12 +498,26 @@ void Scene_Play::update()
         sMovement();
         sCollision();
         sLifespan();
+        sStatus();
         sAnimation();
         sAI();
     }
     sCamera();
     
     m_currentFrame++;
+}
+
+// status effects for player
+void Scene_Play::sStatus()
+{
+    auto& status = m_player->getComponent<CStatusEffect>();
+    if (!(status.currentEffect == "NONE"))
+    {
+        if (m_currentFrame - status.frameCreated > status.duration)
+        {
+            status.currentEffect = "NONE";
+        }
+    }
 }
 
 void Scene_Play::sMovement()
@@ -605,8 +620,16 @@ void Scene_Play::sMovement()
 
     // updates prevPos and current pos
     transform.prevPos = transform.pos;
-    transform.pos.x += transform.velocity.x;
-    transform.pos.y += transform.velocity.y;
+    if (m_player->getComponent<CStatusEffect>().currentEffect == "SPEED")
+    {
+        transform.pos.x += transform.velocity.x * 1.5;
+        transform.pos.y += transform.velocity.y * 1.5;
+    }
+    else
+    {
+        transform.pos.x += transform.velocity.x;
+        transform.pos.y += transform.velocity.y;
+    }
 
     if (m_touchedPlatform != NULL) transform.pos += m_touchedPlatform->getComponent<CTransform>().velocity;
 
@@ -1043,12 +1066,28 @@ void Scene_Play::sInventory(std::string action, std::string name, int index)
             auto i = e->getComponent<CInventory>().index;
             if (!m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
             {
-                // use item (); 
+                if (m_player->getComponent<CStatusEffect>().currentEffect == "NONE")
+                {
+                    m_player->getComponent<CStatusEffect>().frameCreated = m_currentFrame;
+                    m_player->getComponent<CStatusEffect>().duration = 600;
+                    // use item ();
+                    if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
+                    {
+                        m_player->getComponent<CStatusEffect>().currentEffect = "SHIELD";
+                    }
+                    else if (e->getComponent<CAnimation>().animation.getName() == "BlueBolt")
+                    {
+                        m_player->getComponent<CStatusEffect>().currentEffect = "SPEED";
+                    }
+                    else if (e->getComponent<CAnimation>().animation.getName() == "BlueStar")
+                    {
+                        m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
+                    }
+                }
                 e->destroy();
             }
         }
     }
-
 }
 
 void Scene_Play::sCollision()
@@ -1988,12 +2027,15 @@ void Scene_Play::sRender()
     sf::RectangleShape tick({ 1.0f, 6.0f });
     tick.setFillColor(sf::Color::Black);
 
-    // need to set parameters for electric shader
+    // need to set parameters for shaders
     float ran = (float)rand() / (RAND_MAX);
     electric_shader.setUniform("rnd", ran);
     electric_shader.setUniform("intensity", 0.99f);
-    // need to set parameters for rainbow shader and red shader
+
     rainbow_shader.setUniform("time", time.getElapsedTime().asSeconds());
+
+    speed_shader.setUniform("rnd", ran);
+    speed_shader.setUniform("intensity", 0.35f);
 
     // draw all Entity textures / animations
     if (m_drawTextures)
@@ -2021,9 +2063,21 @@ void Scene_Play::sRender()
                     animation.getSprite().setColor(c);
                 }
 
+                if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
+
                 if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
-                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), &speed_shader); }
-                else if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
+                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") 
+                { 
+                    m_game->window().draw(animation.getSprite(), &rainbow_shader); 
+                }
+                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "DAMAGE")
+                {
+                    m_game->window().draw(animation.getSprite(), &electric_shader);
+                }
+                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SPEED")
+                {
+                    m_game->window().draw(animation.getSprite(), &speed_shader);
+                }
                 else { m_game->window().draw(animation.getSprite()); }
             }
         }
@@ -2358,7 +2412,7 @@ void Scene_Play::sRender()
                     }
                     else if (i == 3)
                     {
-                        text = getText("Ryland (lastname)");
+                        text = getText("Nathan French");
                         text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 525);
                         m_credits.push_back(text);
                     }
