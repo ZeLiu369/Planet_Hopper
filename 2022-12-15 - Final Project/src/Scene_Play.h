@@ -40,7 +40,7 @@ protected:
     sf::Clock               time;
     std::string             m_levelPath;
     int                     m_levelEnd;
-    int                     m_transition = 0;
+    int                     m_transition = 0, m_creditCountdown = 0;
     PlayerConfig            m_playerConfig;
     Vec2                    m_prevCameraPos;
     bool                    m_drawTextures = true;
@@ -48,9 +48,11 @@ protected:
     bool                    m_inventory = false;
     bool                    m_drawGrid = false;
     bool                    m_night = false;
+    bool                    m_gameOver = false;
     const Vec2              m_gridSize = { 64, 64 };
     int                     m_countdown = 150;
     int                     m_action = 0;
+    std::vector<sf::Text>   m_credits;
     sf::Text                m_gridText;
     sf::Text                m_weaponUIText;
     bool goal = false;
@@ -69,6 +71,7 @@ protected:
     sf::Text displayText(std::string, float x, float y);
     sf::Sprite displayBox(float x, float y);
     std::shared_ptr<Entity> setupBullet(Vec2 size, Vec2 pos, int lifetime, int dmg, Vec2 speed, std::string name);
+    sf::Text getText(std::string str);
     void loadBoss();
     void drawWeapon();
     void drawWeaponDisplay();

@@ -321,7 +321,7 @@ void Scene_Play::loadBoss()
 
     boss->addComponent<CTransform>(gridToMidPixel(13, 5, boss));
     boss->addComponent<CBoundingBox>(Vec2(75, 150));
-    boss->addComponent<CHealth>(25, 25);
+    boss->addComponent<CHealth>(1, 1);
     boss->addComponent<CDamage>(2);
     boss->addComponent<CState>("idle");
     boss->addComponent<CBulletTimer>(300, m_currentFrame);
@@ -829,6 +829,7 @@ void Scene_Play::sAI()
                 m_game->assets().getMusic("BossFight").stop();
                 m_game->playSound("bossDeath");
                 m_game->playSound("winSound");
+                m_gameOver = true;
             }
             state = "death";
         }
@@ -1964,6 +1965,19 @@ void Scene_Play::drawWeapon()
     }
 }
 
+sf::Text Scene_Play::getText(std::string str)
+{
+    sf::Text text;
+    text.setFont(m_game->assets().getFont("Roboto"));
+    text.setCharacterSize(60);
+    text.setFillColor(sf::Color::White);
+    text.setString(str);
+    text.setOrigin(text.getLocalBounds().width / 2 + text.getLocalBounds().left,
+        text.getLocalBounds().height / 2 + text.getLocalBounds().top);
+
+    return text;
+}
+
 void Scene_Play::sRender()
 {
     // color the background darker so you know that the game is paused
@@ -2288,6 +2302,96 @@ void Scene_Play::sRender()
         if (m_transition > 255) { transparency = 255; }
         rect.setFillColor(sf::Color(0, 0, 0, transparency));
         m_game->window().draw(rect);
+    }
+
+    if (m_gameOver)
+    {
+        m_creditCountdown++;
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(m_game->window().getSize().x, m_game->window().getSize().y));
+        rect.setOrigin(m_game->window().getSize().x / 2.0f, m_game->window().getSize().y / 2.0f);
+        rect.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y);
+        if (m_creditCountdown < 255)
+        {
+            int transparency = m_creditCountdown;
+            rect.setFillColor(sf::Color(0, 0, 0, transparency));
+
+            sf::Text winText;
+            winText.setString("Congratulations You Win!");
+            winText.setFont(m_game->assets().getFont("Roboto"));
+            winText.setCharacterSize(40);
+            winText.setFillColor(sf::Color::White);
+            winText.setOrigin(winText.getLocalBounds().width / 2 + winText.getLocalBounds().left,
+                winText.getLocalBounds().height / 2 + winText.getLocalBounds().top);
+            winText.setPosition(sf::Vector2f(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y));
+            m_game->window().draw(rect);
+            m_game->window().draw(winText);
+        }
+        if (m_creditCountdown >= 255)
+        {
+            rect.setFillColor(sf::Color(0, 0, 0, 255));
+            setPaused(true);
+            m_game->window().draw(rect);
+
+            if (m_creditCountdown == 255)
+            {
+                sf::Text text;
+                for (int i = 0; i < 6; i++)
+                {
+                    if (i == 0)
+                    {
+                        text = getText("Game Credits");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y);
+                        m_credits.push_back(text);
+                    }
+                    else if (i == 1)
+                    {
+                        text = getText("Developed By");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 200);
+                        m_credits.push_back(text);
+                    }
+                    else if (i == 2)
+                    {
+                        text = getText("Brendon Thorne");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 400);
+                        m_credits.push_back(text);
+                    }
+                    else if (i == 3)
+                    {
+                        text = getText("Ryland (lastname)");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 525);
+                        m_credits.push_back(text);
+                    }
+                    else if (i == 4)
+                    {
+                        text = getText("Jeff Anga");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 650);
+                        m_credits.push_back(text);
+                    }
+                    else if (i == 5)
+                    {
+                        text = getText("Ze Liu");
+                        text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 775);
+                        m_credits.push_back(text);
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < m_credits.size(); i++)
+                {
+                    m_credits[i].setPosition(m_credits[i].getPosition().x, m_credits[i].getPosition().y - 1.5);
+                    m_game->window().draw(m_credits[i]);
+                }
+
+                if (m_creditCountdown == 1150)
+                {
+                    m_gameOver = false;
+                    m_game->progress = 3;
+                    m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
+                }
+            }
+        }
     }
 }
 
