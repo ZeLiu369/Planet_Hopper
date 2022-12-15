@@ -38,7 +38,6 @@ Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
 
 void Scene_Play::init(const std::string& levelPath)
 {
-    registerAction(sf::Keyboard::P, "PAUSE");
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
     registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
@@ -106,11 +105,6 @@ void Scene_Play::loadLevel(const std::string& filename)
     int i = 0;
     std::vector<Vec2> pos;
     int x1, y1;
-
-    m_inventoryEntity = m_entityManager.addEntity("inventory");
-    m_inventoryEntity->addComponent<CAnimation>(m_game->assets().getAnimation("Inventory"), true);
-    m_inventoryEntity->addComponent<CTransform>(Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70));
-    m_inventoryEntity->addComponent<CInventory>();
 
     while (fin >> temp)
     {
@@ -255,10 +249,6 @@ void Scene_Play::loadLevel(const std::string& filename)
             item->addComponent<CAnimation>(m_game->assets().getAnimation(tileName), true);
             item->addComponent<CTransform>(gridToMidPixel(x, y, item));
             item->addComponent<CBoundingBox>(m_game->assets().getAnimation(tileName).getSize());
-            item->addComponent<CInventory>(i++);
-            item->addComponent<CClickable>();
-            std::cout << item->getComponent<CInventory>().index << "\n";
-            m_inventoryEntity->getComponent<CInventory>().inventoryItems.push_back(tileName);
         }
         else
         {
@@ -499,6 +489,8 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 
 void Scene_Play::update()
 {
+    m_paused = m_inventory;
+
     m_entityManager.update();
 
     if (!m_paused)
@@ -512,7 +504,7 @@ void Scene_Play::update()
     }
     sCamera();
     
-    m_currentFrame++;
+    if (!m_paused) m_currentFrame++;
 }
 
 // status effects for player
@@ -1040,62 +1032,57 @@ void Scene_Play::sLifespan()
     }
 }
 
-void Scene_Play::sInventory(std::string action, std::string name, int index)
+bool Scene_Play::sInventory(std::string action, std::string name, int index)
 {
     if (action == "add")
     {
-        m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
-        m_inventoryEntity->getComponent<CInventory>().inventoryItems[index] = name;
-
-        for (int i = 0; i < 5; i++)
+        auto& item = m_entityManager.addEntity("inventory_item");
+        item->addComponent<CTransform>();
+        item->addComponent<CAnimation>(m_game->assets().getAnimation(name), true);
+        bool full = true;
+        for (auto& e : m_invContent)
         {
-            if (m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
+            if (e == NULL)
             {
-                float x = m_game->window().getView().getCenter().x - width() / 2;
-                float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-                auto w = windowToWorld(Vec2(30, 90));
-                //auto inv_t = Vec2(30 + x, 20 + y);
-                auto inv_t = Vec2(0, 0);
-                auto item = m_entityManager.addEntity("items");
-                item->addComponent<CInventory>(i);
-                item->addComponent<CTransform>(Vec2(inv_t.x + (73 * i), inv_t.y));
-                auto s = m_inventoryEntity->getComponent<CInventory>().inventoryItems[i];
-                std::cout << item->getComponent<CTransform>().pos.x << ", " << item->getComponent<CTransform>().pos.y << "\n";
-                item->addComponent<CAnimation>(m_game->assets().getAnimation(s), true);
+                e = item;
+                full = false;
+                break;
             }
         }
+        if (full) item->destroy();
+        else return true;
     }
 
-    if (action == "use")
+    else if (action == "use")
     {
-        m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = false;
-        for (auto& e : m_entityManager.getEntities("items"))
+        auto& e = m_invContent[index];
+        if (e != NULL)
         {
-            auto i = e->getComponent<CInventory>().index;
+
             if (m_player->getComponent<CStatusEffect>().currentEffect == "NONE")
             {
-                e->destroy();
-                if (!m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
+                m_player->getComponent<CStatusEffect>().frameCreated = m_currentFrame;
+                m_player->getComponent<CStatusEffect>().duration = 600;
+                // use item ();
+                if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
                 {
-                    m_player->getComponent<CStatusEffect>().frameCreated = m_currentFrame;
-                    m_player->getComponent<CStatusEffect>().duration = 600;
-                    // use item ();
-                    if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
-                    {
-                        m_player->getComponent<CStatusEffect>().currentEffect = "SHIELD";
-                    }
-                    else if (e->getComponent<CAnimation>().animation.getName() == "BlueBolt")
-                    {
-                        m_player->getComponent<CStatusEffect>().currentEffect = "SPEED";
-                    }
-                    else if (e->getComponent<CAnimation>().animation.getName() == "BlueStar")
-                    {
-                        m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
-                    }
+                    m_player->getComponent<CStatusEffect>().currentEffect = "SHIELD";
                 }
+                else if (e->getComponent<CAnimation>().animation.getName() == "BlueBolt")
+                {
+                    m_player->getComponent<CStatusEffect>().currentEffect = "SPEED";
+                }
+                else if (e->getComponent<CAnimation>().animation.getName() == "BlueStar")
+                {
+                    m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
+                }
+                e->destroy();
+                e = NULL;
+                return true;
             }
         }
     }
+    return false;
 }
 
 void Scene_Play::sCollision()
@@ -1449,12 +1436,11 @@ void Scene_Play::sCollision()
                 m_player->getComponent<CHealth>().current = m_player->getComponent<CHealth>().max;
                 continue;
             }
-
-            auto index = e->getComponent<CInventory>().index;
-            /*m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = true;
-            m_inventoryEntity->getComponent<CInventory>().inventoryItems[index] = e->getComponent<CAnimation>().animation.getName();*/
-            e->destroy();
-            sInventory("add", e->getComponent<CAnimation>().animation.getName(), index);
+;
+            if (sInventory("add", e->getComponent<CAnimation>().animation.getName(), 0))
+            {
+                e->destroy();
+            }
         }
     }
 
@@ -1492,14 +1478,12 @@ void Scene_Play::sDoAction(const Action& action)
     {
         if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
         else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
-        else if (action.name() == "INVENTORY") { m_inventory = !m_inventory; setPaused(!m_paused); }
+        else if (action.name() == "INVENTORY") { if (!m_gameOver && !goal) m_inventory = !m_inventory; }
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
-            setPaused(true);
-            setOptionMenu(true);
+            if (!m_gameOver && !goal) { setPaused(true); setOptionMenu(true); }
         }
-        else if (action.name() == "PAUSE") { setPaused(!m_paused); }
         else if (action.name() == "QUIT") { onEnd(); }
         else if (action.name() == "BOSS") { loadBoss(); }
 
@@ -1717,20 +1701,6 @@ void Scene_Play::sAnimation()
             CAnimation& eAni = e->getComponent<CAnimation>();
             eAni.animation.update();
             if (!eAni.repeat && eAni.animation.hasEnded()) e->destroy();
-        }
-    }
-}
-
-void Scene_Play::sClick()
-{
-    for (auto e : m_entityManager.getEntities())
-    {
-        if (e->hasComponent<CClickable>() && e->getComponent<CClickable>().clicking)
-        {
-            //Vec2 worldPos = windowToWorld(m_mPos);
-            //auto index = e->getComponent<CInventory>().index;
-            //inventoryItems[index] = false;
-            //m_inventoryEntity->getComponent<CInventory>().in_Inventory[index] = false;
         }
     }
 }
@@ -2037,7 +2007,7 @@ void Scene_Play::sRender()
             auto& transform = e->getComponent<CTransform>();
             sf::Color c = sf::Color::White;
 
-            if (e->hasComponent<CAnimation>() && e->tag() != "inventory" && e->tag() != "items" && e->tag() != "weapon")
+            if (e->hasComponent<CAnimation>() && e->tag() != "inventory_item" && e->tag() != "weapon")
             {
                 auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
@@ -2279,46 +2249,38 @@ void Scene_Play::sRender()
 
     if (m_inventory)
     {
-        for (auto e : m_entityManager.getEntities("inventory"))
+        float x = m_game->window().getView().getCenter().x - width() / 2;
+        float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+
+        Animation ani(m_game->assets().getAnimation("Inventory"));
+        sf::Sprite invGrid(ani.getSprite());
+
+        sf::RectangleShape rect;
+        rect.setSize(sf::Vector2f(ani.getSize().y, ani.getSize().y));
+        rect.setPosition(x + ((m_gridSize.x + 8) * m_invSelect) + 8.5, y);
+        rect.setFillColor(sf::Color(0, 0, 0, 0));
+        rect.setOutlineColor(sf::Color(100, 200, 100));
+        rect.setOutlineThickness(6);
+
+        m_game->window().draw(rect);
+
+        invGrid.setPosition(x, y);
+        invGrid.setOrigin(0, 0);
+        m_game->window().draw(invGrid);
+
+        for (int i = 0 ; i < m_invContent.size(); i++)
         {
-            auto& transform = e->getComponent<CTransform>();
-            transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70);
-            auto& animation = e->getComponent<CAnimation>().animation;
+            if (m_invContent[i] != NULL)
+            {
+                Vec2 size = m_invContent[i]->getComponent<CAnimation>().animation.getSize();
+                Vec2 scale = Vec2{ m_gridSize.x / size.x, m_gridSize.y / size.y };
 
-            sf::RectangleShape rect;
-            rect.setSize(sf::Vector2f(animation.getSize().y, animation.getSize().y));
-            //rect.setOrigin(0,0);
-            float x = m_game->window().getView().getCenter().x - width() / 2;
-            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-            rect.setPosition(transform.pos.x + ((m_gridSize.x + 8) * m_invSelect) + 8.5, transform.pos.y);
-            rect.setFillColor(sf::Color(0, 0, 0, 0));
-            rect.setOutlineColor(sf::Color(100, 200, 100));
-            rect.setOutlineThickness(6);
-
-            m_game->window().draw(rect);
-
-            animation.getSprite().setRotation(transform.angle);
-            animation.getSprite().setOrigin(0, 0);
-            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            m_game->window().draw(animation.getSprite());
-        }
-
-        for (auto e : m_entityManager.getEntities("items"))
-        {
-            auto transform = e->getComponent<CTransform>();
-            float x = m_game->window().getView().getCenter().x - width() / 2;
-            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
-            auto inv_t = Vec2(20 + x, 15 + y);
-            transform.pos += Vec2(inv_t.x, inv_t.y);
-            //std::cout << "Render stuff: " << e->getComponent<CInventory>().index  << " ";
-            //std::cout << transform.pos.x << ", " << transform.pos.y << "\n";
-            auto& animation = e->getComponent<CAnimation>().animation;
-            animation.getSprite().setRotation(transform.angle);
-            animation.getSprite().setOrigin(0, 0);
-            animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            m_game->window().draw(animation.getSprite());
+                sf::Sprite s = m_invContent[i]->getComponent<CAnimation>().animation.getSprite();
+                s.setPosition(x + ((m_gridSize.x + 8) * i) + 8.5, y);
+                s.setScale(scale.x, scale.y);
+                s.setOrigin(0, 0);
+                m_game->window().draw(s);
+            }
         }
     }
     // Draw the weapon display UI
