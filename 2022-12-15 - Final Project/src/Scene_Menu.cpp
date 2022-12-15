@@ -76,6 +76,23 @@ void Scene_Menu::sDoAction(const Action& action)
         {
             if (m_selectedMenuIndex == 0)
             {
+                std::ifstream fin("save.txt");
+                if (fin.good())
+                {
+                    std::string temp;
+                    int level;
+
+                    while (fin >> temp)
+                    {
+                        if (temp == "Level")
+                        {
+                            fin >> level;
+                        }
+                    }
+                    m_game->progress = level;
+                }
+                else { m_game->progress = 1; }
+                
                 m_game->changeScene("OVERWORLD", std::make_shared<Scene_Overworld>(m_game));
                 m_game->assets().getMusic("MusicTitle").stop();
             }

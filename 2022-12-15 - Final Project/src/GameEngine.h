@@ -52,7 +52,11 @@ public:
 
     float musicVol = 20.0f;
     float soundVol = 80.0f;
+
     std::string diff;
+    float bulletScaler = 1.0f;
+    float takenScaler = 1.0f;
+
     std::string m_currentScene;
     SceneMap m_sceneMap;
 

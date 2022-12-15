@@ -63,12 +63,7 @@ Npc DemonIdle 17 1 -1 5 3 0 0.75 2 Patrol 2 17 1 21.01 1
 
 
 
-Tile BlueBolt 0 1 1 1 0 0
-Tile BlueShield 1 1 1 1 0 0
-Tile BlueStar 2 1 1 1 0 0
-Tile PillBlue 3 1 1 1 0 0
-Tile PillGreen 4 1 1 1 0 0
-Tile PillRed 5 1 1 1 0 0
+
 Tile Plat 0 7 1 1 0 0
 Tile Plat 1 7 1 1 0 0
 Tile Plat 2 7 1 1 0 0
@@ -115,3 +110,13 @@ Tile Plat 42 7 1 1 0 0
 Tile Plat 43 7 1 1 0 0
 Tile Plat 44 7 1 1 0 0
 Tile Plat 45 7 1 1 0 0
+
+
+
+
+Item BlueBolt 0 1 
+Item BlueShield 1 1 
+Item BlueStar 2 1 
+Item PillBlue 3 1 
+Item PillGreen 4 1 
+Item PillRed 5 1 

@@ -64,23 +64,6 @@ void Scene_Play::init(const std::string& levelPath)
     m_weaponUIText.setFont(m_game->assets().getFont("Roboto"));
 
     loadLevel(levelPath);
-
-    std::string diff = m_game->getDiff();
-
-    if (diff == "EASY")
-    {
-        bulletScaler = 2.0;
-    }
-
-    if (diff == "NORMAL")
-    {
-        bulletScaler = 1.0;
-    }
-
-    if (diff == "HARD")
-    {
-        bulletScaler = 0.5;
-    }
 }
 
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
@@ -372,6 +355,7 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
 */
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
+    float bulletScaler = m_game -> bulletScaler;
     if (entity->tag() == "npc")
     {
         auto& weap = entity->getComponent<CWeapon>();
@@ -420,6 +404,14 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
         PlayerConfig& pc = m_playerConfig;
         CTransform& entityT = entity->getComponent<CTransform>();
 
+        int damageBoost = 1;
+
+        // double damage if damage boost effect active
+        if (entity->getComponent<CStatusEffect>().currentEffect == "DAMAGE")
+        {
+            damageBoost = 2;
+        }
+
         // Following code sets up the bullets based on the current weapon
         if (weap.currentWeapon == "Launcher")
         {
@@ -430,7 +422,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 BULLET_SIZE = Vec2(67, 19);
                 int BULLET_LIFETIME = 240;
                 // int DMG = 4;
-                int DMG = std::ceil(bulletScaler * 4);
+                int DMG = std::ceil(bulletScaler * 4) * damageBoost;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * 1.25f * entityT.scale.x, 0.0f);
                 auto bullet = setupBullet(BULLET_SIZE, pos, BULLET_LIFETIME, DMG, velocity, "Missile");
@@ -446,7 +438,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 Vec2 BULLET_SIZE = Vec2(24, 24);
                 int BULLET_LIFETIME = 180;
                 // int DMG = 2;
-                int DMG = std::ceil(bulletScaler * 2);
+                int DMG = std::ceil(bulletScaler * 2) * damageBoost;
                 Vec2 pos = Vec2(entityT.pos.x + 26 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.0f, -15.0f * pScale.y);
 
@@ -475,7 +467,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 // DELETE 1
                 // int damage = e->getComponent<CDamage>().damage;
 
-                int DMG = std::ceil(bulletScaler*1);
+                int DMG = std::ceil(bulletScaler*1) * damageBoost;
 
                 // std::cout << "Damage: " << bulletScaler << std::endl;
 
@@ -1117,20 +1109,10 @@ void Scene_Play::sCollision()
                             goal = true;
                             continue;
                         }
-                        if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>())
+                        if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                         {
                             e->addComponent<CInvincibility>(30);
-                            e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
-
-
-                            //DELETE
-                            std::cout << "Damage to player: " << tile->getComponent<CDamage>().damage << std::endl;
-                            std::cout << "Player health: " << e->getComponent<CHealth>().current << std::endl;
-                            std::cout << typeid(tile->getComponent<CDamage>().damage).name() << '\n';
-                            std::cout << typeid(e->getComponent<CHealth>().current).name() << '\n';
-
-
-
+                            e->getComponent<CHealth>().current -= std::ceil(tile->getComponent<CDamage>().damage * m_game->takenScaler);
 
                             m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
@@ -1240,12 +1222,8 @@ void Scene_Play::sCollision()
 
             if (overlap.x > 0 && overlap.y > 0)
             {
-                if (m_player->hasComponent<CInvincibility>()) { break; }
-                m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
-
-                // DELETE
-                std::cout << "Damage to player: " << e->getComponent<CDamage>().damage << std::endl;
-                std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
+                if (m_player->hasComponent<CInvincibility>() || m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") { break; }
+                m_player->getComponent<CHealth>().current -= std::ceil(e->getComponent<CDamage>().damage * m_game->takenScaler);
 
                 m_player->addComponent<CInvincibility>(60);
                 m_game->playSound("ow");
@@ -1266,9 +1244,9 @@ void Scene_Play::sCollision()
     {
         if (Physics::GetOverlap(boss, m_player).x > 0 && Physics::GetOverlap(boss, m_player).y > 0)
         {
-            if (!m_player->hasComponent<CInvincibility>())
+            if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
-                m_player->getComponent<CHealth>().current -= boss->getComponent<CDamage>().damage;
+                m_player->getComponent<CHealth>().current -= std::ceil(boss->getComponent<CDamage>().damage * m_game->takenScaler);
                 m_player->addComponent<CInvincibility>(30);
                 m_game->playSound("ow");
                 if (m_player->getComponent<CHealth>().current <= 0)
@@ -1305,9 +1283,9 @@ void Scene_Play::sCollision()
     {
         if (Physics::GetOverlap(bBullet, m_player).x > 0 && Physics::GetOverlap(bBullet, m_player).y > 0)
         {
-            if (!m_player->hasComponent<CInvincibility>())
+            if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
-                m_player->getComponent<CHealth>().current -= bBullet->getComponent<CDamage>().damage;
+                m_player->getComponent<CHealth>().current -= std::ceil(bBullet->getComponent<CDamage>().damage * m_game->takenScaler);
                 m_player->addComponent<CInvincibility>(30);
                 m_game->playSound("ow");
                 if (m_player->getComponent<CHealth>().current <= 0)
@@ -1332,10 +1310,6 @@ void Scene_Play::sCollision()
                 npc->getComponent<CHealth>().current -= bullet->getComponent<CDamage>().damage;
                 auto& state = npc->getComponent<CState>().state;
                 state = state.substr(0, state.find(" ")) + " Hit";
-
-                //DELETE
-                std::cout << "bullet hit npc damge:   " << bullet->getComponent<CDamage>().damage << std::endl;
-                std::cout << "npc health: " << npc->getComponent<CHealth>().current << std::endl;
             }
 
             // the npc is dead
@@ -1428,14 +1402,10 @@ void Scene_Play::sCollision()
                 if(Physics::IsInside(tt.pos, e))
                 {
                     f->addComponent<CAnimation>(m_game->assets().getAnimation("WormExplode"), false);
-                    if (e->tag() == "player")
+                    if (e->tag() == "player" && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                     {
                         m_player->addComponent<CInvincibility>(10);
-                        m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
-
-                        //DELETE
-                        std::cout << "Damage to player: " << f->getComponent<CDamage>().damage << std::endl;
-                        std::cout << "Player health: " << m_player->getComponent<CHealth>().current << std::endl;
+                        m_player->getComponent<CHealth>().current -= std::ceil(f->getComponent<CDamage>().damage * m_game-> takenScaler);
                         m_game->playSound("ow");
                     }
                     f->destroy();
@@ -1476,7 +1446,14 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
-        m_game->assets().getMusic(m_levelMusic).stop();
+        std::ofstream fout("save.txt");
+        std::string saveLine = "";
+
+        // Save current level progress
+        if (m_game->progress == 3) { saveLine = "Level 3"; }
+        else { saveLine = "Level " + std::to_string(m_game->progress + 1); }
+        fout << saveLine << std::endl;
+        m_game->assets().getMusic("Play").stop();
         if (m_game->progress == 3 && m_levelPath == "level3.txt")
         {
             if (m_transition == 0) { m_game->playSound("winSound"); }
@@ -2063,20 +2040,19 @@ void Scene_Play::sRender()
                     animation.getSprite().setColor(c);
                 }
 
-                if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
-
-                if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") 
-                { 
-                    m_game->window().draw(animation.getSprite(), &rainbow_shader); 
-                }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "DAMAGE")
+                if (e->tag() == "boss")
                 {
-                    m_game->window().draw(animation.getSprite(), &electric_shader);
+                    if (e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
+                    else { m_game->window().draw(animation.getSprite()); }
                 }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SPEED")
+                else if (e->tag() == "player")
                 {
-                    m_game->window().draw(animation.getSprite(), &speed_shader);
+                    auto& effect = e->getComponent<CStatusEffect>().currentEffect;
+                    if (effect == "NONE" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                    else if (effect == "SHIELD") { m_game->window().draw(animation.getSprite(), &rainbow_shader); }
+                    else if (effect == "DAMAGE") { m_game->window().draw(animation.getSprite(), &electric_shader); }
+                    else if (effect == "SPEED") { m_game->window().draw(animation.getSprite(), &speed_shader); }
+                    else { m_game->window().draw(animation.getSprite()); }
                 }
                 else { m_game->window().draw(animation.getSprite()); }
             }

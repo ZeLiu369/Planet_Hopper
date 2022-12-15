@@ -205,7 +205,23 @@ std::string GameEngine::getDiff()
 void GameEngine::setDiff(std::string d)
 {
     diff = d;
-    getScene("PLAY")->changeDiff(d);
+    if (d == "EASY")
+    {
+        takenScaler = 0.5;
+        bulletScaler = 2.0;
+    }
+
+    if (d == "NORMAL")
+    {
+        takenScaler = 1.0;
+        bulletScaler = 1.0;
+    }
+
+    if (d == "HARD")
+    {
+        takenScaler = 2.0;
+        bulletScaler = 0.5;
+    }
 }
 
 
