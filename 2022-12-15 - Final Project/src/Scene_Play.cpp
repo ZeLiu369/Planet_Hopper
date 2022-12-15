@@ -1461,6 +1461,14 @@ void Scene_Play::sCollision()
     // if player has reached end of the level
     if (goal)
     {
+        std::ofstream fout("save.txt");
+        std::string saveLine = "";
+
+        // Save current level progress
+        if (m_game->progress == 3) { saveLine = "Level 3"; }
+        else { saveLine = "Level " + std::to_string(m_game->progress + 1); }
+        fout << saveLine << std::endl;
+
         m_game->assets().getMusic(m_levelMusic).stop();
         if (m_game->progress == 3 && m_levelPath == "level3.txt")
         {
