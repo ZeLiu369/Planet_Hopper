@@ -57,6 +57,8 @@ public:
     float bulletScaler = 1.0f;
     float takenScaler = 1.0f;
 
+    std::string shootKey = "SPACE";
+
     sf::Event event;
 
     std::string m_currentScene;
@@ -69,8 +71,8 @@ public:
     GameEngine(const std::string & path);
 
     void changeScene(const std::string & sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
-
     std::shared_ptr<Scene> getScene(const std::string &sceneName);
+    bool hasScene(const std::string sceneName);
 
     void quit();
     void run();
@@ -81,7 +83,8 @@ public:
     std::string getDiff();
     void setDiff(std::string d);
 
-    void setShootKey(sf::Event e);
+    void setShootKey(std::string s);
+    std::string getShootKey();
 
     sf::RenderWindow &window();
     Assets& assets();

@@ -53,6 +53,7 @@ public:
     void simulate(const size_t frames);
     void setPaused(bool paused);
     void registerAction(int inputKey, const std::string &actionName);
+    void unregisterAction(int inputKey);
 
     size_t width() const;
     size_t height() const;

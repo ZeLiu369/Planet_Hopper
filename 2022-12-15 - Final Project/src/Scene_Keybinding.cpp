@@ -29,7 +29,7 @@ Scene_Keybinding::Scene_Keybinding(GameEngine* gameEngine)
 
 void Scene_Keybinding::init()
 {
-   
+    
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
@@ -44,6 +44,7 @@ void Scene_Keybinding::init()
     registerAction(sf::Keyboard::Escape, "QUIT");
     // registerAction(sf::Keyboard::Enter, "Enter");
     int num = 1;
+    shootKey1 = m_game->getShootKey();
 
     m_title = "Key Binding";
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
@@ -88,16 +89,18 @@ void Scene_Keybinding::sDoAction(const Action &action)
 
             if (m_selectedMenuIndex == 1)
             {
-                sf::Event event1;
-                while (m_game->window().pollEvent(event1))
+                if (shootKey1 == "J")
                 {
-                    if (event1.type == sf::Event::KeyPressed)
-                    {
-                        m_game->setShootKey(event1);
-                    }
+                    shootKey1 = "K";
                 }
-                
-                // m_game->setShootKey(sf::Keyboard::Space);
+                else if (shootKey1 == "SPACE")
+                {
+                    shootKey1 = "J";
+                }
+                else if (shootKey1 == "K")
+                {
+                    shootKey1 = "SPACE";
+                }
             }
         }
         else if (action.name() == "DECREASE")
@@ -108,12 +111,31 @@ void Scene_Keybinding::sDoAction(const Action &action)
             }
             if (m_selectedMenuIndex == 1)
             {
-                
+                if (shootKey1 == "J")
+                {
+                    shootKey1 = "K";
+                }
+                else if (shootKey1 == "SPACE")
+                {
+                    shootKey1 = "J";
+                }
+                else if (shootKey1 == "K")
+                {
+                    shootKey1 = "SPACE";
+                }
             }
         }
         else if (action.name() == "CONFIRM")
         {   
-            // display the confirmation text (prompt)
+            m_game->setShootKey(shootKey1);
+            if (m_game -> hasScene("PLAY"))
+            {   
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::J);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::K);
+                m_game->getScene("PLAY") -> unregisterAction(sf::Keyboard::Space);
+                m_game->getScene("PLAY") -> registerAction(m_game->gameControls.shoot, "SHOOT");
+            }
+             // display the confirmation text (prompt)
             confirmText.setString("Key binding saved!");
             confirmText.setCharacterSize(20);
             confirmText.setFillColor(sf::Color::Red);
@@ -144,13 +166,14 @@ void Scene_Keybinding::sRender()
 
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
-        m_menuStrings[0] = "Movement: ";
-        m_menuStrings[1] = "Shoot: ";
+        m_menuStrings[0] = "Movement: " ;
+        m_menuStrings[1] = "Shoot: " + shootKey1;
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
         m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
         m_game->window().draw(m_menuText);
     }
+
 
     m_game->window().draw(m_menuText);
 
@@ -176,11 +199,6 @@ void Scene_Keybinding::sRender()
 void Scene_Keybinding::onEnd()
 {
     m_hasEnded = true;
-
-    // change the scene back to the sceneMenu
-    // m_game->changeScene(prev_scene, nullptr, true);
-    // m_game->getScene(m_game->m_currentScene)->setOptionMenu(false);
-    // m_game->getScene(m_game->m_currentScene)->setPaused(false);
     m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
 }
 

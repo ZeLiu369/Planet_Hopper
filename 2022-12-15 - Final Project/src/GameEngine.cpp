@@ -154,6 +154,15 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
     m_currentScene = sceneName;
 }
 
+bool GameEngine::hasScene(const std::string sceneName)
+{
+    if (m_sceneMap.find(sceneName) == m_sceneMap.end())
+    {
+        return false;
+    }
+    return true;
+}
+
 std::shared_ptr<Scene> GameEngine::getScene(const std::string &sceneName)
 {
     
@@ -224,26 +233,25 @@ void GameEngine::setDiff(std::string d)
     }
 }
 
-void GameEngine::setShootKey(sf::Event e)
+std::string GameEngine::getShootKey()
+{
+    return shootKey;
+}
+
+void GameEngine::setShootKey(std::string s)
 {
     std::cout << "set shoot key get called" << std::endl;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+    shootKey = s;
+    
+    if (s == "J")
     {
-        std::cout << "the j key was pressed" << std::endl;
-        gameControls.shoot = sf::Keyboard::J;
-
-        //CHANGED
-        std::cout << "the escape key was pressed" << std::endl;
-        std::cout << "control:" << event.key.control << std::endl;
-        std::cout << "alt:" << event.key.alt << std::endl;
-        std::cout << "shift:" << event.key.shift << std::endl;
-        std::cout << "system:" << event.key.system << std::endl;
+       gameControls.shoot = sf::Keyboard::J;
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    else if (s == "K")
     {
-       gameControls.shoot = sf::Keyboard::Space;
+       gameControls.shoot = sf::Keyboard::K;
     }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+    else if (s == "SPACE")
     {
        gameControls.shoot = sf::Keyboard::Space;
     }

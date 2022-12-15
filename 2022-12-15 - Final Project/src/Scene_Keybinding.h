@@ -33,6 +33,7 @@ protected:
     sf::Text confirmText;
     size_t m_selectedMenuIndex = 0;
     sf::Clock clock;
+    std::string shootKey1;
 
     void init();
     void update();

@@ -209,7 +209,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         }
         else if (action.name() == "CONFIRM")
         {   
-             m_game->setDiff(diff1);
+            m_game->setDiff(diff1);
 
             // display the confirmation text (prompt)
             confirmText.setString("Setting saved! Difficulty: " + diff1 + ".");
@@ -221,7 +221,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         else if (action.name() == "ENTER_KEYBINDING")
         {
             // enter the Scene_KeyBinding scene
-            m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game), false);
+            m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game));
         }
         else if (action.name() == "QUIT")
         {

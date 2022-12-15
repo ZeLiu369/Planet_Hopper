@@ -2264,6 +2264,11 @@ void Scene_Play::sRender()
         m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game), false);
     }
 
+    if (!m_optionMenuOpen)
+    {   
+        setPaused(false);
+    }
+
     if (m_inventory)
     {
         for (auto e : m_entityManager.getEntities("inventory"))
