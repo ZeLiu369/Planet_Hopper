@@ -29,26 +29,41 @@ Scene_Keybinding::Scene_Keybinding(GameEngine* gameEngine)
 
 void Scene_Keybinding::init()
 {
+   
     registerAction(sf::Keyboard::W, "UP");
+    registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::Right, "INCREASE10");
-    registerAction(sf::Keyboard::Left, "DECREASE10");
-    registerAction(sf::Keyboard::Up, "INCREASE");
-    registerAction(sf::Keyboard::Down, "DECREASE");
+    registerAction(sf::Keyboard::Down, "DOWN");
+
+    registerAction(sf::Keyboard::D, "INCREASE");
+    registerAction(sf::Keyboard::Right, "INCREASE");
+    registerAction(sf::Keyboard::A, "DECREASE");
+    registerAction(sf::Keyboard::Left, "DECREASE");
+
+    registerAction(sf::Keyboard::Enter, "CONFIRM");
     registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::Enter, "Enter");
+    // registerAction(sf::Keyboard::Enter, "Enter");
+    int num = 1;
 
 
-
-
-
+    //   m_menuStrings[0] = "Music Volume:0";
+    //     m_menuStrings[1] = "Sounds Effect Vol0";
+    //     m_menuStrings[2] = "Difficulty:)";
+    //     m_menuText.setString(m_menuStrings[0]);
 
     m_title = "Key Binding";
-    m_menuStrings.push_back("THIS IS WORKING ");
+    // m_menuStrings.push_back("THIS IS WORKING ");
+    // m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
+    // m_menuText.setCharacterSize(64);
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
 
-    int num = 1;
+    m_menuStrings.push_back("Movement: ");
+    m_menuStrings.push_back("Shoot: ");
+     // clear the window to a blue
+
+    clock.restart();
+
 }
 
 void Scene_Keybinding::update()
@@ -77,102 +92,37 @@ void Scene_Keybinding::sDoAction(const Action &action)
         }
         else if (action.name() == "INCREASE")
         {
-
             if (m_selectedMenuIndex == 0)
-            {
-              
-            }
-
-            if (m_selectedMenuIndex == 1)
             {
                 
             }
 
-            if (m_selectedMenuIndex == 2)
+            if (m_selectedMenuIndex == 1)
             {
-                if (diff1 == "EASY")
-                {
-                    diff1 = "NORMAL";
-                }
-                else if (diff1 == "NORMAL")
-                {
-                    diff1 = "HARD";
-                }
-                else if (diff1 == "HARD")
-                {
-                    diff1 = "EASY";
-                }
+              
             }
         }
         else if (action.name() == "DECREASE")
         {
-
-            if (m_selectedMenuIndex == 0)
-            {
-            
-            }
-
-            if (m_selectedMenuIndex == 1)
-            {
-                
-            }
-            // decrease the difficulty
-            if (m_selectedMenuIndex == 2)
-            {
-                if (diff1 == "EASY")
-                {
-                    diff1 = "HARD";
-                }
-                else if (diff1 == "NORMAL")
-                {
-                    diff1 = "EASY";
-                }
-                else if (diff1 == "HARD")
-                {
-                    diff1 = "NORMAL";
-                }
-            }
-        }
-        else if (action.name() == "INCREASE10")
-        {
-
+            // decrease the music volume
             if (m_selectedMenuIndex == 0)
             {
                
             }
-          
-            if (m_selectedMenuIndex == 1)
-            {
-               
-            }
-        }
-        else if (action.name() == "DECREASE10")
-        {
-
-            if (m_selectedMenuIndex == 0)
-            {
-            
-            }
-
+            // decrease the sounds effect volume
             if (m_selectedMenuIndex == 1)
             {
                 
             }
         }
-        else if (action.name() == "Enter")
+        else if (action.name() == "CONFIRM")
         {   
-            // confirm the difficulty
-            if (m_selectedMenuIndex == 2)
-            {
-                // m_game->setDiff(diff1);
-
-                // display the confirmation text (prompt)
-                confirmText.setString("Difficulty set to " + diff1 + "!");
-                confirmText.setCharacterSize(20);
-                confirmText.setFillColor(sf::Color::Red);
-                confirmText.setFont(m_game->assets().getFont("ChunkFive"));
-                confirmText.setPosition(sf::Vector2f(500, 10));
-            }
+            // display the confirmation text (prompt)
+            confirmText.setString("Key binding saved!");
+            confirmText.setCharacterSize(20);
+            confirmText.setFillColor(sf::Color::Red);
+            confirmText.setFont(m_game->assets().getFont("ChunkFive"));
+            confirmText.setPosition(sf::Vector2f(500, 10));
         }
         else if (action.name() == "QUIT")
         {
@@ -183,7 +133,7 @@ void Scene_Keybinding::sDoAction(const Action &action)
 
 void Scene_Keybinding::sRender()
 {
-    sf::Time elapsed1 = clock.getElapsedTime();
+     sf::Time elapsed1 = clock.getElapsedTime();
 
     // clear the window to a blue
     m_game->window().setView(m_game->window().getDefaultView());
@@ -196,25 +146,26 @@ void Scene_Keybinding::sRender()
     m_menuText.setPosition(sf::Vector2f(10, 10));
     m_game->window().draw(m_menuText);
 
-    // draw all of the menu options
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
-        m_menuStrings[0] = "Music Volume: " + std::to_string(int(music_volume)) + "/100";
-        m_menuStrings[1] = "Sounds Effect Volume: " + std::to_string(int(sounds_volume)) + "/100";
-        m_menuStrings[2] = "Difficulty: " + diff1;
+        m_menuStrings[0] = "Movement: ";
+        m_menuStrings[1] = "Shoot: ";
         m_menuText.setString(m_menuStrings[i]);
         m_menuText.setFillColor(i == m_selectedMenuIndex ? sf::Color::White : sf::Color(0, 0, 0));
         m_menuText.setPosition(sf::Vector2f(10, 110 + i * 72));
         m_game->window().draw(m_menuText);
     }
 
+    m_game->window().draw(m_menuText);
+
+
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w  down: s adjust: arrows back: esc  enter: confirm");
+    m_menuText.setString("UP: w/up arrow  DOWN: s/down arrow  ADJUST: a/d/left arrow/right arrow,  QUIT: esc  CONFIRM: enter");
     m_menuText.setPosition(sf::Vector2f(10, 690));
 
-    // disapper the confirmation text after 2 seconds
+    //disapper the confirmation text after 2 seconds
     if (elapsed1.asSeconds() > 2)
     {
         confirmText.setString("");

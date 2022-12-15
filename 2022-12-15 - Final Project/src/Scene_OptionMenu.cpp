@@ -247,6 +247,7 @@ void Scene_OptionMenu::sRender()
     m_game->window().draw(m_menuText);
 
     // draw all of the menu options
+    // update the option text
     for (size_t i = 0; i < m_menuStrings.size(); i++)
     {
         m_menuStrings[0] = "Music Volume: " + std::to_string(int(music_volume)) + "/100";
@@ -261,7 +262,7 @@ void Scene_OptionMenu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("UP: w/up arrow  DOWN: s/down arrow  ADJUST: A/D,  QUIT: esc  CONFIRM: enter  ENTER KEYBINDING: space");
+    m_menuText.setString("UP: w/up DOWN: s/down ADJUST: a/d/left/right,  QUIT: esc  CONFIRM: enter  ENTER KEYBINDING: space");
     m_menuText.setPosition(sf::Vector2f(10, 690));
 
     // disapper the confirmation text after 2 seconds
