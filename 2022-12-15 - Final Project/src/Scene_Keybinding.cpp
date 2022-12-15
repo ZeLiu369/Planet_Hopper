@@ -45,25 +45,14 @@ void Scene_Keybinding::init()
     // registerAction(sf::Keyboard::Enter, "Enter");
     int num = 1;
 
-
-    //   m_menuStrings[0] = "Music Volume:0";
-    //     m_menuStrings[1] = "Sounds Effect Vol0";
-    //     m_menuStrings[2] = "Difficulty:)";
-    //     m_menuText.setString(m_menuStrings[0]);
-
     m_title = "Key Binding";
-    // m_menuStrings.push_back("THIS IS WORKING ");
-    // m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
-    // m_menuText.setCharacterSize(64);
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
 
     m_menuStrings.push_back("Movement: ");
     m_menuStrings.push_back("Shoot: ");
-     // clear the window to a blue
 
     clock.restart();
-
 }
 
 void Scene_Keybinding::update()
@@ -99,17 +88,24 @@ void Scene_Keybinding::sDoAction(const Action &action)
 
             if (m_selectedMenuIndex == 1)
             {
-              
+                sf::Event event1;
+                while (m_game->window().pollEvent(event1))
+                {
+                    if (event1.type == sf::Event::KeyPressed)
+                    {
+                        m_game->setShootKey(event1);
+                    }
+                }
+                
+                // m_game->setShootKey(sf::Keyboard::Space);
             }
         }
         else if (action.name() == "DECREASE")
         {
-            // decrease the music volume
             if (m_selectedMenuIndex == 0)
             {
                
             }
-            // decrease the sounds effect volume
             if (m_selectedMenuIndex == 1)
             {
                 

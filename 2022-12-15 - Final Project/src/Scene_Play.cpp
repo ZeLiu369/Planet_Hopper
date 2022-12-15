@@ -55,7 +55,9 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
-    registerAction(sf::Keyboard::Space, "SHOOT");
+    //CHANGED
+    // registerAction(sf::Keyboard::Space, "SHOOT");
+    registerAction(m_game->gameControls.shoot, "SHOOT");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("ChunkFive"));

@@ -224,10 +224,34 @@ void GameEngine::setDiff(std::string d)
     }
 }
 
+void GameEngine::setShootKey(sf::Event e)
+{
+    std::cout << "set shoot key get called" << std::endl;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
+    {
+        std::cout << "the j key was pressed" << std::endl;
+        gameControls.shoot = sf::Keyboard::J;
 
-    // Copyright (C) David Churchill - All Rights Reserved
-    // COMP4300 - 2022-09 - Assignment 3
-    // Written by David Churchill (dave.churchill@gmail.com)
-    // Unauthorized copying of these files are strictly prohibited
-    // Distributed only for course work at Memorial University
-    // If you see this file online please contact email above
+        //CHANGED
+        std::cout << "the escape key was pressed" << std::endl;
+        std::cout << "control:" << event.key.control << std::endl;
+        std::cout << "alt:" << event.key.alt << std::endl;
+        std::cout << "shift:" << event.key.shift << std::endl;
+        std::cout << "system:" << event.key.system << std::endl;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+    {
+       gameControls.shoot = sf::Keyboard::Space;
+    }
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::K))
+    {
+       gameControls.shoot = sf::Keyboard::Space;
+    }
+}
+
+// Copyright (C) David Churchill - All Rights Reserved
+// COMP4300 - 2022-09 - Assignment 3
+// Written by David Churchill (dave.churchill@gmail.com)
+// Unauthorized copying of these files are strictly prohibited
+// Distributed only for course work at Memorial University
+// If you see this file online please contact email above

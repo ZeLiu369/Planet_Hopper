@@ -57,6 +57,8 @@ public:
     float bulletScaler = 1.0f;
     float takenScaler = 1.0f;
 
+    sf::Event event;
+
     std::string m_currentScene;
     SceneMap m_sceneMap;
 
@@ -67,6 +69,7 @@ public:
     GameEngine(const std::string & path);
 
     void changeScene(const std::string & sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene = false);
+
     std::shared_ptr<Scene> getScene(const std::string &sceneName);
 
     void quit();
@@ -77,6 +80,8 @@ public:
 
     std::string getDiff();
     void setDiff(std::string d);
+
+    void setShootKey(sf::Event e);
 
     sf::RenderWindow &window();
     Assets& assets();
