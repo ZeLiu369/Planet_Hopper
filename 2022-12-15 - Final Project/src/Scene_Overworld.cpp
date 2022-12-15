@@ -13,14 +13,13 @@
 #include <iostream>
 #include <fstream>
 
-Scene_Overworld::Scene_Overworld(GameEngine* gameEngine, const int& level)
+Scene_Overworld::Scene_Overworld(GameEngine* gameEngine)
     : Scene(gameEngine)
-    , m_level(level)
 {
-    init(m_level);
+    init();
 }
 
-void Scene_Overworld::init(const int& level)
+void Scene_Overworld::init()
 {
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
@@ -40,7 +39,7 @@ void Scene_Overworld::init(const int& level)
 
     //m_game->playSound("OverWorld");
 
-    loadMap(level);
+    loadMap(m_game->progress);
     std::cout << loadShaders() << "\n";
 }
 
