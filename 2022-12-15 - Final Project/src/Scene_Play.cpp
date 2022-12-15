@@ -2056,20 +2056,19 @@ void Scene_Play::sRender()
                     animation.getSprite().setColor(c);
                 }
 
-                if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
-
-                if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") 
-                { 
-                    m_game->window().draw(animation.getSprite(), &rainbow_shader); 
-                }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "DAMAGE")
+                if (e->tag() == "boss")
                 {
-                    m_game->window().draw(animation.getSprite(), &electric_shader);
+                    if (e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
+                    else { m_game->window().draw(animation.getSprite()); }
                 }
-                else if (e->tag() == "player" && m_player->getComponent<CStatusEffect>().currentEffect == "SPEED")
+                else if (e->tag() == "player")
                 {
-                    m_game->window().draw(animation.getSprite(), &speed_shader);
+                    auto& effect = e->getComponent<CStatusEffect>().currentEffect;
+                    if (effect == "NONE" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                    else if (effect == "SHIELD") { m_game->window().draw(animation.getSprite(), &rainbow_shader); }
+                    else if (effect == "DAMAGE") { m_game->window().draw(animation.getSprite(), &electric_shader); }
+                    else if (effect == "SPEED") { m_game->window().draw(animation.getSprite(), &speed_shader); }
+                    else { m_game->window().draw(animation.getSprite()); }
                 }
                 else { m_game->window().draw(animation.getSprite()); }
             }
