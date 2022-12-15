@@ -1733,38 +1733,37 @@ void Scene_Play::updateBackgrounds()
         auto& eOriginalPos = e->getComponent<CTransform>().originalPos;
         auto& eAnimation = e->getComponent<CAnimation>().animation;
         auto& eScrollFactor = e->getComponent<CTransform>().scrollFactor;
-        if (playerTransform.pos.x > m_game->window().getSize().x)
+
+        auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
+        auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
+
+        float windowSizeX = m_game->window().getSize().x;
+        
+        // updating backgrounds
+        if (backgroundOnePos.x + windowSizeX / 2.0f <= m_game->window().getView().getCenter().x - windowSizeX / 2.0f && playerTransform.pos.x > playerTransform.prevPos.x)
         {
-            auto& backgroundOnePos = m_backgroundsMap[eAnimation.getName()][0]->getComponent<CTransform>().pos;
-            auto& backgroundTwoPos = m_backgroundsMap[eAnimation.getName()][1]->getComponent<CTransform>().pos;
-            if (abs(playerTransform.pos.x - backgroundOnePos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
-            {
-                if (playerTransform.pos.x > playerTransform.prevPos.x)
-                {
-                    backgroundTwoPos.x = backgroundOnePos.x + m_game->window().getSize().x - eVelocity.x;
-                }
-                else
-                {
-                    backgroundTwoPos.x = backgroundOnePos.x - m_game->window().getSize().x - eVelocity.x;
-                }
-            }
-            if (abs(playerTransform.pos.x - backgroundTwoPos.x) <= abs(playerTransform.velocity.x - playerTransform.velocity.x * eScrollFactor) + 5)
-            {
-                if (playerTransform.pos.x > playerTransform.prevPos.x)
-                {
-                    backgroundOnePos.x = backgroundTwoPos.x + m_game->window().getSize().x - eVelocity.x;
-                }
-                else
-                {
-                    backgroundOnePos.x = backgroundTwoPos.x - m_game->window().getSize().x - eVelocity.x;
-                }
-            }
+            backgroundOnePos.x += windowSizeX * 2;
         }
-        if (playerTransform.pos.x <= m_game->window().getSize().x / 2.0f)
+        else if (backgroundOnePos.x - windowSizeX / 2.0f >= m_game->window().getView().getCenter().x + windowSizeX / 2.0f && playerTransform.pos.x < playerTransform.prevPos.x)
+        {
+            backgroundOnePos.x -= windowSizeX * 2;
+        }
+
+        if (backgroundTwoPos.x + windowSizeX / 2.0f <= m_game->window().getView().getCenter().x - windowSizeX / 2.0f && playerTransform.pos.x > playerTransform.prevPos.x)
+        {
+            backgroundTwoPos.x += windowSizeX * 2;
+        }
+        else if (backgroundTwoPos.x - windowSizeX / 2.0f >= m_game->window().getView().getCenter().x + windowSizeX / 2.0f && playerTransform.pos.x < playerTransform.prevPos.x)
+        {
+            backgroundTwoPos.x -= windowSizeX * 2;
+        }
+
+        // player is back in original camera view
+        if (playerTransform.pos.x <= windowSizeX / 2.0f)
         {
             ePos.x = eOriginalPos.x;
         }
-        if (playerTransform.pos.y >= m_game->window().getSize().y / 2.0f)
+        if (playerTransform.pos.y >= windowSizeX / 2.0f)
         {
             ePos.y = eOriginalPos.y;
         }
