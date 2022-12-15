@@ -782,9 +782,6 @@ Tile Plat 76 26 1 1 0 0
 Tile Plat 77 26 1 1 0 0
 Tile Plat 78 26 1 1 0 0
 Item PillRed 74 10
-Item BlueBolt 11 13
-Item BlueShield 14 11
-Item BlueStar 16 11
 Dec ArrowUp 23 13
 Dec ArrowDown 37 25
 Dec Alarm 118 2

@@ -1064,9 +1064,10 @@ void Scene_Play::sInventory(std::string action, std::string name, int index)
         for (auto& e : m_entityManager.getEntities("items"))
         {
             auto i = e->getComponent<CInventory>().index;
-            if (!m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
+            if (m_player->getComponent<CStatusEffect>().currentEffect == "NONE")
             {
-                if (m_player->getComponent<CStatusEffect>().currentEffect == "NONE")
+                e->destroy();
+                if (!m_inventoryEntity->getComponent<CInventory>().in_Inventory[i])
                 {
                     m_player->getComponent<CStatusEffect>().frameCreated = m_currentFrame;
                     m_player->getComponent<CStatusEffect>().duration = 600;
@@ -1084,7 +1085,6 @@ void Scene_Play::sInventory(std::string action, std::string name, int index)
                         m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
                     }
                 }
-                e->destroy();
             }
         }
     }
