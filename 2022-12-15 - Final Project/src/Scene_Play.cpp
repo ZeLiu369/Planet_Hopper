@@ -50,11 +50,13 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num2, "BOMB");
     registerAction(sf::Keyboard::Num3, "LAUNCHER");
 
-    registerAction(sf::Keyboard::W, "UP");
-    registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
-    registerAction(sf::Keyboard::Space, "SHOOT");
+    registerAction(m_game->gameControls.up, "UP");
+    registerAction(m_game->gameControls.gravity, "DOWN");
+    registerAction(m_game->gameControls.left, "LEFT");
+    registerAction(m_game->gameControls.right, "RIGHT");
+    //CHANGED
+    // registerAction(sf::Keyboard::Space, "SHOOT");
+    registerAction(m_game->gameControls.shoot, "SHOOT");
 
     m_gridText.setCharacterSize(12);
     m_gridText.setFont(m_game->assets().getFont("ChunkFive"));
@@ -1467,7 +1469,7 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
-            if (!m_gameOver && !goal) { setPaused(true); setOptionMenu(true); }
+            if (!m_gameOver && !goal) { m_player->addComponent<CInput>(); setPaused(true); setOptionMenu(true); }
         }
         else if (action.name() == "QUIT") { onEnd(); }
         else if (action.name() == "BOSS") { loadBoss(); }
@@ -2229,6 +2231,11 @@ void Scene_Play::sRender()
     if (m_optionMenuOpen)
     {   
         m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game), false);
+    }
+
+    if (!m_optionMenuOpen)
+    {   
+        setPaused(false);
     }
 
     if (m_inventory)

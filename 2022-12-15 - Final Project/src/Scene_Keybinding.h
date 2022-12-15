@@ -23,7 +23,7 @@
 
 #include "EntityManager.h"
 
-class Scene_OptionMenu : public Scene
+class Scene_Keybinding : public Scene
 {
 
 protected:
@@ -32,10 +32,9 @@ protected:
     sf::Text m_menuText;
     sf::Text confirmText;
     size_t m_selectedMenuIndex = 0;
-    float sounds_volume;
-    float music_volume;
-    std::string diff1;
     sf::Clock clock;
+    std::string shootKey1;
+    std::string moveKey1;
 
     void init();
     void update();
@@ -43,7 +42,7 @@ protected:
     void sDoAction(const Action &action);
 
 public:
-    Scene_OptionMenu(GameEngine *gameEngine);
+    Scene_Keybinding(GameEngine *gameEngine);
     void sRender();
 };
 

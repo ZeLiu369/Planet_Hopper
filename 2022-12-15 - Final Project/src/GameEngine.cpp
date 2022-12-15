@@ -154,6 +154,15 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
     m_currentScene = sceneName;
 }
 
+bool GameEngine::hasScene(const std::string sceneName)
+{
+    if (m_sceneMap.find(sceneName) == m_sceneMap.end())
+    {
+        return false;
+    }
+    return true;
+}
+
 std::shared_ptr<Scene> GameEngine::getScene(const std::string &sceneName)
 {
     
@@ -224,10 +233,58 @@ void GameEngine::setDiff(std::string d)
     }
 }
 
+std::string GameEngine::getShootKey()
+{
+    return shootKey;
+}
 
-    // Copyright (C) David Churchill - All Rights Reserved
-    // COMP4300 - 2022-09 - Assignment 3
-    // Written by David Churchill (dave.churchill@gmail.com)
-    // Unauthorized copying of these files are strictly prohibited
-    // Distributed only for course work at Memorial University
-    // If you see this file online please contact email above
+void GameEngine::setShootKey(std::string s)
+{
+    std::cout << "set shoot key get called" << std::endl;
+    shootKey = s;
+    
+    if (s == "J")
+    {
+       gameControls.shoot = sf::Keyboard::J;
+    }
+    else if (s == "K")
+    {
+       gameControls.shoot = sf::Keyboard::K;
+    }
+    else if (s == "SPACE")
+    {
+       gameControls.shoot = sf::Keyboard::Space;
+    }
+}
+
+std::string GameEngine::getMoveKey()
+{
+    return moveKey;
+}
+
+void GameEngine::setMoveKey(std::string s)
+{
+    moveKey = s;
+    
+    if (s == "WASD")
+    {
+       gameControls.up = sf::Keyboard::W;
+       gameControls.gravity = sf::Keyboard::S;
+       gameControls.left = sf::Keyboard::A;
+       gameControls.right = sf::Keyboard::D;
+    }
+    else if (s == "ARROW")
+    {
+       gameControls.up = sf::Keyboard::Up;
+       gameControls.gravity = sf::Keyboard::Down;
+       gameControls.left = sf::Keyboard::Left;
+       gameControls.right = sf::Keyboard::Right;
+    }
+}
+
+// Copyright (C) David Churchill - All Rights Reserved
+// COMP4300 - 2022-09 - Assignment 3
+// Written by David Churchill (dave.churchill@gmail.com)
+// Unauthorized copying of these files are strictly prohibited
+// Distributed only for course work at Memorial University
+// If you see this file online please contact email above

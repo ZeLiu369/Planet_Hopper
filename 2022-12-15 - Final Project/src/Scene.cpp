@@ -36,6 +36,10 @@ void Scene::setPaused(bool paused)
 void Scene::setOptionMenu(bool open)
 {
     m_optionMenuOpen = open;
+    if (m_optionMenuOpen == false)
+    {
+        setPaused(false);
+    }
 }
 
 size_t Scene::width() const
@@ -66,6 +70,15 @@ const ActionMap& Scene::getActionMap() const
 void Scene::registerAction(int inputKey, const std::string& actionName)
 {
     m_actionMap[inputKey] = actionName;
+}
+
+void Scene::unregisterAction(int inputKey)
+{
+    // if the key is in the map, remove it
+    if(m_actionMap.find(inputKey) != m_actionMap.end()) 
+    {
+        m_actionMap.erase(inputKey);
+    }
 }
 
 void Scene::doAction(const Action& action)
