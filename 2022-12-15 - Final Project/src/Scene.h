@@ -36,9 +36,7 @@ protected:
     bool            m_paused = false;
     bool            m_hasEnded = false;
     size_t          m_currentFrame = 0;
-
-    float           bulletScaler = 1.0f;
-
+    
     virtual void onEnd() = 0;
     
 
@@ -65,8 +63,6 @@ public:
     bool hasEnded() const;
     const ActionMap& getActionMap() const;
     void drawLine(const Vec2& p1, const Vec2& p2);
-
-    void changeDiff(std::string diff);
 };
 
 // Copyright (C) David Churchill - All Rights Reserved

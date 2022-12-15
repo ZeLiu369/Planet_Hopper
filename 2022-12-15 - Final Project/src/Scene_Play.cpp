@@ -64,23 +64,6 @@ void Scene_Play::init(const std::string& levelPath)
     m_weaponUIText.setFont(m_game->assets().getFont("Roboto"));
 
     loadLevel(levelPath);
-
-    std::string diff = m_game->getDiff();
-
-    if (diff == "EASY")
-    {
-        bulletScaler = 2.0;
-    }
-
-    if (diff == "NORMAL")
-    {
-        bulletScaler = 1.0;
-    }
-
-    if (diff == "HARD")
-    {
-        bulletScaler = 0.5;
-    }
 }
 
 Vec2 Scene_Play::gridToMidPixel(float gridX, float gridY, std::shared_ptr<Entity> entity)
@@ -372,6 +355,7 @@ std::shared_ptr<Entity> Scene_Play::setupBullet(Vec2 size, Vec2 pos, int lifetim
 */
 void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
 {
+    float bulletScaler = m_game -> bulletScaler;
     if (entity->tag() == "npc")
     {
         auto& weap = entity->getComponent<CWeapon>();
@@ -1128,7 +1112,8 @@ void Scene_Play::sCollision()
                         if (tile->hasComponent<CDamage>() && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                         {
                             e->addComponent<CInvincibility>(30);
-                            e->getComponent<CHealth>().current -= tile->getComponent<CDamage>().damage;
+                            e->getComponent<CHealth>().current -= std::ceil(tile->getComponent<CDamage>().damage * m_game->takenScaler);
+
                             m_game->playSound("ow");
                             if (e->getComponent<CHealth>().current <= 0)
                             {
@@ -1238,7 +1223,7 @@ void Scene_Play::sCollision()
             if (overlap.x > 0 && overlap.y > 0)
             {
                 if (m_player->hasComponent<CInvincibility>() || m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD") { break; }
-                m_player->getComponent<CHealth>().current -= e->getComponent<CDamage>().damage;
+                m_player->getComponent<CHealth>().current -= std::ceil(e->getComponent<CDamage>().damage * m_game->takenScaler);
 
                 m_player->addComponent<CInvincibility>(60);
                 m_game->playSound("ow");
@@ -1261,7 +1246,7 @@ void Scene_Play::sCollision()
         {
             if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
-                m_player->getComponent<CHealth>().current -= boss->getComponent<CDamage>().damage;
+                m_player->getComponent<CHealth>().current -= std::ceil(boss->getComponent<CDamage>().damage * m_game->takenScaler);
                 m_player->addComponent<CInvincibility>(30);
                 m_game->playSound("ow");
                 if (m_player->getComponent<CHealth>().current <= 0)
@@ -1300,7 +1285,7 @@ void Scene_Play::sCollision()
         {
             if (!m_player->hasComponent<CInvincibility>() && !(m_player->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
             {
-                m_player->getComponent<CHealth>().current -= bBullet->getComponent<CDamage>().damage;
+                m_player->getComponent<CHealth>().current -= std::ceil(bBullet->getComponent<CDamage>().damage * m_game->takenScaler);
                 m_player->addComponent<CInvincibility>(30);
                 m_game->playSound("ow");
                 if (m_player->getComponent<CHealth>().current <= 0)
@@ -1420,7 +1405,7 @@ void Scene_Play::sCollision()
                     if (e->tag() == "player" && !e->hasComponent<CInvincibility>() && !(e->getComponent<CStatusEffect>().currentEffect == "SHIELD"))
                     {
                         m_player->addComponent<CInvincibility>(10);
-                        m_player->getComponent<CHealth>().current -= f->getComponent<CDamage>().damage;
+                        m_player->getComponent<CHealth>().current -= std::ceil(f->getComponent<CDamage>().damage * m_game-> takenScaler);
                         m_game->playSound("ow");
                     }
                     f->destroy();
