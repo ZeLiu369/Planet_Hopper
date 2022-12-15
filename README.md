@@ -11,7 +11,7 @@ Project Group Members:
 Project Videos:
 
 * Project Demo: https://youtu.be/QWvbpDs62NA
-* Project Trailer: YouTube URL
+* Project Trailer: https://youtu.be/1R76jH93YJs
 * Project Presentation: YouTube URL
 
 Project Setup / Installation:
