@@ -31,13 +31,22 @@ Scene_OptionMenu::Scene_OptionMenu(GameEngine *gameEngine)
 void Scene_OptionMenu::init()
 {
     registerAction(sf::Keyboard::W, "UP");
+    registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::Right, "INCREASE10");
-    registerAction(sf::Keyboard::Left, "DECREASE10");
-    registerAction(sf::Keyboard::Up, "INCREASE");
-    registerAction(sf::Keyboard::Down, "DECREASE");
+    registerAction(sf::Keyboard::Down, "DOWN");
+
+    registerAction(sf::Keyboard::D, "INCREASE");
+    registerAction(sf::Keyboard::Right, "INCREASE");
+    registerAction(sf::Keyboard::A, "DECREASE");
+    registerAction(sf::Keyboard::Left, "DECREASE");
+
+    registerAction(sf::Keyboard::E, "INCREASE10");
+    registerAction(sf::Keyboard::Q, "DECREASE10");
+
     registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::Enter, "Enter");
+    registerAction(sf::Keyboard::Enter, "CONFIRM");
+
+    registerAction(sf::Keyboard::Space, "ENTER_KEYBINDING");
 
     // use for counting for displaying the confirm text
     clock.restart();
@@ -198,26 +207,21 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                 }
             }
         }
-        else if (action.name() == "Enter")
+        else if (action.name() == "CONFIRM")
         {   
-            // confirm the difficulty
-            if (m_selectedMenuIndex == 2)
-            {
-                m_game->setDiff(diff1);
+             m_game->setDiff(diff1);
 
-                // display the confirmation text (prompt)
-                confirmText.setString("Difficulty set to " + diff1 + "!");
-                confirmText.setCharacterSize(20);
-                confirmText.setFillColor(sf::Color::Red);
-                confirmText.setFont(m_game->assets().getFont("ChunkFive"));
-                confirmText.setPosition(sf::Vector2f(500, 10));
-            }
-            
+            // display the confirmation text (prompt)
+            confirmText.setString("Setting saved! Difficulty: " + diff1 + ".");
+            confirmText.setCharacterSize(20);
+            confirmText.setFillColor(sf::Color::Red);
+            confirmText.setFont(m_game->assets().getFont("ChunkFive"));
+            confirmText.setPosition(sf::Vector2f(500, 10));
+        }
+        else if (action.name() == "ENTER_KEYBINDING")
+        {
             // enter the Scene_KeyBinding scene
-            if (m_selectedMenuIndex == 3)
-            {
-                m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game), false);
-            }
+            m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game), false);
         }
         else if (action.name() == "QUIT")
         {
@@ -228,7 +232,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
 
 void Scene_OptionMenu::sRender()
 {   
-    std::cout << "prevScene" << m_game -> optionMenu_return_scene << std::endl;
+    // std::cout << "prevScene" << m_game -> optionMenu_return_scene << std::endl;
     sf::Time elapsed1 = clock.getElapsedTime();
 
     // clear the window to a blue
@@ -257,7 +261,7 @@ void Scene_OptionMenu::sRender()
     // draw the controls in the bottom-left
     m_menuText.setCharacterSize(20);
     m_menuText.setFillColor(sf::Color::Black);
-    m_menuText.setString("up: w  down: s adjust: arrows back: esc  enter: confirm");
+    m_menuText.setString("UP: w/up arrow  DOWN: s/down arrow  ADJUST: A/D,  QUIT: esc  CONFIRM: enter  ENTER KEYBINDING: space");
     m_menuText.setPosition(sf::Vector2f(10, 690));
 
     // disapper the confirmation text after 2 seconds

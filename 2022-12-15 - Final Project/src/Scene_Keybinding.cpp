@@ -29,28 +29,22 @@ Scene_Keybinding::Scene_Keybinding(GameEngine* gameEngine)
 
 void Scene_Keybinding::init()
 {
-    // registerAction(sf::Keyboard::W, "UP");
-    // registerAction(sf::Keyboard::S, "DOWN");
-    // registerAction(sf::Keyboard::Right, "INCREASE10");
-    // registerAction(sf::Keyboard::Left, "DECREASE10");
-    // registerAction(sf::Keyboard::Up, "INCREASE");
-    // registerAction(sf::Keyboard::Down, "DECREASE");
+    registerAction(sf::Keyboard::W, "UP");
+    registerAction(sf::Keyboard::S, "DOWN");
+    registerAction(sf::Keyboard::Right, "INCREASE10");
+    registerAction(sf::Keyboard::Left, "DECREASE10");
+    registerAction(sf::Keyboard::Up, "INCREASE");
+    registerAction(sf::Keyboard::Down, "DECREASE");
     registerAction(sf::Keyboard::Escape, "QUIT");
-    // registerAction(sf::Keyboard::Enter, "Enter");
+    registerAction(sf::Keyboard::Enter, "Enter");
 
-    // use for counting for displaying the confirm text
-    // clock.restart();
+
+
+
+
 
     m_title = "Key Binding";
-    
-    // music_volume = m_game->assets().getMusicVolume();
-    // sounds_volume = m_game -> assets().getSoundsVolume();
-
-    // diff1 = m_game -> getDiff();
-
-   
     m_menuStrings.push_back("THIS IS WORKING ");
-
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
 
@@ -83,17 +77,17 @@ void Scene_Keybinding::sDoAction(const Action &action)
         }
         else if (action.name() == "INCREASE")
         {
-            // increase the music volume
+
             if (m_selectedMenuIndex == 0)
             {
               
             }
-            // increase the sounds effect volume
+
             if (m_selectedMenuIndex == 1)
             {
                 
             }
-            // increase the difficulty
+
             if (m_selectedMenuIndex == 2)
             {
                 if (diff1 == "EASY")
