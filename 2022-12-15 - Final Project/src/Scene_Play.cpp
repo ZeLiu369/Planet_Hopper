@@ -71,7 +71,7 @@ void Scene_Play::init(const std::string& levelPath)
 
     loadLevel(levelPath);
 
-    std::string diff = m_game-> getDiff();
+    std::string diff = m_game->getDiff();
 
     if (diff == "EASY")
     {

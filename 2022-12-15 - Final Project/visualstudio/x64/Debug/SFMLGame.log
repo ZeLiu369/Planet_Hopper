@@ -1,32 +1,35 @@
-﻿  Action.cpp
-  Animation.cpp
-  Assets.cpp
-  Entity.cpp
-  EntityManager.cpp
-  GameEngine.cpp
-  Scene.cpp
-  Scene_Editor.cpp
-  Scene_Menu.cpp
-  Scene_Overworld.cpp
+﻿  Scene_OptionMenu.cpp
   Scene_Play.cpp
-  main.cpp
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Animation.cpp(49,76): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Animation.cpp(71,77): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Editor.cpp(957,86): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,13): warning C4101: 'y1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(89,9): warning C4101: 'x1': unreferenced local variable
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(326,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(348,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(362,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(373,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(388,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(411,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Physics.cpp
-  Vec2.cpp
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(73,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
-C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(308): message : see reference to function template instantiation 'T &Entity::addComponent<CLifeSpan,int&,size_t&>(int &,size_t &)' being compiled
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(114,13): warning C4101: 'y1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(114,9): warning C4101: 'x1': unreferenced local variable
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(391,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(413,51): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(427,47): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(438,56): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(454,52): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(479,54): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(685,31): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(794,81): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(2169,37): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Entity.h(74,5): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data (compiling source file ..\src\Scene_Play.cpp)
+C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\src\Scene_Play.cpp(337): message : see reference to function template instantiation 'T &Entity::addComponent<CBulletTimer,int,size_t&>(int &&,size_t &)' being compiled
           with
           [
-              T=CLifeSpan
+              T=CBulletTimer
           ]
-  SFMLGame.vcxproj -> C:\Users\brend\OneDrive\Desktop\FinalProject\2022-12-15 - Final Project\bin\SFMLGame_d.exe
+  LINK : ..\bin\SFMLGame_d.exe not found or not built by the last incremental link; performing full link
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: void __cdecl Assets::changeSoundsVolume(float const &)" (?changeSoundsVolume@Assets@@QEAAXAEBM@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::sDoAction(class Action const &)" (?sDoAction@Scene_OptionMenu@@MEAAXAEBVAction@@@Z)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: float __cdecl Assets::getSoundsVolume(void)" (?getSoundsVolume@Assets@@QEAAMXZ) referenced in function "protected: void __cdecl Scene_OptionMenu::init(void)" (?init@Scene_OptionMenu@@IEAAXXZ)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: void __cdecl Assets::changeMusicVolume(float const &)" (?changeMusicVolume@Assets@@QEAAXAEBM@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::sDoAction(class Action const &)" (?sDoAction@Scene_OptionMenu@@MEAAXAEBVAction@@@Z)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: float __cdecl Assets::getMusicVolume(void)" (?getMusicVolume@Assets@@QEAAMXZ) referenced in function "protected: void __cdecl Scene_OptionMenu::init(void)" (?init@Scene_OptionMenu@@IEAAXXZ)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: void __cdecl Scene::setPaused(bool)" (?setPaused@Scene@@QEAAX_N@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::onEnd(void)" (?onEnd@Scene_OptionMenu@@MEAAXXZ)
+Scene_Play.obj : error LNK2001: unresolved external symbol "public: void __cdecl Scene::setPaused(bool)" (?setPaused@Scene@@QEAAX_N@Z)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: void __cdecl Scene::setOptionMenu(bool)" (?setOptionMenu@Scene@@QEAAX_N@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::onEnd(void)" (?onEnd@Scene_OptionMenu@@MEAAXXZ)
+Scene_Play.obj : error LNK2001: unresolved external symbol "public: void __cdecl Scene::setOptionMenu(bool)" (?setOptionMenu@Scene@@QEAAX_N@Z)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: class std::shared_ptr<class Scene> __cdecl GameEngine::getScene(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?getScene@GameEngine@@QEAA?AV?$shared_ptr@VScene@@@std@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::onEnd(void)" (?onEnd@Scene_OptionMenu@@MEAAXXZ)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl GameEngine::getDiff(void)" (?getDiff@GameEngine@@QEAA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ) referenced in function "protected: void __cdecl Scene_OptionMenu::init(void)" (?init@Scene_OptionMenu@@IEAAXXZ)
+Scene_Play.obj : error LNK2001: unresolved external symbol "public: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl GameEngine::getDiff(void)" (?getDiff@GameEngine@@QEAA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@XZ)
+Scene_OptionMenu.obj : error LNK2019: unresolved external symbol "public: void __cdecl GameEngine::setDiff(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?setDiff@GameEngine@@QEAAXV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) referenced in function "protected: virtual void __cdecl Scene_OptionMenu::sDoAction(class Action const &)" (?sDoAction@Scene_OptionMenu@@MEAAXAEBVAction@@@Z)
+Scene_Play.obj : error LNK2019: unresolved external symbol "public: class sf::Sound & __cdecl Assets::getMusic(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?getMusic@Assets@@QEAAAEAVSound@sf@@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) referenced in function "protected: void __cdecl Scene_Play::loadBoss(void)" (?loadBoss@Scene_Play@@IEAAXXZ)
+Scene_Play.obj : error LNK2019: unresolved external symbol "public: void __cdecl GameEngine::playMusic(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?playMusic@GameEngine@@QEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) referenced in function "protected: void __cdecl Scene_Play::loadLevel(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?loadLevel@Scene_Play@@IEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+..\bin\SFMLGame_d.exe : fatal error LNK1120: 11 unresolved externals
