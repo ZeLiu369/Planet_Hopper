@@ -51,12 +51,6 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(sf::Keyboard::Num2, "BOMB");
     registerAction(sf::Keyboard::Num3, "LAUNCHER");
 
-    registerAction(sf::Keyboard::Num5, "INVENTORY_SLOT_ONE");
-    registerAction(sf::Keyboard::Num6, "INVENTORY_SLOT_TWO");
-    registerAction(sf::Keyboard::Num7, "INVENTORY_SLOT_THREE");
-    registerAction(sf::Keyboard::Num8, "INVENTORY_SLOT_FOUR");
-    registerAction(sf::Keyboard::Num9, "INVENTORY_SLOT_FIVE");
-
     registerAction(sf::Keyboard::W, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::A, "LEFT");
@@ -1481,10 +1475,29 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "QUIT") { onEnd(); }
         else if (action.name() == "BOSS") { loadBoss(); }
 
-        else if (action.name() == "UP") { m_player->getComponent<CInput>().up = true; }
+        else if (action.name() == "UP") 
+        {
+            m_player->getComponent<CInput>().up = true;
+            if (m_inventory)
+            {
+                sInventory("use", "item", m_invSelect);
+            }
+        }
         else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
-        else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
-        else if (action.name() == "RIGHT") { m_player->getComponent<CInput>().right = true; }
+        else if (action.name() == "LEFT") 
+        {
+            m_player->getComponent<CInput>().left = true; 
+            if (m_inventory)
+            {
+                m_invSelect--;
+                if (m_invSelect < 0) m_invSelect = m_inventoryEntity->getComponent<CInventory>().inventoryItems.size();
+            }
+        }
+        else if (action.name() == "RIGHT") 
+        {
+            m_player->getComponent<CInput>().right = true; 
+            if (m_inventory) m_invSelect = (m_invSelect + 1) % (m_inventoryEntity->getComponent<CInventory>().inventoryItems.size() + 1);
+        }
 
         else if (action.name() == "SHOOT") 
         { 
@@ -1495,12 +1508,6 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "RAYGUN")   { m_player->getComponent<CWeapon>().currentWeapon = "Raygun";   }
         else if (action.name() == "BOMB")     { m_player->getComponent<CWeapon>().currentWeapon = "Bomb";     }
         else if (action.name() == "LAUNCHER") { m_player->getComponent<CWeapon>().currentWeapon = "Launcher"; }
-
-        else if (action.name() == "INVENTORY_SLOT_ONE")     { if (m_inventory) sInventory("use", "one", 0); }
-        else if (action.name() == "INVENTORY_SLOT_TWO")     { if (m_inventory) sInventory("use", "two", 1); }
-        else if (action.name() == "INVENTORY_SLOT_THREE")   { if (m_inventory) sInventory("use", "three", 2); }
-        else if (action.name() == "INVENTORY_SLOT_FOUR")    { if (m_inventory) sInventory("use", "four", 3); }
-        else if (action.name() == "INVENTORY_SLOT_FIVE")    { if (m_inventory) sInventory("use", "five", 4); }
 
         else if (action.name() == "LEFT_CLICK")
         {
@@ -2000,6 +2007,7 @@ void Scene_Play::sRender()
                 }
 
                 if (e->tag() == "player" && m_night && !(e->hasComponent<CInvincibility>())) { m_game->window().draw(animation.getSprite(), &bright_shader); }
+                //if (e->tag() == "player") { m_game->window().draw(animation.getSprite(), &speed_shader); }
                 else if (e->tag() == "boss" && e->hasComponent<CInvincibility>()) { m_game->window().draw(animation.getSprite(), &red_shader); }
                 else { m_game->window().draw(animation.getSprite()); }
             }
@@ -2215,8 +2223,20 @@ void Scene_Play::sRender()
         {
             auto& transform = e->getComponent<CTransform>();
             transform.pos = Vec2(m_game->window().getView().getCenter().x - width() / 2, m_game->window().getView().getCenter().y - height() / 2 + 70);
-
             auto& animation = e->getComponent<CAnimation>().animation;
+
+            sf::RectangleShape rect;
+            rect.setSize(sf::Vector2f(animation.getSize().y, animation.getSize().y));
+            //rect.setOrigin(0,0);
+            float x = m_game->window().getView().getCenter().x - width() / 2;
+            float y = m_game->window().getView().getCenter().y - height() / 2 + 70;
+            rect.setPosition(transform.pos.x + ((m_gridSize.x + 8) * m_invSelect) + 8.5, transform.pos.y);
+            rect.setFillColor(sf::Color(0, 0, 0, 0));
+            rect.setOutlineColor(sf::Color(100, 200, 100));
+            rect.setOutlineThickness(6);
+
+            m_game->window().draw(rect);
+
             animation.getSprite().setRotation(transform.angle);
             animation.getSprite().setOrigin(0, 0);
             animation.getSprite().setPosition(transform.pos.x, transform.pos.y);

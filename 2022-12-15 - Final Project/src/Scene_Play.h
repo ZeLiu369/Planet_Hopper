@@ -59,6 +59,8 @@ protected:
 
     std::shared_ptr<Entity> m_touchedPlatform;
 
+    int                     m_invSelect = 0;
+
     Vec2                    m_mPos;
 
     void init(const std::string & levelPath);
