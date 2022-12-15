@@ -16,6 +16,7 @@
 #include "Scene_Play.h"
 #include "Scene_Editor.h"
 #include "Scene_Overworld.h"
+#include "Scene_Keybinding.h"
 #include "Assets.h"
 #include "GameEngine.h"
 #include "Components.h"
@@ -53,7 +54,7 @@ void Scene_OptionMenu::init()
     m_menuStrings.push_back("Music Volume: " + std::to_string(int(music_volume)) + "/100");
     m_menuStrings.push_back("Sounds Effects Volume: " + std::to_string(int(sounds_volume)) + "/100");
     m_menuStrings.push_back("Difficulty: " + diff1);
-    m_menuStrings.push_back("Key Binding: ");
+    m_menuStrings.push_back("                           Key Binding");
 
     m_menuText.setFont(m_game->assets().getFont("ChunkFive"));
     m_menuText.setCharacterSize(64);
@@ -206,6 +207,12 @@ void Scene_OptionMenu::sDoAction(const Action &action)
                 confirmText.setFillColor(sf::Color::Red);
                 confirmText.setFont(m_game->assets().getFont("ChunkFive"));
                 confirmText.setPosition(sf::Vector2f(500, 10));
+            }
+            
+            // enter the Scene_KeyBinding scene
+            if (m_selectedMenuIndex == 3)
+            {
+                m_game->changeScene("KEYBINDING", std::make_shared<Scene_Keybinding>(m_game));
             }
         }
         else if (action.name() == "QUIT")

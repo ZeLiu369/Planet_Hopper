@@ -19,7 +19,7 @@
 #include "Scene_Editor.h"
 #include "Scene_Menu.h"
 #include "Scene_Overworld.h"
-
+#include "Scene_Keybinding.h"
 #include <iostream>
 
 GameEngine::GameEngine(const std::string & path)
