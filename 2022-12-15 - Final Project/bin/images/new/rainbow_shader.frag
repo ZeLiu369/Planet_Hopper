@@ -14,7 +14,6 @@ void main()
 {
 vec4 texColor = texture2D(sprite, gl_TexCoord[0].st);
 
-Copy code
 // Calculate the current hue based on time
 float hue = time * 2.0;
 
