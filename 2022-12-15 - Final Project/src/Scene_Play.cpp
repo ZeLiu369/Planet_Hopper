@@ -1744,20 +1744,20 @@ void Scene_Play::updateBackgrounds()
         // updating backgrounds
         if (backgroundOnePos.x + windowSizeX / 2.0f <= m_game->window().getView().getCenter().x - windowSizeX / 2.0f && playerTransform.pos.x > playerTransform.prevPos.x)
         {
-            backgroundOnePos.x += windowSizeX * 2;
+            backgroundOnePos.x += windowSizeX * 2 - 1;
         }
         else if (backgroundOnePos.x - windowSizeX / 2.0f >= m_game->window().getView().getCenter().x + windowSizeX / 2.0f && playerTransform.pos.x < playerTransform.prevPos.x)
         {
-            backgroundOnePos.x -= windowSizeX * 2;
+            backgroundOnePos.x -= windowSizeX * 2 - 1;
         }
 
         if (backgroundTwoPos.x + windowSizeX / 2.0f <= m_game->window().getView().getCenter().x - windowSizeX / 2.0f && playerTransform.pos.x > playerTransform.prevPos.x)
         {
-            backgroundTwoPos.x += windowSizeX * 2;
+            backgroundTwoPos.x += windowSizeX * 2 - 1;
         }
         else if (backgroundTwoPos.x - windowSizeX / 2.0f >= m_game->window().getView().getCenter().x + windowSizeX / 2.0f && playerTransform.pos.x < playerTransform.prevPos.x)
         {
-            backgroundTwoPos.x -= windowSizeX * 2;
+            backgroundTwoPos.x -= windowSizeX * 2 - 1;
         }
 
         // player is back in original camera view
