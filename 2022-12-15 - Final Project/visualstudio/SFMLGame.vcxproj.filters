@@ -22,6 +22,7 @@
     <ClCompile Include="..\src\Scene_Editor.cpp" />
     <ClCompile Include="..\src\Scene_Overworld.cpp" />
     <ClCompile Include="..\src\Scene_OptionMenu.cpp" />
+    <ClCompile Include="..\src\Scene_Keybinding.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Assets.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="..\src\Scene_Editor.h" />
     <ClInclude Include="..\src\Scene_Overworld.h" />
     <ClInclude Include="..\src\Scene_OptionMenu.h" />
+    <ClInclude Include="..\src\Scene_Keybinding.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="TODO">
