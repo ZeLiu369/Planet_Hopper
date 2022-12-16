@@ -582,12 +582,14 @@ void Scene_Play::sMovement()
         // enables player to jump
         if (input.up && input.canJump)
         {
+            m_game->playSound("jump");
             input.canJump = false;
             transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
         }
 
         if (input.down && input.canJump)
         {
+            m_game->playSound("flip_gravity");
             input.canJump = false;
             gravity.gravity = -gravity.gravity;
         }
@@ -1482,7 +1484,10 @@ void Scene_Play::sDoAction(const Action& action)
                 sInventory("use", "item", m_invSelect);
             }
         }
-        else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
+        else if (action.name() == "DOWN") 
+        {   
+            m_player->getComponent<CInput>().down = true; 
+        }
         else if (action.name() == "LEFT") 
         {
             m_player->getComponent<CInput>().left = true; 

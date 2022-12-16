@@ -68,6 +68,7 @@ void Scene_Keybinding::sDoAction(const Action &action)
     {
         if (action.name() == "UP")
         {
+            m_game->playSound("option_menu_switch");
             if (m_selectedMenuIndex > 0)
             {
                 m_selectedMenuIndex--;
@@ -79,6 +80,7 @@ void Scene_Keybinding::sDoAction(const Action &action)
         }
         else if (action.name() == "DOWN")
         {
+            m_game->playSound("option_menu_switch");
             m_selectedMenuIndex = (m_selectedMenuIndex + 1) % m_menuStrings.size();
         }
         else if (action.name() == "INCREASE")
@@ -142,6 +144,7 @@ void Scene_Keybinding::sDoAction(const Action &action)
         }
         else if (action.name() == "CONFIRM")
         {   
+            m_game->playSound("confirm");
             m_game->setShootKey(shootKey1);
             m_game->setMoveKey(moveKey1);
             if (m_game -> hasScene("PLAY"))

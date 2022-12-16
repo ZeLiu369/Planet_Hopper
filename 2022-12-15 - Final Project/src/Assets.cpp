@@ -135,7 +135,7 @@ void Assets::addMusic(const std::string &musicName, const std::string &path)
     {
         std::cout << "Loaded Music:    " << path << std::endl;
         m_musicMap[musicName] = sf::Sound(m_musicBufferMap[musicName]);
-        m_musicMap[musicName].setVolume(50.f);
+        m_musicMap[musicName].setVolume(5.f);
     }
 }
 
