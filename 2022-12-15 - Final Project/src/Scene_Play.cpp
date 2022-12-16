@@ -1631,7 +1631,8 @@ void Scene_Play::sAnimation()
             if (animation.find("Worm") != std::string::npos)
             {
                 if (!(animation == "WormDeath"))
-                {
+                {   
+                    m_game->playSound("enemy_death");
                     e->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false);
                 }
             }
@@ -1639,6 +1640,7 @@ void Scene_Play::sAnimation()
             {
                 if (!(animation == "DemonDeath"))
                 {
+                    m_game->playSound("enemy_death");
                     e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false);
                 }
             }
