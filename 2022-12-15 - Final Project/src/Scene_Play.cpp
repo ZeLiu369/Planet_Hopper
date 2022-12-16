@@ -1022,7 +1022,7 @@ bool Scene_Play::sInventory(std::string action, std::string name, int index)
 {
     if (action == "add")
     {
-        auto& item = m_entityManager.addEntity("inventory_item");
+        auto item = m_entityManager.addEntity("inventory_item");
         item->addComponent<CTransform>();
         item->addComponent<CAnimation>(m_game->assets().getAnimation(name), true);
         bool full = true;
