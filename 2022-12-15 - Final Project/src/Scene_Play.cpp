@@ -1054,14 +1054,17 @@ bool Scene_Play::sInventory(std::string action, std::string name, int index)
                 // use item ();
                 if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
                 {
+                    m_game->playSound("shield");
                     m_player->getComponent<CStatusEffect>().currentEffect = "SHIELD";
                 }
                 else if (e->getComponent<CAnimation>().animation.getName() == "BlueBolt")
                 {
+                    m_game->playSound("speed_up");
                     m_player->getComponent<CStatusEffect>().currentEffect = "SPEED";
                 }
                 else if (e->getComponent<CAnimation>().animation.getName() == "BlueStar")
                 {
+                    m_game->playSound("damage_up");
                     m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
                 }
                 e->destroy();
@@ -1426,7 +1429,7 @@ void Scene_Play::sCollision()
                 m_player->getComponent<CHealth>().current = m_player->getComponent<CHealth>().max;
                 continue;
             }
-;
+
             if (sInventory("add", e->getComponent<CAnimation>().animation.getName(), 0))
             {
                 m_game->playSound("pick_up");
