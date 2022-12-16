@@ -451,7 +451,7 @@ void Scene_Play::update()
 
     m_entityManager.update();
 
-    if (!m_paused)
+    if (!m_paused && !(m_gameOver && m_creditCountdown > 255))
     {
         sMovement();
         sCollision();
@@ -2210,7 +2210,6 @@ void Scene_Play::sRender()
         if (m_creditCountdown >= 255)
         {
             rect.setFillColor(sf::Color(0, 0, 0, 255));
-            setPaused(true);
             m_game->window().draw(rect);
 
             if (m_creditCountdown == 255)
@@ -2244,7 +2243,7 @@ void Scene_Play::sRender()
                     }
                     else if (i == 4)
                     {
-                        text = getText("Jeff Anga");
+                        text = getText("Jephthah Anga");
                         text.setPosition(m_game->window().getView().getCenter().x, m_game->window().getView().getCenter().y + 650);
                         m_credits.push_back(text);
                     }
