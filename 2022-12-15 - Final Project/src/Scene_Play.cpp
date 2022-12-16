@@ -1421,6 +1421,7 @@ void Scene_Play::sCollision()
         {
             if (e->hasComponent<CAnimation>() && e->getComponent<CAnimation>().animation.getName() == "PillRed")
             {
+                m_game->playSound("health_up");
                 e->destroy();
                 m_player->getComponent<CHealth>().current = m_player->getComponent<CHealth>().max;
                 continue;
@@ -1428,6 +1429,7 @@ void Scene_Play::sCollision()
 ;
             if (sInventory("add", e->getComponent<CAnimation>().animation.getName(), 0))
             {
+                m_game->playSound("pick_up");
                 e->destroy();
             }
         }
