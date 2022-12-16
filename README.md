@@ -14,6 +14,14 @@ Project Videos:
 * Project Trailer: https://youtu.be/1R76jH93YJs
 * Project Presentation: https://youtu.be/k_AN6xCFgO4
 
+Asset Credits:
+
+* Most assets were found on royalty free 2D game asset websites
+* https://opengameart.org/
+* https://craftpix.net/freebies/
+* https://www.kenney.nl/assets?q=2d
+* http://ninslash.com/5-simple-fragment-shaders-for-2d-games-glsl/ (shaders)
+
 Project Setup / Installation:
 
 * Your project setup and installation instructions go here
