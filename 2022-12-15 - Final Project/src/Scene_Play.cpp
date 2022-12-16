@@ -1958,6 +1958,15 @@ void Scene_Play::sRender()
 
             if (e->hasComponent<CAnimation>() && e->tag() != "inventory_item" && e->tag() != "weapon")
             {
+                auto& transform = e->getComponent<CTransform>();
+                auto& pt = m_player->getComponent<CTransform>();
+
+                if (e->tag() != "scrollbackground" && e->tag() != "noscrollbackground")
+                {
+                    if (abs(transform.pos.x - pt.pos.x) > (width() / (pt.pos.x - width() < 0 ? 1 : 2)) + m_gridSize.x * 2 ||
+                        abs(transform.pos.y - pt.pos.y) > (height() / (pt.pos.y + height() > height() ? 1 : 2)) + m_gridSize.y * 2) continue;
+                }
+
                 auto& animation = e->getComponent<CAnimation>().animation;
                 animation.getSprite().setRotation(transform.angle);
                 animation.getSprite().setPosition(transform.pos.x, transform.pos.y);
@@ -2000,6 +2009,13 @@ void Scene_Play::sRender()
             // the health bar for the npc
             if (e->tag() == "npc" || e->tag() == "boss" && e->hasComponent<CHealth>())
             {
+                auto& transform = e->getComponent<CTransform>();
+                auto& pt = m_player->getComponent<CTransform>();
+
+                if (abs(transform.pos.x - pt.pos.x) > (width() / (pt.pos.x - width() < 0 ? 1 : 2)) + m_gridSize.x * 2 ||
+                    abs(transform.pos.y - pt.pos.y) > (height() / (pt.pos.y + height() > height() ? 1 : 2)) + m_gridSize.y * 2) continue;
+
+
                 auto& h = e->getComponent<CHealth>();
                 Vec2 size;
                 sf::RectangleShape rect;
