@@ -194,3 +194,14 @@ Sound  winSound          sounds/WinFantasia.wav
 Sound  death             sounds/death.wav
 Sound  bossHit           sounds/BossHit.wav
 Sound  bossDeath         sounds/BossDeath.wav
+
+Sound confirm            sounds/confirm.wav
+Sound jump               sounds/jump.wav
+Sound damage_up          sounds/damage_up.wav
+Sound enemy_death        sounds/enemy_death.wav
+Sound flip_gravity       sounds/flip_gravity.wav
+Sound health_up          sounds/health_up.wav
+Sound option_menu_switch sounds/option_menu_switch.wav
+Sound pick_up            sounds/pick_up.wav
+Sound shield             sounds/shield.wav
+Sound speed_up           sounds/speed_up.wav

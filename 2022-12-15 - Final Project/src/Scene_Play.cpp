@@ -582,12 +582,14 @@ void Scene_Play::sMovement()
         // enables player to jump
         if (input.up && input.canJump)
         {
+            m_game->playSound("jump");
             input.canJump = false;
             transform.velocity.y = gravity.gravity >= 0 ? pc.JUMP : -pc.JUMP;
         }
 
         if (input.down && input.canJump)
         {
+            m_game->playSound("flip_gravity");
             input.canJump = false;
             gravity.gravity = -gravity.gravity;
         }
@@ -1052,14 +1054,17 @@ bool Scene_Play::sInventory(std::string action, std::string name, int index)
                 // use item ();
                 if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
                 {
+                    m_game->playSound("shield");
                     m_player->getComponent<CStatusEffect>().currentEffect = "SHIELD";
                 }
                 else if (e->getComponent<CAnimation>().animation.getName() == "BlueBolt")
                 {
+                    m_game->playSound("speed_up");
                     m_player->getComponent<CStatusEffect>().currentEffect = "SPEED";
                 }
                 else if (e->getComponent<CAnimation>().animation.getName() == "BlueStar")
                 {
+                    m_game->playSound("damage_up");
                     m_player->getComponent<CStatusEffect>().currentEffect = "DAMAGE";
                 }
                 e->destroy();
@@ -1419,13 +1424,15 @@ void Scene_Play::sCollision()
         {
             if (e->hasComponent<CAnimation>() && e->getComponent<CAnimation>().animation.getName() == "PillRed")
             {
+                m_game->playSound("health_up");
                 e->destroy();
                 m_player->getComponent<CHealth>().current = m_player->getComponent<CHealth>().max;
                 continue;
             }
-;
+
             if (sInventory("add", e->getComponent<CAnimation>().animation.getName(), 0))
             {
+                m_game->playSound("pick_up");
                 e->destroy();
             }
         }
@@ -1482,7 +1489,10 @@ void Scene_Play::sDoAction(const Action& action)
                 sInventory("use", "item", m_invSelect);
             }
         }
-        else if (action.name() == "DOWN") { m_player->getComponent<CInput>().down = true; }
+        else if (action.name() == "DOWN") 
+        {   
+            m_player->getComponent<CInput>().down = true; 
+        }
         else if (action.name() == "LEFT") 
         {
             m_player->getComponent<CInput>().left = true; 
@@ -1626,7 +1636,8 @@ void Scene_Play::sAnimation()
             if (animation.find("Worm") != std::string::npos)
             {
                 if (!(animation == "WormDeath"))
-                {
+                {   
+                    m_game->playSound("enemy_death");
                     e->addComponent<CAnimation>(m_game->assets().getAnimation("WormDeath"), false);
                 }
             }
@@ -1634,6 +1645,7 @@ void Scene_Play::sAnimation()
             {
                 if (!(animation == "DemonDeath"))
                 {
+                    m_game->playSound("enemy_death");
                     e->addComponent<CAnimation>(m_game->assets().getAnimation("DemonDeath"), false);
                 }
             }

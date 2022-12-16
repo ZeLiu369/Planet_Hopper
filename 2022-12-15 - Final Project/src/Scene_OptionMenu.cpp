@@ -86,6 +86,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
     {
         if (action.name() == "UP")
         {
+            m_game->playSound("option_menu_switch");
             if (m_selectedMenuIndex > 0)
             {
                 m_selectedMenuIndex--;
@@ -97,6 +98,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         }
         else if (action.name() == "DOWN")
         {
+            m_game->playSound("option_menu_switch");
             m_selectedMenuIndex = (m_selectedMenuIndex + 1) % (m_menuStrings.size() - 1);
         }
         else if (action.name() == "INCREASE")
@@ -209,6 +211,7 @@ void Scene_OptionMenu::sDoAction(const Action &action)
         }
         else if (action.name() == "CONFIRM")
         {   
+            m_game -> playSound("confirm");
             m_game->setDiff(diff1);
 
             // display the confirmation text (prompt)
