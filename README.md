@@ -28,3 +28,12 @@ Project Setup / Installation:
 * Change directories into COMP4300/2022-12-15 - Final Project/bin and then the SFMLGame.exe executable can be run
 * All level files, BossFight.txt, and save.txt (when game automatically saves) plus all games assets and assets.txt need to be in the same directory as SFMLGame.exe to     run
 * Or change directories into the visualstudio folder and run the .sln file to open in visual studio and compile
+
+GAME CONTROLS
+* W - Jump
+* S - Flip gravity direction
+* A/D - Move left/right
+* I - Open inventory
+  * When inventory is opened, A/D to move left/right between inventory items, W to use selected inventory item
+* O - Open option menu from in game
+* ESC - Exits/quits
