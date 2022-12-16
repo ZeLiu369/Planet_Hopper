@@ -35,7 +35,7 @@ void Scene_Menu::init()
     m_menuText.setFont(m_game->assets().getFont("Roboto"));
 
     m_game->assets().getMusic("MusicTitle").setLoop(true);
-    m_game->assets().getMusic("MusicTitle").setVolume(50.f);
+    m_game->assets().getMusic("MusicTitle").setVolume(4.0f);
     m_game->playMusic("MusicTitle");
 }
 
