@@ -1,16 +1,4 @@
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
-//
-//  Professor:       David Churchill
-//  Year / Term:     2022-09
-//  File Name:       Scene_Menu.cpp
-//
-//  Student Name:    Nathan French
-//  Student User:    ncfrench
-//  Student Email:   ncfrench@mun.ca
-//  Student ID:      201943859
-//  Group Member(s): [enter student name(s)]
-//
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
+
 #include "Scene_Keybinding.h"
 #include "Scene_OptionMenu.h"
 #include "Scene_Play.h"
@@ -245,9 +233,3 @@ void Scene_Keybinding::onEnd()
     m_game->changeScene("OPTIONMENU", std::make_shared<Scene_OptionMenu>(m_game));
 }
 
-// Copyright (C) David Churchill - All Rights Reserved
-// COMP4300 - 2022-09 - Assignment 3
-// Written by David Churchill (dave.churchill@gmail.com)
-// Unauthorized copying of these files are strictly prohibited
-// Distributed only for course work at Memorial University
-// If you see this file online please contact email above

@@ -1,17 +1,3 @@
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
-//
-//  Assignment       COMP4300 - final
-//  Professor:       David Churchill
-//  Year / Term:     2022-09
-//  File Name:       Scene_Editor.cpp
-// 
-//  Student Name:    Nathan French
-//  Student User:    ncfrench
-//  Student Email:   ncfrench@mun.ca
-//  Student ID:      201943859
-//  Group Member(s): Nathan
-//
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
 
 #include "Scene_Editor.h"
 #include "Scene_Menu.h"

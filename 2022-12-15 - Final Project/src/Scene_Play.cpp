@@ -1,17 +1,3 @@
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
-//
-//  Assignment       COMP4300 - Assignment 3
-//  Professor:       David Churchill
-//  Year / Term:     2022-09
-//  File Name:       Scene_Play.cpp
-// 
-//  Student Name:    Nathan French
-//  Student User:    ncfrench
-//  Student Email:   ncfrench@mun.ca
-//  Student ID:      201943859
-//  Group Member(s): Nathan
-//
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
 
 #include "Scene_Play.h"
 #include "Scene_Menu.h"
@@ -39,12 +25,8 @@ Scene_Play::Scene_Play(GameEngine* gameEngine, const std::string& levelPath)
 void Scene_Play::init(const std::string& levelPath)
 {
     registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
-    registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
-    registerAction(sf::Keyboard::I, "INVENTORY");               // Toggle drawing (T)extures
-    registerAction(sf::Keyboard::G, "TOGGLE_GRID");         // Toggle drawing (G)rid
-    registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");        // Toggle option menu
-    registerAction(sf::Keyboard::B, "BOSS");        
+    registerAction(sf::Keyboard::I, "INVENTORY");             
+    registerAction(sf::Keyboard::O, "TOGGLE_OPTION_MENU");               
 
     registerAction(sf::Keyboard::Num1, "RAYGUN");
     registerAction(sf::Keyboard::Num2, "BOMB");
@@ -54,8 +36,6 @@ void Scene_Play::init(const std::string& levelPath)
     registerAction(m_game->gameControls.gravity, "DOWN");
     registerAction(m_game->gameControls.left, "LEFT");
     registerAction(m_game->gameControls.right, "RIGHT");
-    //CHANGED
-    // registerAction(sf::Keyboard::Space, "SHOOT");
     registerAction(m_game->gameControls.shoot, "SHOOT");
 
     m_gridText.setCharacterSize(12);
@@ -454,15 +434,7 @@ void Scene_Play::spawnBullet(std::shared_ptr<Entity> entity)
                 weap.lastFiredRaygun = m_currentFrame;
                 Vec2 BULLET_SIZE = Vec2(30, 17);
                 int BULLET_LIFETIME = 60;
-
-
-                // DELETE 1
-                // int damage = e->getComponent<CDamage>().damage;
-
                 int DMG = std::ceil(bulletScaler*1) * damageBoost;
-
-                // std::cout << "Damage: " << bulletScaler << std::endl;
-
                 Vec2 pos = Vec2(entityT.pos.x + 34 * entityT.scale.x, entityT.pos.y);
                 Vec2 velocity = Vec2(pc.SPEED * entityT.scale.x * 2.5f, 0.0f);
 
@@ -661,12 +633,10 @@ void Scene_Play::sMovement()
     {
         CTransform& bt = b->getComponent<CTransform>();
         auto& weap = m_player->getComponent<CWeapon>();
-        // Right now steering is not implemented as scale is set to 1, missile will just follow mouse currently
-        // TODO: figure out best way to do steering for missile
+        // missile uses steering
         if (b->getComponent<CAnimation>().animation.getName() == "Missile")
         {
             float maxSpeed = m_playerConfig.SPEED * 1.25f;
-            //Vec2 distVec = weap.target - Vec2(bt.pos.x, bt.pos.y);
             Vec2 distVec = windowToWorld(m_mPos) - Vec2(bt.pos.x, bt.pos.y);
             float dist = sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);         
             Vec2 normalizeVec = distVec / dist;
@@ -871,7 +841,6 @@ void Scene_Play::sAI()
 
                 auto dist = target.dist(b);
                 auto x = speed * (target.x - b.x) / dist;
-                //auto y = speed * (target.y - b.y) / dist;
                 aiVelocity.x = x;
                 spawnBullet(e);
             }
@@ -880,7 +849,6 @@ void Scene_Play::sAI()
             {
                 auto dist = vec[i].dist(pos);
                 auto x = speed * (vec[i].x - pos.x) / dist;
-                //auto y = speed * (vec[i].y - pos.y) / dist;
                 aiVelocity.x = x;
                 state = state.substr(0, state.find(" ")) + " Walk";
             }
@@ -920,7 +888,6 @@ void Scene_Play::sAI()
 
                     auto dist = target.dist(b);
                     auto x = speed * (target.x - b.x) / dist;
-                    //auto y = speed * (target.y - b.y) / dist;
                     aiVelocity.x = x;
                     state = state.substr(0, state.find(" ")) + " Walk";
                 }
@@ -939,7 +906,6 @@ void Scene_Play::sAI()
                     auto& b = e->getComponent<CTransform>().pos;                     // npc position
                     auto hdist = home.dist(b);
                     auto x = speed * (home.x - b.x) / hdist;
-                    //auto y = speed * (home.y - b.y) / hdist;
                     aiVelocity.x = x;
                     state = state.substr(0, state.find(" ")) + " Walk";
                 }
@@ -1051,7 +1017,6 @@ bool Scene_Play::sInventory(std::string action, std::string name, int index)
             {
                 m_player->getComponent<CStatusEffect>().frameCreated = m_currentFrame;
                 m_player->getComponent<CStatusEffect>().duration = 600;
-                // use item ();
                 if (e->getComponent<CAnimation>().animation.getName() == "BlueShield")
                 {
                     m_game->playSound("shield");
@@ -1078,12 +1043,6 @@ bool Scene_Play::sInventory(std::string action, std::string name, int index)
 
 void Scene_Play::sCollision()
 {
-    // REMEMBER: SFML's (0,0) position is on the TOP-LEFT corner
-    //           This means jumping will have a negative y-component
-    //           and gravity will have a positive y-component
-    //           Also, something BELOW something else will have a y value GREATER than it
-    //           Also, something ABOVE something else will have a y value LESS than it
-
     m_touchedPlatform = NULL;
     m_player->getComponent<CState>().state = "air";
     m_player->getComponent<CInput>().sliding = false;
@@ -1470,16 +1429,12 @@ void Scene_Play::sDoAction(const Action& action)
 {
     if (action.type() == "START")
     {
-        if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
-        else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
-        else if (action.name() == "INVENTORY") { if (!m_gameOver && !goal) m_inventory = !m_inventory; }
-        else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
+        if (action.name() == "INVENTORY") { if (!m_gameOver && !goal) m_inventory = !m_inventory; }
         else if (action.name() == "TOGGLE_OPTION_MENU")
         {
             if (!m_gameOver && !goal) { m_player->addComponent<CInput>(); setPaused(true); setOptionMenu(true); }
         }
         else if (action.name() == "QUIT") { onEnd(); }
-        else if (action.name() == "BOSS") { loadBoss(); }
 
         else if (action.name() == "UP") 
         {
@@ -1521,7 +1476,6 @@ void Scene_Play::sDoAction(const Action& action)
         else if (action.name() == "LEFT_CLICK")
         {
             Vec2 worldPos = windowToWorld(m_mPos);
-            std::cout << "Mouse Clickled: " << worldPos.x << ", " << worldPos.y << "\n";
             for (auto e : m_entityManager.getEntities())
             {
                 if (e->hasComponent<CClickable>() && Physics::IsInside(worldPos, e))
@@ -1979,9 +1933,6 @@ sf::Text Scene_Play::getText(std::string str)
 
 void Scene_Play::sRender()
 {
-    // color the background darker so you know that the game is paused
-    //if (!m_paused) { m_game->window().clear(sf::Color(100, 100, 255)); }
-    //else { m_game->window().clear(sf::Color(50, 50, 150)); }
     m_game->window().clear();
 
     sf::RectangleShape tick({ 1.0f, 6.0f });
@@ -2124,59 +2075,6 @@ void Scene_Play::sRender()
         }
     }
 
-    // draw all Entity collision bounding boxes with a rectangleshape
-    if (m_drawCollision)
-    {
-        sf::CircleShape dot(4);
-        dot.setFillColor(sf::Color::Black);
-        for (auto e : m_entityManager.getEntities())
-        {
-            if (e->hasComponent<CBoundingBox>())
-            {
-                auto& box = e->getComponent<CBoundingBox>();
-                auto& transform = e->getComponent<CTransform>();
-                sf::RectangleShape rect;
-                rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
-                rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
-                rect.setPosition(transform.pos.x, transform.pos.y);
-                rect.setFillColor(sf::Color(0, 0, 0, 0));
-                rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-
-                if (box.blockMove && box.blockVision) { rect.setOutlineColor(sf::Color::Black); }
-                if (box.blockMove && !box.blockVision) { rect.setOutlineColor(sf::Color::Blue); }
-                if (!box.blockMove && box.blockVision) { rect.setOutlineColor(sf::Color::Red); }
-                if (!box.blockMove && !box.blockVision) { rect.setOutlineColor(sf::Color::White); }
-
-                rect.setOutlineThickness(1);
-                m_game->window().draw(rect);
-            }
-
-            if (e->hasComponent<CPatrol>())
-            {
-                auto& patrol = e->getComponent<CPatrol>().positions;
-                for (size_t p = 0; p < patrol.size(); p++)
-                {
-                    dot.setPosition(patrol[p].x, patrol[p].y);
-                    m_game->window().draw(dot);
-                }
-            }
-
-            if (e->hasComponent<CFollowPlayer>())
-            {
-                sf::VertexArray lines(sf::LinesStrip, 2);
-                lines[0].position.x = e->getComponent<CTransform>().pos.x;
-                lines[0].position.y = e->getComponent<CTransform>().pos.y;
-                lines[0].color = sf::Color::Black;
-                lines[1].position.x = m_player->getComponent<CTransform>().pos.x;
-                lines[1].position.y = m_player->getComponent<CTransform>().pos.y;
-                lines[1].color = sf::Color::Black;
-                m_game->window().draw(lines);
-                dot.setPosition(e->getComponent<CFollowPlayer>().home.x, e->getComponent<CFollowPlayer>().home.y);
-                m_game->window().draw(dot);
-            }
-        }
-    }
-
     // only do lighting for night time levels
     if (m_night)
     {
@@ -2210,34 +2108,6 @@ void Scene_Play::sRender()
             m_game->window().draw(heart);
         }
         even = !even;
-    }
-
-
-    // draw the grid so that students can easily debug
-    if (m_drawGrid)
-    {
-        float leftX = m_game->window().getView().getCenter().x - width() / 2;
-        float rightX = leftX + width() + m_gridSize.x;
-        float nextGridX = leftX - ((int)leftX % (int)m_gridSize.x);
-
-        for (float x = nextGridX; x < rightX; x += m_gridSize.x)
-        {
-            drawLine(Vec2(x, 0), Vec2(x, height()));
-        }
-
-        for (float y = 0; y < height(); y += m_gridSize.y)
-        {
-            drawLine(Vec2(leftX, height() - y), Vec2(rightX, height() - y));
-
-            for (float x = nextGridX; x < rightX; x += m_gridSize.x)
-            {
-                std::string xCell = std::to_string((int)x / (int)m_gridSize.x);
-                std::string yCell = std::to_string((int)y / (int)m_gridSize.y);
-                m_gridText.setString("(" + xCell + "," + yCell + ")");
-                m_gridText.setPosition(x + 3, height() - y - m_gridSize.y + 2);
-                m_game->window().draw(m_gridText);
-            }
-        }
     }
 
     if (m_optionMenuOpen)
@@ -2404,11 +2274,3 @@ void Scene_Play::sRender()
         }
     }
 }
-
-
-// Copyright (C) David Churchill - All Rights Reserved
-// COMP4300 - 2022-09 - Assignment 3
-// Written by David Churchill (dave.churchill@gmail.com)
-// Unauthorized copying of these files are strictly prohibited
-// Distributed only for course work at Memorial University
-// If you see this file online please contact email above

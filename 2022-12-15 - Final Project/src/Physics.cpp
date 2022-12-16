@@ -1,17 +1,3 @@
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
-//
-//  Assignment       COMP4300 - Assignment 3
-//  Professor:       David Churchill
-//  Year / Term:     2022-09
-//  File Name:       Physics.cpp
-// 
-//  Student Name:    Nathan French
-//  Student User:    ncfrench
-//  Student Email:   ncfrench@mun.ca
-//  Student ID:      201943859
-//  Group Member(s): Nathan
-//
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
 
 #include "Physics.h"
 #include "Components.h"
@@ -90,10 +76,3 @@ bool Physics::EntityIntersect(const Vec2& a, const Vec2& b, std::shared_ptr<Enti
     return LineIntersect(a, b, e1, e2).result || LineIntersect(a, b, e2, e3).result || LineIntersect(a, b, e3, e4).result || LineIntersect(a, b, e4, e1).result;
 }
 
-
-// Copyright (C) David Churchill - All Rights Reserved
-// COMP4300 - 2022-09 - Assignment 3
-// Written by David Churchill (dave.churchill@gmail.com)
-// Unauthorized copying of these files are strictly prohibited
-// Distributed only for course work at Memorial University
-// If you see this file online please contact email above

@@ -1,17 +1,3 @@
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
-//
-//  Assignment       COMP4300 - Final
-//  Professor:       David Churchill
-//  Year / Term:     2022-09
-//  File Name:       Scene_Editor.h
-// 
-//  Student Name:    Nathan French
-//  Student User:    ncfrench
-//  Student Email:   ncfrench@mun.ca
-//  Student ID:      201943859
-//  Group Member(s): [enter student name(s)]
-//
-///\/\/\\\/\\\\\////\///\\//\\/\//\/\/\\\/\\\\\////\///\\//\\/\/
 
 #pragma once
 

@@ -15,9 +15,8 @@ class Scene_Overworld : public Scene
     std::vector<std::string>    m_levelPaths;
     sf::Text                    m_text;
     size_t                      m_selectedMenuIndex = 0;
-    bool                        m_drawTextures = true;
-    bool                        m_drawCollision = false;
     bool                        m_changeScene = false;
+    bool                        m_drawTextures = true;
     std::string                 shake;
     sf::Sprite                  background;
     sf::Shader                  *shader, red_shader, grey_shader, fade_shader, shake_shader;

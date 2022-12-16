@@ -1,5 +1,4 @@
 
-
 #include "Scene_Overworld.h"
 #include "Scene_Menu.h"
 #include "Scene_Play.h"
@@ -22,8 +21,6 @@ Scene_Overworld::Scene_Overworld(GameEngine* gameEngine)
 void Scene_Overworld::init()
 {
     registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE");      // Toggle drawing (T)extures
-    registerAction(sf::Keyboard::C, "TOGGLE_COLLISION");    // Toggle drawing (C)ollision Boxes
 
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
@@ -37,7 +34,7 @@ void Scene_Overworld::init()
     
     m_game->assets().getMusic("MusicTitle").stop();
 
-    //m_game->playSound("OverWorld");
+    m_game->playMusic("OverWorld");
 
     loadMap(m_game->progress);
     std::cout << loadShaders() << "\n";
@@ -230,9 +227,7 @@ void Scene_Overworld::sDoAction(const Action& action)
 {
     if (action.type() == "START")
     {
-        if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
-        else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
-        else if (action.name() == "QUIT") { onEnd(); }
+        if (action.name() == "QUIT") { onEnd(); }
         else if (action.name() == "SELECT") { m_changeScene = true; }
 
         else if (action.name() == "LEFT") { m_player->getComponent<CInput>().left = true; }
@@ -279,8 +274,6 @@ void Scene_Overworld::sRender()
     backgroundTexture2.loadFromFile("images/new/stars.png");
     backgroundTexture2.setSmooth(true);
     backgroundTexture2.setRepeated(true);
-
-    
 
     Vec2 TextureSize(backgroundTexture.getSize().x, backgroundTexture.getSize().y);  //Added to store texture size.
     Vec2 WindowSize(m_game->window().getSize().x, m_game->window().getSize().y);   //Added to store window size.
@@ -337,31 +330,9 @@ void Scene_Overworld::sRender()
                     {
                         shader = &shake_shader; 
                     }
-                    //std::cout << "getting here" << "\n";
                     m_game->window().draw(animation.getSprite(), shader); 
                 }
                 else                        { m_game->window().draw(animation.getSprite()); }
-            }
-        }
-    }
-
-    // draw all Entity collision bounding boxes with a rectangleshape
-    if (m_drawCollision)
-    {
-        for (auto e : m_entityManager.getEntities())
-        {
-            if (e->hasComponent<CBoundingBox>())
-            {
-                auto& box = e->getComponent<CBoundingBox>();
-                auto& transform = e->getComponent<CTransform>();
-                sf::RectangleShape rect;
-                rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
-                rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
-                rect.setPosition(transform.pos.x, transform.pos.y);
-                rect.setFillColor(sf::Color(0, 0, 0, 0));
-                rect.setOutlineColor(sf::Color(255, 255, 255, 255));
-                rect.setOutlineThickness(1);
-                m_game->window().draw(rect);
             }
         }
     }
