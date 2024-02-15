@@ -44,7 +44,7 @@ Game Name: Planet Hopper Genre: 2D Platformer Overall Theme: Sci-Fi/Space Main G
 # Features include but are not limited to:
 
 
-Collisions:
+## Collisions:
 
 • Player sprite and platforms/tiles that make up the level
 
@@ -106,15 +106,15 @@ Collisions:
 
 • Game data will be written to a text file upon saving in a way that can be read back when loading so that the game continues where it was left off
 
-Shaders
+## Shaders
 
 • Whenever player/enemy is hit with a bullet the sprite will be tinted red temporarily to indicate they have been hit
 
-Parallax
+## Parallax
 
 • Different levels will have different background layers and the background layers will scroll across the screen at a slower rate than the foreground to create the illusion of depth
 
-User Interface/ HUD
+## User Interface/ HUD
 
 • Player health bar / NPC health bars
 
@@ -126,7 +126,7 @@ User Interface/ HUD
 
 • Selectable weapons
 
-Sounds
+## Sounds
 
 • Different sounds for different weapons
 
@@ -148,13 +148,13 @@ Sounds
 
 • Sound for completing level
 
-Options
+## Options
 
 • Adjustable volumes for music/sound effects
 
 • Game difficulty o Easy (deal 2x damage, 2x max health) o Normal (deal 1x damage, 1x max health) o Hard (deal 0.5x damage, 0.5x max health) • Rebind movement keys/inventory key
 
-Extras
+## Extras
 
 • Ability to flip gravity directions
 
