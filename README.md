@@ -1,5 +1,9 @@
 # Planet Hopper
 
+A screenshot of one scene: 
+![image](https://github.com/user-attachments/assets/5855e671-1529-486a-997e-01148b335330)
+
+
 
 Project Group Members:
 
